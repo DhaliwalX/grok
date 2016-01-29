@@ -180,7 +180,7 @@ case a:                                                \
 
   int AddSymbol(BytecodeProgram<Register, Bytecode> *program,
                 std::shared_ptr<AstNode> node) {
-    auto v = js::heap.FindVariable(node->variable_.GetName());
+    auto v = Heap::heap.FindVariable(node->variable_.GetName());
     
     // if symbol already exists return the address of that variable
     if (v.get()
@@ -191,7 +191,7 @@ case a:                                                \
     temp->obj_ = std::make_shared<JSBasicObject>();
     temp->expression_type_ = AstNode::ExpressionType::_primary;
     // else create an undefined object in current scope
-    js::heap.PushVariable({ node->variable_.GetName(),
+    Heap::heap.PushVariable({ node->variable_.GetName(),
                              temp });    
     return 1;
   }

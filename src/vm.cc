@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <exception>
 
+js::Stack Heap::heap = js::Stack();
+
 #define NextInstruction()                                     \
   (text_.at(instruction_register_.value_++))
 
@@ -287,7 +289,7 @@ void Machine::execute() {
 
     case Instruction::LDAKEY:
     {
-      auto obj_ = js::heap.FindVariable(bytecode.value_.str_);
+      auto obj_ = Heap::heap.FindVariable(bytecode.value_.str_);
       if (!obj_.get()
           || obj_->expression_type_ == AstNode::ExpressionType::_undefined) {
         printf("ReferenceError: the variable named %s"
@@ -319,7 +321,7 @@ void Machine::execute() {
 
     case Instruction::PUSHKEY:
     {
-      auto obj_ = js::heap.FindVariable(bytecode.value_.str_);
+      auto obj_ = Heap::heap.FindVariable(bytecode.value_.str_);
       if (!obj_.get()
           || obj_->expression_type_ == AstNode::ExpressionType::_undefined) {
         printf("ReferenceError: the variable named %s"
@@ -429,7 +431,7 @@ void Machine::execute() {
 
     case Instruction::POPKEY:
     {
-      auto obj = js::heap.FindVariable(bytecode.value_.str_);
+      auto obj = Heap::heap.FindVariable(bytecode.value_.str_);
       if (!obj.get()
           || obj->expression_type_ == AstNode::ExpressionType::_undefined) {
         printf("ReferenceError: the variable named %s"
@@ -437,7 +439,7 @@ void Machine::execute() {
         status = false;
         break;
       }
-      *(obj->obj_) = *(stack_.back().object_);
+      (obj->obj_) = (stack_.back().object_);
       stack_.pop_back();
       Continue();
     }

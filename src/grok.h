@@ -228,7 +228,7 @@ public:
       if (!result) return;
     }
     PrintIntroduction();
-    js::heap.CreateScope();
+    Heap::heap.CreateScope();
     while (true) {
       if (new_ || 1) {
         RunWithNewInterpreter();

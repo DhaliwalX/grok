@@ -23,9 +23,9 @@ enum class ScriptError : short {
 
 };
 
-namespace js {
-static Stack heap;
-}
+class Heap {
+public: static js::Stack heap;
+};
 
 class Machine {
 public:
