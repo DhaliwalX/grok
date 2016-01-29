@@ -33,6 +33,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <list>
 
 #define ERROR(source, arg) source(arg)
 #define EX(source, arg1, arg2) throw source(arg1, arg2)
@@ -47,7 +48,7 @@ public:
 
   // constructor taking string
   Lexer(const std::string &str) :
-    code_(str), seek_(0), end_(str.size()), tok_(nullptr), eos_(0),
+    code_(str), seek_(0), end_(str.size() - 1), tok_(nullptr), eos_(0),
     size_(str.size()), position_(), lastColNumber_(0),
     file_name_("<stdin>"), file_(false)
   { }
@@ -92,9 +93,9 @@ public:
   // if existed in the buffer
   Token* NextToken()
   {
-    if (tok_ != nullptr) {
-      Token *tok = tok_;
-      tok_ = nullptr;
+    if (!buffer_.empty()) {
+      Token *tok = buffer_.back();
+      buffer_.pop_back();
       return tok;
     }
 
@@ -458,7 +459,7 @@ public:
 
   void PutBack(Token *tok)
   { // put in the buffer for one token lookahead required by parser
-    tok_ = tok;
+    buffer_.push_back(tok);
   }
 
   std::string GetErrorReport( ) {
@@ -467,6 +468,7 @@ public:
 private:
   std::string code_;   // whole code will stored here
   int seek_;            // current position of the seek
+  int save_end_;
   Position position_;   // current position in terms of line no and column no.
   int lastColNumber_;   // buffer required for GoBack()
   int end_;
@@ -477,6 +479,7 @@ private:
   short status_;        // status of the lexer
   bool eos_;            // end of file flag
   bool file_;
+  std::list<Token*> buffer_;
 };
 
 static void MakeLexer(Lexer **lex, std::string &str) {
