@@ -42,6 +42,8 @@
 #include <cstdio>
 #include <string>
 
+#define DEBUG_OPT(opt)  options.push_back(opt)
+
 class Grok {
 public:
   Grok() :
@@ -157,8 +159,12 @@ public:
         is_debug_ = true;
         return true;
       }
-      if (option == "-h") {
+      else if (option == "-h") {
         ShowHelp();
+        return false;
+      }
+      else if (option == "-t") {
+        RunTest();
         return false;
       }
       else if (option == "-v") {
@@ -180,6 +186,9 @@ public:
         return false;
       }
     }
+  }
+
+  void RunTest() {
   }
 
   void PromptInput() {
@@ -219,7 +228,11 @@ public:
   }
 
   void Run(int argc, char *argv[]) {
+
     std::vector<std::string> options;
+#ifdef DEBUG_OPT
+    DEBUG_OPT(std::string("-n"));
+#endif
     if (argc > 1) {
       for (int i = 1; i < argc; i++) {
         options.push_back(std::string(argv[i]));
@@ -230,7 +243,7 @@ public:
     PrintIntroduction();
     Heap::heap.CreateScope();
     while (true) {
-      if (new_ || 1) {
+      if (new_) {
         RunWithNewInterpreter();
       }
       else {
