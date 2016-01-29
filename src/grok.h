@@ -201,7 +201,7 @@ public:
     MakeLexer(&lexer_, program_);
     std::shared_ptr<AstNode> parsed;
     if (!Expression::Parse(lexer_, parsed)) {
-      if (!Expression::err_msg_.empty()) 
+      if (!Expression::err_msg_.empty())
         printf("%s\n", Expression::err_msg_.c_str());
       Expression::err_msg_.clear();
       return;
