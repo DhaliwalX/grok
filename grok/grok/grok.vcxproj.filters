@@ -23,6 +23,9 @@
     <ClCompile Include="..\..\src\vm.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\test\test-lexer.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\astnode.h" />
@@ -42,9 +45,9 @@
     <ClInclude Include="..\..\src\program.h" />
     <ClInclude Include="..\..\src\register.h" />
     <ClInclude Include="..\..\src\symtable.h" />
-    <ClInclude Include="..\..\src\test.h" />
     <ClInclude Include="..\..\src\timer.h" />
     <ClInclude Include="..\..\src\token.h" />
     <ClInclude Include="..\..\src\vm.h" />
+    <ClInclude Include="..\..\test\test.h" />
   </ItemGroup>
 </Project>
