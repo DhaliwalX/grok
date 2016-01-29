@@ -1,11 +1,13 @@
-#include "bytecode.h"
-#include "symtable.h"
-#include "vm.h"
-#include "timer.h"
-#include "grok.h"
-#include "codegen.h"
+#include "../src/bytecode.h"
+#include "../src/symtable.h"
+#include "../src/vm.h"
+#include "../src/timer.h"
+#include "../src/grok.h"
+#include "../src/codegen.h"
 
+#include "test-lexer.h"
 namespace test {
+
 // test the Bytecode class
 int test1() {
   Bytecode bytecode{ Instruction::LDAI, Register() };
