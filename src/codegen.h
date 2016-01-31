@@ -52,19 +52,29 @@ public:
       break;
 
     case AstNode::ExpressionType::_primary:
-      addr_stack_.push_back(PrimaryExpression(program, current_));
+      if (PrimaryExpression(program, current_))
+        return true;
+      return false;
       break;
 
     CASES():
-      __gen_code(program, node->links_[0]);
-      __gen_code(program, node->links_[1]);
-      GenInstruction(program, node);
+      if (__gen_code(program, node->links_[0])
+          && __gen_code(program, node->links_[1])) {
+        GenInstruction(program, node);
+        return true;
+      }
+      goto err;
       break;
 
     case AstNode::ExpressionType::_assignment:
       status = AssignmentExpression(program, current_);
       break;
 
+    case AstNode::ExpressionType::_member:
+      return GenerateMember(program, node);
+
+    default:
+      return false;
     }
     return true;
   err:
@@ -72,19 +82,47 @@ public:
     return status;
   }
 
+  bool GenerateForMemberIdent(
+    BytecodeProgram<Register, Bytecode>* program,
+    std::shared_ptr<AstNode> node);
+
+  bool GenerateForMemberChild(
+    BytecodeProgram<Register, Bytecode>* program,
+                              std::shared_ptr<AstNode> node);
+
+  bool GenerateForMemberChildren(
+    BytecodeProgram<Register, Bytecode>* program,
+    std::shared_ptr<AstNode> node);
+
+  bool GenerateMember(BytecodeProgram<Register, Bytecode> *program,
+                      std::shared_ptr<AstNode> node);
+
+  bool GenerateMemberW(BytecodeProgram<Register, Bytecode> *program,
+                       std::shared_ptr<AstNode> node);
+
   // generate code for assignment expression
   bool AssignmentExpression(BytecodeProgram<Register, Bytecode> *program,
                             std::shared_ptr<AstNode> node) {
-    if (node->links_[0]->relation1_ != IDENT) {
+    if (node->links_[0]->relation1_ != IDENT
+        && (node->links_[0]->expression_type_ 
+            != AstNode::ExpressionType::_member)) {
       printf("Can't assign to a rvalue\n");
       return false;
     }
     __gen_code(program, node->links_[1]);
-    int addr = AddSymbol(program, node->links_[0]);
-    program->text_.push_back(B::popkey(Register(
-            node->links_[0]->variable_.GetName())));
-    program->text_.push_back(B::pushkey(Register(
-      node->links_[0]->variable_.GetName())));
+    if (node->links_[0]->expression_type_ 
+        == AstNode::ExpressionType::_member) {
+      GenerateMemberW(program, node->links_[0]);
+      program->text_.push_back(B::oassign(0));
+      program->text_.push_back(B::opopts());
+    }
+    else {
+      AddSymbol(program, node->links_[0]);
+      program->text_.push_back(B::popkey(Register(
+        node->links_[0]->variable_.GetName())));
+      program->text_.push_back(B::pushkey(Register(
+        node->links_[0]->variable_.GetName())));
+    }
     return true;
   }
 
@@ -118,7 +156,6 @@ case a:                                                \
 
   int PrimaryExpression(BytecodeProgram<Register, Bytecode> *program,
                         std::shared_ptr<AstNode> node) {
-    int addr = 0;
 
     switch (node->relation1_) {
     case IDENT:
@@ -150,7 +187,7 @@ case a:                                                \
       return -1;
     }
 
-    return addr;
+    return true;
   }
 
   int GenerateObject(BytecodeProgram<Register, Bytecode> *program,
@@ -234,8 +271,6 @@ private:
   std::vector<int> addr_stack_;
   Machine *machine_;
 };
-
-unsigned long CodeGen::addr_ = 0;        // define the static variable
 
 static bool GenerateIf(CodeGen *codegen, 
                        BytecodeProgram<Register, Bytecode> *p,
