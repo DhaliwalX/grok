@@ -27,8 +27,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "../src/grok.h"
+#include "../test/test.h"
 
 int main(int argc, char *argv[]) {
+ // test::testmain();
   Grok grok;
   grok.Run(argc, argv);
   return 0;
