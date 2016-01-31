@@ -80,6 +80,9 @@ public:
   inline bool is_zero(Register&);
   inline bool handle_call(Bytecode &);
 
+  bool HandleSpecialObject(std::shared_ptr<JSBasicObject>& object,
+                           Bytecode & bytecode);
+
   inline std::string dump() {
     std::ostringstream str;
     str << "Instructions executed: " << instruction_executed_;

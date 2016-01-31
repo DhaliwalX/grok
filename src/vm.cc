@@ -254,6 +254,13 @@ bool Machine::handle_call(Bytecode &bytecode) {
   return true;
 }
 
+bool Machine::HandleSpecialObject(std::shared_ptr<JSBasicObject> &object,
+                                  Bytecode &bytecode) {
+  if (object->is<JSBasicObject::ObjectType::_array>()) {
+    return false;
+  }
+  return false;
+}
 
 void Machine::execute() {
   // execute the program stored in current program pointer
@@ -347,6 +354,91 @@ void Machine::execute() {
       Continue();
     }
 
+    case Instruction::OPUSHKEY:
+    {
+      auto obj = Heap::heap.FindVariable(bytecode.value_.str_);
+      if (!obj.get()
+          || obj->expression_type_ == AstNode::ExpressionType::_undefined) {
+        printf("ReferenceError: the variable named %s"
+               " doesn't exists\n", bytecode.value_.str_.c_str());
+        status = false;
+        break;
+      }
+      o_stack_.push_back(Register(obj->obj_));
+      Continue();
+    }
+
+    case Instruction::OPUSHOBJPROP:
+    {
+      auto &parent_object = o_stack_.back();
+      auto real_parent_object = parent_object.object_;
+      std::shared_ptr<JSBasicObject> object;
+      if (real_parent_object->is<JSBasicObject::ObjectType::_object>()) {
+        object = std::dynamic_pointer_cast<JSObject, JSBasicObject>(
+          real_parent_object)->GetProperty(bytecode.value_.str_)->obj_;
+        if (!object.get()) {
+          printf("ReferenceError: Property named %s doesn't exists\n",
+                 bytecode.value_.str_);
+          break;
+        }
+        o_stack_.push_back(object);
+      }
+      else if (!HandleSpecialObject(real_parent_object, bytecode)) {
+        printf("ReferenceError: %s operation not allowed\n",
+               bytecode.value_.str_);
+        break;
+      }
+      Continue();
+    }
+
+    case Instruction::OPUSHARROBJ:
+    {
+      auto &parent_array = o_stack_.back();
+      auto real_parent_array = parent_array.object_;
+      std::shared_ptr<JSBasicObject> object;
+      Register temp = stack_.back();
+      stack_.pop_back();
+      if (real_parent_array->is<JSBasicObject::ObjectType::_array>()) {
+        switch (temp.object_->GetType()) {
+        case JSBasicObject::ObjectType::_number:
+          object = std::dynamic_pointer_cast<JSArray, JSBasicObject>(
+            real_parent_array)->At(
+              std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
+                temp.object_)->GetNumber())->obj_;
+          o_stack_.push_back(object);
+          break;
+
+        default:
+          printf("InvalidArrayIndexError\n");
+          status = false;
+          break;
+        }
+      }
+      else if (real_parent_array->is<JSBasicObject::ObjectType::_object>()) {
+        if (temp.object_->is<JSBasicObject::ObjectType::_string>()) {
+          std::string &prop = temp.object_->ToString();
+          object = std::dynamic_pointer_cast<JSObject, JSBasicObject>(
+            real_parent_array)->GetProperty(prop)->obj_;
+          if (!object.get()) {
+            printf("%s property doesn't exists\n", prop.c_str());
+            status = false;
+            break;
+          }
+          o_stack_.push_back(object);
+        }
+        else {
+          printf("UnknownError: Object property accessed by wrong type\n");
+          status = false;
+          break;
+        }
+      }
+      else {
+        printf("NotAnArrayError\n");
+        break;
+      }
+    }
+    Continue();
+
     case Instruction::LDAARR:
       accumulator_ = std::dynamic_pointer_cast<JSBasicObject,
         JSArray>(std::make_shared<JSArray>());
@@ -426,6 +518,14 @@ void Machine::execute() {
     {
       stack_.push_back(o_stack_.back());
       o_stack_.pop_back();
+      Continue();
+    }
+
+    case Instruction::OASSIGN:
+    {
+      auto &object = o_stack_.back().object_;
+      *object = *(stack_.back().object_);
+      stack_.pop_back();
       Continue();
     }
 
