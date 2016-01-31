@@ -5,7 +5,6 @@
 #include "../src/grok.h"
 #include "../src/codegen.h"
 
-#include "test-lexer.h"
 namespace test {
 
 // test the Bytecode class
