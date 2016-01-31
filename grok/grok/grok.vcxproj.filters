@@ -26,6 +26,9 @@
     <ClCompile Include="..\..\test\test-lexer.h">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\codegen.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\astnode.h" />
