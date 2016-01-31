@@ -40,16 +40,14 @@ bool CodeGen::GenerateForMemberChild(
 bool CodeGen::GenerateFunctionCall(
                 BytecodeProgram<Register, Bytecode>* program,
                     std::shared_ptr<AstNode> node) {
-  auto func_name = node->links_[0]->variable_.GetName();
-  auto argument_number = node->links_[1]->links_.size();
-  for (auto it = node->links_[1]->links_.begin();
-      it != node->links_[1]->links_.end(); ++it) {
-    if (!__gen_code(program, *it))
-      return false;
-  }
+  auto argument_number = node->links_.size();
+  if (argument_number > 0) 
+    for (auto it = node->links_.begin();
+        it != node->links_.end(); ++it) {
+      if (!__gen_code(program, *it))
+        return false;
+    }
   Register temp;
-  temp.object_ = nullptr;
-  temp.str_ = func_name;
   temp.value_ = argument_number;
   program->text_.push_back(B::call(temp));
   return true;

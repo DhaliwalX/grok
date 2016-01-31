@@ -21,19 +21,13 @@ js::Stack Heap::heap = js::Stack();
 
 
 bool handle_call(Machine *machine, Bytecode &bytecode) {
-  auto function_node = Heap::heap.FindVariable(bytecode.value_.str_);
-  
-  if (!function_node.get()
-      || !function_node->obj_.get())
-    return false;
-  
-  if (!function_node->obj_->is<JSBasicObject::ObjectType::_function>()) {
+  auto function = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(
+    machine->o_stack_.back().object_);
+
+  if (!function->is<JSBasicObject::ObjectType::_function>()) {
     printf("NotAnFunctionError\n");
     return false;
   }
-
-  auto function = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(
-    function_node->obj_);
 
   auto parameters = function->GetParameters();
   std::list<std::pair<std::string, std::shared_ptr<AstNode>>> parameter_list;
@@ -44,18 +38,19 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
     printf("InternalError\n");
     return false;
   }
-  Register temp;
-  std::shared_ptr<AstNode> temp_node;
-  auto pit = parameters.end() - 1;
-  Heap::heap.CreateScope();
-  for (auto i = size_t(0); i < actual_arguments; i++) {
-    temp = machine->stack_.back();
-    machine->stack_.pop_back();
-    temp_node = std::make_shared<AstNode>();
-    temp_node->obj_ = temp.object_;
-    Heap::heap.PushVariable({ *(pit - i), temp_node });
+  if (actual_arguments > 0) {
+    Register temp;
+    std::shared_ptr<AstNode> temp_node;
+    auto pit = parameters.end() - 1;
+    Heap::heap.CreateScope();
+    for (auto i = size_t(0); i < actual_arguments; i++) {
+      temp = machine->stack_.back();
+      machine->stack_.pop_back();
+      temp_node = std::make_shared<AstNode>();
+      temp_node->obj_ = temp.object_;
+      Heap::heap.PushVariable({ *(pit - i), temp_node });
+    }
   }
-
   if (function->IsNative()) {
     return handle_call_native(machine, bytecode);
   }
@@ -387,8 +382,7 @@ void Machine::execute() {
     case Instruction::PUSHKEY:
     {
       auto obj_ = Heap::heap.FindVariable(bytecode.value_.str_);
-      if (!obj_.get()
-          || obj_->expression_type_ == AstNode::ExpressionType::_undefined) {
+      if (!obj_.get()) {
         printf("ReferenceError: the variable named %s"
                " doesn't exists\n", bytecode.value_.str_.c_str());
         status = false;
@@ -415,8 +409,7 @@ void Machine::execute() {
     case Instruction::OPUSHKEY:
     {
       auto obj = Heap::heap.FindVariable(bytecode.value_.str_);
-      if (!obj.get()
-          || obj->expression_type_ == AstNode::ExpressionType::_undefined) {
+      if (!obj.get()) {
         printf("ReferenceError: the variable named %s"
                " doesn't exists\n", bytecode.value_.str_.c_str());
         status = false;
@@ -590,8 +583,7 @@ void Machine::execute() {
     case Instruction::POPKEY:
     {
       auto obj = Heap::heap.FindVariable(bytecode.value_.str_);
-      if (!obj.get()
-          || obj->expression_type_ == AstNode::ExpressionType::_undefined) {
+      if (!obj.get()) {
         printf("ReferenceError: the variable named %s"
                " doesn't exists\n", bytecode.value_.str_.c_str());
         status = false;
