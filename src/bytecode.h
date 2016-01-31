@@ -73,6 +73,7 @@ static std::string addr_mod[] = {
   A(JMP),                          \
   A(JMPZ),                         \
   A(CALL),                         \
+  A(CALLNATIVE),                   \
   A(RET),                          \
   A(HLT)
 
@@ -281,9 +282,12 @@ static Bytecode jmpz() {
 // call bytecode has following format
 // it contains the information for the number of arguments, 
 // 
-static Bytecode call() {
-  // unimplemented
-  return Bytecode();
+static Bytecode call(Register reg) {
+  return Bytecode(static_cast<ui>(i::CALL), reg);
+}
+
+static Bytecode call_native(Register reg) {
+  return Bytecode(static_cast<ui>(i::CALLNATIVE), reg);
 }
 
 static Bytecode ret() {

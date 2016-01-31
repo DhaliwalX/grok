@@ -90,6 +90,9 @@ public:
     BytecodeProgram<Register, Bytecode>* program,
                               std::shared_ptr<AstNode> node);
 
+  bool GenerateFunctionCall(BytecodeProgram<Register, Bytecode>* program,
+                            std::shared_ptr<AstNode> node);
+
   bool GenerateForMemberChildren(
     BytecodeProgram<Register, Bytecode>* program,
     std::shared_ptr<AstNode> node);
@@ -172,23 +175,26 @@ case a:                                                \
       break;
 
     case LSQB:
-      GenerateArray(program, node);
+      return GenerateArray(program, node);
       break;
 
     case LBRACE:
-      GenerateObject(program, node);
+      return GenerateObject(program, node);
       break;
 
-    //case LPAR:
-    //  GenerateFunction(program, node);
-    //  break;
+    case LPAR:
+      return GenerateFunction(program, node);
+      break;
 
     default:
-      return -1;
+      return 0;
     }
 
     return true;
   }
+
+  int GenerateFunction(BytecodeProgram<Register, Bytecode> *program,
+                       std::shared_ptr<AstNode> node);
 
   int GenerateObject(BytecodeProgram<Register, Bytecode> *program,
                      std::shared_ptr<AstNode> node) {
@@ -395,7 +401,7 @@ static bool __GenerateCode(CodeGen *codegen,
     return GenerateBlock(codegen, p, node, machine);
 
   case AstNode::ExpressionType::_function:
-    ;
+    return codegen->GenerateFunction(p, node);
 
   default:
     return codegen->GenerateCode(p, node, machine);

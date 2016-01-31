@@ -30,6 +30,8 @@
 
 #include "astnode.h"
 #include "jsobject.h"
+#include "program.h"
+#include "bytecode.h"
 
 #include <cstdio>
 #include <functional>
@@ -132,10 +134,14 @@ public:
   // returns the type of the object
   ObjectType GetType() const { return ObjectType::_function; }
 
+  std::string GetName() const { return this->name_; }
+  BytecodeProgram<Register, Bytecode> *function_body_;
+
 private:
   // If the function is defined within the javascript then the
   // callback will be stored here
   std::shared_ptr<AstNode> function_;
+  
 
   // All the parameters are stored in a vector of string
   std::vector<std::string> parameters_;

@@ -3,6 +3,7 @@
 #include "vm.h"
 
 #include <cstdio>
+#include <algorithm>
 #include <exception>
 
 js::Stack Heap::heap = js::Stack();
@@ -17,6 +18,60 @@ js::Stack Heap::heap = js::Stack();
 #define StopMachine()                                         \
   bytecode.instruction_ = static_cast<ui>(Instruction::HLT);  \
   continue;
+
+
+bool handle_call(Machine *machine, Bytecode &bytecode) {
+  auto function_node = Heap::heap.FindVariable(bytecode.value_.str_);
+  
+  if (!function_node.get()
+      || !function_node->obj_.get())
+    return false;
+  
+  if (!function_node->obj_->is<JSBasicObject::ObjectType::_function>()) {
+    printf("NotAnFunctionError\n");
+    return false;
+  }
+
+  auto function = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(
+    function_node->obj_);
+
+  auto parameters = function->GetParameters();
+  std::list<std::pair<std::string, std::shared_ptr<AstNode>>> parameter_list;
+  auto argument_number = bytecode.value_.value_;
+  auto actual_arguments = std::min(parameters.size(), size_t(argument_number));
+  
+  if (actual_arguments > machine->stack_.size()) {
+    printf("InternalError\n");
+    return false;
+  }
+  Register temp;
+  std::shared_ptr<AstNode> temp_node;
+  auto pit = parameters.end() - 1;
+  Heap::heap.CreateScope();
+  for (auto i = size_t(0); i < actual_arguments; i++) {
+    temp = machine->stack_.back();
+    machine->stack_.pop_back();
+    temp_node = std::make_shared<AstNode>();
+    temp_node->obj_ = temp.object_;
+    Heap::heap.PushVariable({ *(pit - i), temp_node });
+  }
+
+  if (function->IsNative()) {
+    return handle_call_native(machine, bytecode);
+  }
+
+  Machine mac;
+  mac.prepare_fast(&function->function_body_->text_);
+  mac.execute();
+  Heap::heap.RemoveScope();
+  return true;
+}
+
+bool handle_call_native(Machine *machine, Bytecode &bytecode) {
+
+  return false;
+}
+
 
 // calculate effective address
 // if second field is true then the operand is immediate
@@ -235,6 +290,14 @@ COMPOP(do_greater_than, >)
 
 #undef COMPOP
 
+bool Machine::do_assign() {
+  auto object = o_stack_.back().object_;
+  auto rhs = stack_.back();
+  stack_.pop_back();
+  object = rhs.object_;
+  return true;
+}
+
 bool Machine::is_zero(Register &reg) {
   auto type = GetType(reg);
   switch (type) {
@@ -247,11 +310,6 @@ bool Machine::is_zero(Register &reg) {
   default:
     return false;
   }
-}
-
-bool Machine::handle_call(Bytecode &bytecode) {
-
-  return true;
 }
 
 bool Machine::HandleSpecialObject(std::shared_ptr<JSBasicObject> &object,
@@ -386,6 +444,7 @@ void Machine::execute() {
       else if (!HandleSpecialObject(real_parent_object, bytecode)) {
         printf("ReferenceError: %s operation not allowed\n",
                bytecode.value_.str_);
+        status = false;
         break;
       }
       Continue();
@@ -434,6 +493,7 @@ void Machine::execute() {
       }
       else {
         printf("NotAnArrayError\n");
+        status = false;
         break;
       }
     }
@@ -523,9 +583,7 @@ void Machine::execute() {
 
     case Instruction::OASSIGN:
     {
-      auto &object = o_stack_.back().object_;
-      *object = *(stack_.back().object_);
-      stack_.pop_back();
+      do_assign();
       Continue();
     }
 
@@ -623,7 +681,7 @@ void Machine::execute() {
       }
 
     case Instruction::CALL:
-      handle_call(bytecode);
+      handle_call(this, bytecode);
       Continue();
 
 
@@ -676,6 +734,12 @@ void Machine::execute() {
         instruction_register_.value_ += 1;
       }
       Continue();
+
+    case Instruction::CALLNATIVE:
+    {
+      status = handle_call_native(this, bytecode);
+      Continue();
+    }
 
     case Instruction::RET:
       Continue();

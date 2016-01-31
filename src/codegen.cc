@@ -1,5 +1,6 @@
 #include "codegen.h"
 
+
 namespace Code {
 
 unsigned long CodeGen::addr_ = 0;        // define the static variable
@@ -29,13 +30,31 @@ bool CodeGen::GenerateForMemberChild(
     program->text_.push_back(B::opusharrobj(0));
     break;
 
-  default:
+  case LPAR:
     // not implemented yet
-    printf("not implemented yet\n");
-    return false;
+    return GenerateFunctionCall(program, node);
   }
   return true;
 }
+
+bool CodeGen::GenerateFunctionCall(
+                BytecodeProgram<Register, Bytecode>* program,
+                    std::shared_ptr<AstNode> node) {
+  auto func_name = node->links_[0]->variable_.GetName();
+  auto argument_number = node->links_[1]->links_.size();
+  for (auto it = node->links_[1]->links_.begin();
+      it != node->links_[1]->links_.end(); ++it) {
+    if (!__gen_code(program, *it))
+      return false;
+  }
+  Register temp;
+  temp.object_ = nullptr;
+  temp.str_ = func_name;
+  temp.value_ = argument_number;
+  program->text_.push_back(B::call(temp));
+  return true;
+}
+
 
 bool CodeGen::GenerateForMemberChildren(
                   BytecodeProgram<Register, Bytecode>* program,
@@ -82,6 +101,28 @@ CodeGen::GenerateMemberW(BytecodeProgram<Register, Bytecode>* program,
   // for writing to the object we don't have to move the object to the stack.
   // `program->text_.push_back(B::opopts());`
   return true;
+}
+
+int 
+CodeGen::GenerateFunction(BytecodeProgram<Register, Bytecode>* program,
+                          std::shared_ptr<AstNode> node) {
+  auto func = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(node->obj_);
+  if (func->IsNative())
+    return false;
+  
+  auto func_body = func->GetJSHandle();
+  BytecodeProgram<Register, Bytecode> *function_body
+    = new BytecodeProgram<Register, Bytecode>();
+  
+  if (!Code::GenerateCode(this, function_body, func_body, machine_))
+    return 0;
+
+  func->function_body_ = function_body;
+  std::shared_ptr<AstNode> function_node = std::make_shared<AstNode>();
+  function_node->obj_ = func;
+
+  Heap::heap.PushVariable({ func->GetName(), function_node });
+  return 1;
 }
 
 

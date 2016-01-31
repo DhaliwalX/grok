@@ -27,7 +27,14 @@ class Heap {
 public: static js::Stack heap;
 };
 
+class Machine;
+
+static bool handle_call(Machine *machine, Bytecode &bytecode);
+static bool handle_call_native(Machine *machine, Bytecode &bytecode);
+
 class Machine {
+  friend bool handle_call(Machine *machine, Bytecode &bytecode);
+  friend bool handle_call_native(Machine *machine, Bytecode &bytecode);
 public:
   Machine() :
     instruction_executed_(0),
@@ -49,6 +56,11 @@ public:
     text_.insert(text_.end(), program->text_.begin(), program->text_.end());
   }
 
+  void prepare_fast(std::vector<Bytecode> *bytecodes) {
+    text_.assign(bytecodes->begin(), bytecodes->end());
+    program_start_ = 0;
+  }
+
   inline Register accumulator() { return data_[accumulator_.value_]; }
 
   void execute();
@@ -64,6 +76,7 @@ public:
   inline bool do_not_equal();
   inline bool do_less_than();
   inline bool do_greater_than();
+  inline bool do_assign();
 
   inline std::pair<unsigned long long, bool>
     effective_address(Bytecode & code);
@@ -78,7 +91,6 @@ public:
   inline void set_object(Register &res);
 
   inline bool is_zero(Register&);
-  inline bool handle_call(Bytecode &);
 
   bool HandleSpecialObject(std::shared_ptr<JSBasicObject>& object,
                            Bytecode & bytecode);
