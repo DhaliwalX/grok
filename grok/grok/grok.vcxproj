@@ -147,7 +147,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\codegen.cc" />
-    <ClCompile Include="..\..\src\interpreter.cc" />
     <ClCompile Include="..\..\src\parser.cc" />
     <ClCompile Include="..\..\src\vm.cc" />
     <ClCompile Include="..\..\main\main.cc" />
@@ -160,7 +159,6 @@
     <ClInclude Include="..\..\src\exceptions.h" />
     <ClInclude Include="..\..\src\grok.h" />
     <ClInclude Include="..\..\src\heap.h" />
-    <ClInclude Include="..\..\src\interpreter.h" />
     <ClInclude Include="..\..\src\jsarray.h" />
     <ClInclude Include="..\..\src\jsfunction.h" />
     <ClInclude Include="..\..\src\jsobject.h" />
