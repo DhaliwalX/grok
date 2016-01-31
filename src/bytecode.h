@@ -28,7 +28,7 @@ static std::string addr_mod[] = {
   "Idx"
 };
 
-#define X(A)                       \
+#define INSTRUCTION_LIST(A)        \
   A(NONE),                         \
   A(LDAI),                         \
   A(LDADR),                        \
@@ -77,18 +77,18 @@ static std::string addr_mod[] = {
   A(RET),                          \
   A(HLT)
 
-#define V(x) x
+#define INSTRUCTION(x) x
 
 enum class Instruction {
-  X(V)
+  INSTRUCTION_LIST(INSTRUCTION)
 };
 
 #undef V
 
-#define S(a) { #a }
+#define INSTRUCTION_STRING(a) { #a }
 
 static std::string _instructions_[] = {
-  X(S)
+  INSTRUCTION_LIST(INSTRUCTION_STRING)
 };
 
 #undef S
