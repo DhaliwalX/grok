@@ -28,7 +28,6 @@
 #ifndef GROK_H_
 #define GROK_H_
 
-#include "interpreter.h"
 #include "jsobject.h"
 #include "symtable.h"
 #include "lexer.h"
@@ -47,32 +46,9 @@
 class Grok {
 public:
   Grok() :
-    interpreter_(), expression_(), is_debug_(false),
+    expression_(), is_debug_(false),
     lexer_(nullptr) {
   }
-
-  void InteractiveShell() {
-    char buffer[1024];
-    std::printf(">> ");
-    std::string bufs;
-    std::fgets(buffer, 1024, stdin);
-    bufs = buffer;
-    bufs.push_back(';');
-    expression_ = nullptr;
-    Lexer *lexer = new Lexer(bufs);
-    bool result = Expression::Parse(lexer, expression_);
-    if (result) {
-      for (auto link : expression_->links_)
-        interpreter_.ExecuteHighLevelStatement(link);
-    }
-    else {
-      std::printf("%s\n", Expression::err_msg_.c_str());
-      Expression::err_msg_.clear();
-    }
-    delete lexer;
-    std::printf("\n");
-  }
-
 
   void WorkAndDebug() {
     Timer t;
@@ -94,7 +70,7 @@ public:
       std::cout << "Executing...     ";
       t.Start();
       for (auto link : expression_->links_)
-        interpreter_.ExecuteHighLevelStatement(link);
+        ;// interpreter_.ExecuteHighLevelStatement(link);
       t.Stop();
       std::cout << "\n[Execution time: "
         << t.ElapsedTimeInMicroseconds() / 1000.0
@@ -116,7 +92,7 @@ public:
       bool result = Expression::Parse(lexer, expression_);
       if (result) {
         for (auto link : expression_->links_)
-          interpreter_.ExecuteHighLevelStatement(link);
+          ;// interpreter_.ExecuteHighLevelStatement(link);
       }
       else {
         std::printf("%s\n", Expression::err_msg_.c_str());
@@ -246,14 +222,10 @@ public:
       if (new_) {
         RunWithNewInterpreter();
       }
-      else {
-        is_debug_ ? InteractiveShell() : WorkAndDebug();
-      }
     }
   }
 
 private:
-  Interpreter interpreter_;
   Machine machine_;
   Lexer *lexer_;
   std::string program_;
