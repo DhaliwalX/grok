@@ -44,7 +44,10 @@ static std::string addr_mod[] = {
   A(PUSHADR),                      \
   A(PUSHREG),                      \
   A(OPUSHOBJ),                     \
+  A(OPUSHKEY),                     \
   A(OPUSHARR),                     \
+  A(OPUSHOBJPROP),                 \
+  A(OPUSHARROBJ),                  \
   A(PUSHKEY),                      \
   A(POPADR),                       \
   A(POPA),                         \
@@ -54,6 +57,7 @@ static std::string addr_mod[] = {
   A(OPOPTS),                       \
   A(OPOPTARR),                     \
   A(OPOPTOBJ),                     \
+  A(OASSIGN),                      \
   A(EMPTY),                        \
   A(ADD),                          \
   A(SUB),                          \
@@ -211,6 +215,18 @@ static Bytecode opushobj() {
   return Bytecode(static_cast<ui>(i::OPUSHOBJ));
 }
 
+static Bytecode opushobjprop(Register reg) {
+  return Bytecode(static_cast<ui>(i::OPUSHOBJPROP), reg);
+}
+
+static Bytecode opusharrobj(Register reg) {
+  return Bytecode(static_cast<ui>(i::OPUSHARROBJ), reg);
+}
+
+static Bytecode opushkey(Register key) {
+  return Bytecode(static_cast<ui>(i::OPUSHKEY), key);
+}
+
 static Bytecode opusharr() {
   return Bytecode(static_cast<ui>(i::OPUSHARR));
 }
@@ -225,6 +241,10 @@ static Bytecode opopts() {
 
 static Bytecode opoptobj(Register key) {
   return Bytecode(static_cast<ui>(i::OPOPTOBJ), key);
+}
+
+static Bytecode oassign(Register key) {
+  return Bytecode(static_cast<ui>(i::OASSIGN), key);
 }
 
 static Bytecode popa() {
@@ -258,6 +278,9 @@ static Bytecode jmpz() {
   return Bytecode(static_cast<ui>(i::JMPZ));
 }
 
+// call bytecode has following format
+// it contains the information for the number of arguments, 
+// 
 static Bytecode call() {
   // unimplemented
   return Bytecode();
