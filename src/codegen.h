@@ -67,11 +67,14 @@ public:
       break;
 
     case AstNode::ExpressionType::_assignment:
-      status = AssignmentExpression(program, current_);
+      return AssignmentExpression(program, current_);
       break;
 
     case AstNode::ExpressionType::_member:
       return GenerateMember(program, node);
+
+    case AstNode::ExpressionType::_unary:
+      return GenerateUnary(program, node);
 
     default:
       return false;
@@ -85,6 +88,16 @@ public:
   bool GenerateForMemberIdent(
     BytecodeProgram<Register, Bytecode>* program,
     std::shared_ptr<AstNode> node);
+  
+  bool GenerateUnary(
+    BytecodeProgram<Register, Bytecode>* program,
+    std::shared_ptr<AstNode> node);
+
+  bool GeneratePostOperator(BytecodeProgram<Register, Bytecode>* program,
+                            std::shared_ptr<AstNode> node);
+
+  bool GeneratePreOperator(BytecodeProgram<Register, Bytecode>* program,
+                           std::shared_ptr<AstNode> node);
 
   bool GenerateForMemberChild(
     BytecodeProgram<Register, Bytecode>* program,

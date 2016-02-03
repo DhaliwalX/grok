@@ -14,6 +14,65 @@ bool CodeGen::GenerateForMemberIdent(
   return true;
 }
 
+bool CodeGen::GenerateUnary(BytecodeProgram<Register, Bytecode>* program,
+                            std::shared_ptr<AstNode> node) {
+  switch (node->relation1_) {
+  case PLUS:
+    return __gen_code(program, node->links_[0]);
+
+  case MINUS:
+    if (__gen_code(program, node->links_[0]))
+      program->text_.push_back(B::neg());
+    else return false;
+    return true;
+
+  case INC:
+  case DEC:
+    if (node->relation2_ == PLUS)
+      return GeneratePostOperator(program, node);
+    else 
+      return GeneratePreOperator(program, node);
+
+  default:
+    return false;
+  }
+  return false;
+}
+
+bool CodeGen::GeneratePostOperator(
+  BytecodeProgram<Register, Bytecode>* program,
+  std::shared_ptr<AstNode> node) {
+  switch (node->relation1_) {
+  case INC:
+    if (__gen_code(program, node->links_[0]))
+      program->text_.push_back(B::pinc());
+    else return false;
+
+  case DEC:
+    if (__gen_code(program, node->links_[0]))
+      program->text_.push_back(B::pdec());
+    else return false;
+  }
+  return true;
+}
+
+bool CodeGen::GeneratePreOperator(
+  BytecodeProgram<Register, Bytecode>* program,
+  std::shared_ptr<AstNode> node) {
+  switch (node->relation1_) {
+  case INC:
+    if (__gen_code(program, node->links_[0]))
+      program->text_.push_back(B::inc());
+    else return false;
+
+  case DEC:
+    if (__gen_code(program, node->links_[0]))
+      program->text_.push_back(B::dec());
+    else return false;
+  }
+  return true;
+}
+
 bool CodeGen::GenerateForMemberChild(
                 BytecodeProgram<Register, Bytecode>* program,
                 std::shared_ptr<AstNode> node) { 
