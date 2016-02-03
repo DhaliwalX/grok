@@ -522,12 +522,15 @@ bool Expression::Unary(Lexer * lexer, std::shared_ptr<AstNode> &expr)
 
     if (result) {
       tok = lexer->NextToken( );
-
+      auto node = std::make_shared<AstNode>();
       switch (tok->Type( )) {
       case INC:
       case DEC:
-        expr->expression_type_ = AstNode::ExpressionType::_unary;
-        expr->SetRelation(tok->Type( ));
+        node->AddChild(expr);
+        node->expression_type_ = AstNode::ExpressionType::_unary;
+        node->SetRelation(tok->Type( ));
+        node->SetSecRelation(PLUS); // to distinguish between pre and post
+        expr = node;
         delete tok;
         return true;
 
