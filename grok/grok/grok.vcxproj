@@ -164,6 +164,7 @@
     <ClInclude Include="..\..\src\jsobject.h" />
     <ClInclude Include="..\..\src\lexer.h" />
     <ClInclude Include="..\..\src\list.h" />
+    <ClInclude Include="..\..\src\native.h" />
     <ClInclude Include="..\..\src\object.h" />
     <ClInclude Include="..\..\src\parser.h" />
     <ClInclude Include="..\..\src\program.h" />
