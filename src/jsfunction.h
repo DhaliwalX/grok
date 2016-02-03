@@ -39,10 +39,10 @@
 #include <string>
 #include <vector>
 
-#define NATIVE_HANDLE(x) std::function<std::shared_ptr<AstNode>  \
-                        (std::shared_ptr<AstNode>)> x
-#define NATIVE_HANDLE_TYPE std::function<std::shared_ptr<AstNode>  \
-                        (std::shared_ptr<AstNode>)>
+class Machine;
+
+#define NATIVE_HANDLE(x) std::function<bool(Machine*)> x
+#define NATIVE_HANDLE_TYPE std::function<bool(Machine*)>
 
 std::shared_ptr<AstNode> Add(std::shared_ptr<AstNode>);
 
