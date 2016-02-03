@@ -1,6 +1,8 @@
 #ifndef SYMTABLE_H_
 #define SYMTABLE_H_
 
+#include "jsfunction.h"
+
 #include <iostream>
 #include <map>
 #include <vector>
@@ -27,5 +29,6 @@ private:
 namespace SYM {
 static SymbolTable<unsigned long> symbol_table;
 }
+
 
 #endif // SYMTABLE_H_
