@@ -30,6 +30,7 @@
 
 #include "jsobject.h"
 #include "symtable.h"
+#include "native.h"
 #include "lexer.h"
 #include "parser.h"
 #include "bytecode.h"
@@ -42,6 +43,33 @@
 #include <string>
 
 #define DEBUG_OPT(opt)  options.push_back(opt)
+
+bool dump_machine(Machine *machine) {
+  if (!machine->text_.size()) {
+    std::cout << "stack is empty!\n";
+    return true;
+  }
+  for (auto each : machine->stack_) {
+    each.print(std::cout);
+    printf("\n");
+  }
+  return true;
+}
+
+bool clear_stack(Machine *machine) {
+  machine->stack_.clear();
+  return true;
+}
+
+bool print_top(Machine *machine) {
+  auto a = Heap::heap.FindVariable(std::string("a"));
+  if (!a.get() || !a->obj_.get()) {
+    printf("argument passed was undefined\n");
+    return false;
+  }
+  std::cout << a->obj_->ToString();
+  return true;
+}
 
 class Grok {
 public:
@@ -203,6 +231,18 @@ public:
     }
   }
 
+  void InstallNatives() {
+    NativeInstaller::InstallFunction("dump",
+                                     "function __dump__())",
+                                     dump_machine);
+    NativeInstaller::InstallFunction("print",
+                                     "function __print__(a)",
+                                     print_top);
+    NativeInstaller::InstallFunction("clear",
+                                     "function __clear__())",
+                                     clear_stack);
+  }
+
   void Run(int argc, char *argv[]) {
 
     std::vector<std::string> options;
@@ -218,6 +258,7 @@ public:
     }
     PrintIntroduction();
     Heap::heap.CreateScope();
+    InstallNatives();
     while (true) {
       if (new_) {
         RunWithNewInterpreter();
