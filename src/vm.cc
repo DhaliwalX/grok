@@ -19,7 +19,6 @@ js::Stack Heap::heap = js::Stack();
   bytecode.instruction_ = static_cast<ui>(Instruction::HLT);  \
   continue;
 
-
 bool handle_call(Machine *machine, Bytecode &bytecode) {
   auto function = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(
     machine->o_stack_.back().object_);
@@ -52,7 +51,7 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
     }
   }
   if (function->IsNative()) {
-    return handle_call_native(machine, bytecode);
+    return handle_call_native(machine, bytecode, function);
   }
 
   Machine mac;
@@ -62,9 +61,11 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
   return true;
 }
 
-bool handle_call_native(Machine *machine, Bytecode &bytecode) {
-
-  return false;
+// call a native function
+bool handle_call_native(Machine *machine,
+                        Bytecode &bytecode,
+                        std::shared_ptr<JSFunction> function) {
+  return function->GetNativeFunction()(machine);
 }
 
 
@@ -609,6 +610,94 @@ void Machine::execute() {
         stack_.clear();
       Continue();
 
+    case Instruction::INC:
+    {
+      auto &maybenumber = stack_.back();
+      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
+        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
+          maybenumber.object_);
+        number->GetNumber()++;
+        Continue();
+      }
+      else {
+        printf("NanError: the value was not an integer");
+        status = false;
+        break;
+      }
+    }
+    
+    case Instruction::DEC:
+    {
+      auto &maybenumber = stack_.back();
+      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
+        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
+          maybenumber.object_);
+        number->GetNumber()--;
+        Continue();
+      }
+      else {
+        printf("NanError: the value was not an integer");
+        status = false;
+        break;
+      }
+    }
+
+    case Instruction::PINC:
+    {
+      auto maybenumber = stack_.back();
+      stack_.pop_back();      // pop the element because we don't need it
+      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
+        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
+          maybenumber.object_);
+        auto tobestacked = std::make_shared<JSNumber>(number->GetNumber()++);
+        auto reg = Register(std::dynamic_pointer_cast<JSBasicObject,
+                            JSNumber>(tobestacked));
+        stack_.push_back(reg);
+        Continue();
+      }
+      else {
+        printf("NanError: the value was not an integer");
+        status = false;
+        break;
+      }
+    }
+
+    case Instruction::PDEC:
+    {
+      auto maybenumber = stack_.back();
+      stack_.pop_back();      // pop the element because we don't need it
+      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
+        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
+          maybenumber.object_);
+        auto tobestacked = std::make_shared<JSNumber>(number->GetNumber()--);
+        auto reg = Register(std::dynamic_pointer_cast<JSBasicObject,
+                            JSNumber>(tobestacked));
+        stack_.push_back(reg);
+        Continue();
+      }
+      else {
+        printf("NanError: the value was not an integer");
+        status = false;
+        break;
+      }
+    }
+
+    case Instruction::NEG:
+    {
+      auto &maybenumber = stack_.back();
+      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
+        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
+          maybenumber.object_);
+        number->GetNumber() = -number->GetNumber();
+        Continue();
+      }
+      else {
+        printf("NanError: the value was not an integer");
+        status = false;
+        break;
+      }
+    }
+
     case Instruction::ADD:
       status = binary_add();
       if (status) {
@@ -726,12 +815,6 @@ void Machine::execute() {
         instruction_register_.value_ += 1;
       }
       Continue();
-
-    case Instruction::CALLNATIVE:
-    {
-      status = handle_call_native(this, bytecode);
-      Continue();
-    }
 
     case Instruction::RET:
       Continue();

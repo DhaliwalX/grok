@@ -30,11 +30,14 @@ public: static js::Stack heap;
 class Machine;
 
 static bool handle_call(Machine *machine, Bytecode &bytecode);
-static bool handle_call_native(Machine *machine, Bytecode &bytecode);
+static bool handle_call_native(Machine *machine,
+                               Bytecode &bytecode,
+                               std::shared_ptr<JSFunction> function);
 
 class Machine {
   friend bool handle_call(Machine *machine, Bytecode &bytecode);
-  friend bool handle_call_native(Machine *machine, Bytecode &bytecode);
+  friend bool handle_call_native(Machine *machine, Bytecode &bytecode,
+                                 std::shared_ptr<JSFunction> function);
 public:
   Machine() :
     instruction_executed_(0),

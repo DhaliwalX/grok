@@ -59,6 +59,11 @@ static std::string addr_mod[] = {
   A(OPOPTOBJ),                     \
   A(OASSIGN),                      \
   A(EMPTY),                        \
+  A(INC),                          \
+  A(DEC),                          \
+  A(PINC),                         \
+  A(PDEC),                         \
+  A(NEG),                          \
   A(ADD),                          \
   A(SUB),                          \
   A(MUL),                          \
@@ -268,6 +273,11 @@ FUNC(equal, EQ);
 FUNC(_not_eq, NEQ);
 FUNC(lt, LT);
 FUNC(gt, GT);
+FUNC(inc, INC);
+FUNC(dec, DEC);
+FUNC(pinc, PINC);
+FUNC(pdec, PDEC);
+FUNC(neg, NEG);
 
 #undef FUNC
 
