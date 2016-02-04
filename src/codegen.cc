@@ -47,11 +47,13 @@ bool CodeGen::GeneratePostOperator(
     if (__gen_code(program, node->links_[0]))
       program->text_.push_back(B::pinc());
     else return false;
+    break;
 
   case DEC:
     if (__gen_code(program, node->links_[0]))
       program->text_.push_back(B::pdec());
     else return false;
+    break;
   }
   return true;
 }
