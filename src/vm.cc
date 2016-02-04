@@ -23,6 +23,9 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
   auto function = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(
     machine->o_stack_.back().object_);
 
+  machine->function_stack_.push_back(Register(std::dynamic_pointer_cast<
+                                      JSBasicObject, JSFunction>(function)));
+
   if (!function->is<JSBasicObject::ObjectType::_function>()) {
     printf("NotAnFunctionError\n");
     return false;
@@ -37,11 +40,11 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
     printf("InternalError\n");
     return false;
   }
+  Heap::heap.CreateScope();
   if (actual_arguments > 0) {
     Register temp;
     std::shared_ptr<AstNode> temp_node;
     auto pit = parameters.end() - 1;
-    Heap::heap.CreateScope();
     for (auto i = size_t(0); i < actual_arguments; i++) {
       temp = machine->stack_.back();
       machine->stack_.pop_back();
@@ -51,12 +54,14 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
     }
   }
   if (function->IsNative()) {
-    return handle_call_native(machine, bytecode, function);
+    auto result = handle_call_native(machine, bytecode, function);  
   }
-
-  Machine mac;
-  mac.prepare_fast(&function->function_body_->text_);
-  mac.execute();
+  else {
+    Machine mac;
+    mac.prepare_fast(&function->function_body_->text_);
+    mac.execute();
+  }
+  machine->function_stack_.pop_back();
   Heap::heap.RemoveScope();
   return true;
 }
@@ -818,6 +823,11 @@ void Machine::execute() {
 
     case Instruction::RET:
       Continue();
+
+    default:
+      printf("FatalError: The instruction doesn't exists\n");
+      status = false;
     }
   }
+  return;
 }
