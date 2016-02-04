@@ -162,6 +162,9 @@ public:
   // stack for object storage
   std::list<Register> o_stack_;
 
+  // stack for storing functions
+  std::list<Register> function_stack_;
+
   // current instruction's register specs
   unsigned int reg_;
   
