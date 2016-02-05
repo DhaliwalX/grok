@@ -133,7 +133,7 @@ public:
   Bytecode &operator=(const Bytecode &rhs) = default;
 
   void print(std::ostream &os)  const {
-    os << _instructions_[(int)instruction_] << "\t";
+    os << _instructions_[(int)instruction_] << "\t\t";
     value_.print(os);
   };
 
