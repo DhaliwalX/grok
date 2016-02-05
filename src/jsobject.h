@@ -184,6 +184,10 @@ public:
   ObjectType GetType() const { return ObjectType::_string; }
   std::string ToString() const override { return js_string_; }
 
+  std::shared_ptr<JSBasicObject> At(int i) {
+    return std::dynamic_pointer_cast<JSBasicObject, JSString>(
+      std::make_shared<JSString>(std::string() + (js_string_[i])));
+  }
 private:
   std::string js_string_;
 };

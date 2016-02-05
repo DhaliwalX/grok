@@ -490,6 +490,22 @@ void Machine::execute() {
           break;
         }
       }
+      else if (real_parent_array->is<JSBasicObject::ObjectType::_string>()) {
+        switch (temp.object_->GetType()) {
+        case JSBasicObject::ObjectType::_number:
+          object = std::dynamic_pointer_cast<JSString, JSBasicObject>(
+            real_parent_array)->At(
+              std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
+                temp.object_)->GetNumber());
+          o_stack_.push_back(object);
+          break;
+
+        default:
+          printf("InvalidArrayIndexError\n");
+          status = false;
+          break;
+        }
+      }
       else {
         printf("NotAnArrayError\n");
         status = false;

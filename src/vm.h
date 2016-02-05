@@ -168,7 +168,6 @@ public:
   // current instruction's register specs
   unsigned int reg_;
   
-  js::VStack heap2_;
 };
 
 #endif // VIRTUAL_MACHINE_H_
