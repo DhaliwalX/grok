@@ -51,6 +51,7 @@ using namespace std;
 // As shared_ptr are used so the garbage handling is implicit and much
 // accurate, though it is little slower.
 class Stack {
+  friend void PrintHeap(const Stack &stack);
 public:
 
   // default constructor
@@ -87,6 +88,11 @@ public:
   // push a variable onto stack in the current scope
   void PushVariable(pair<string, shared_ptr<AstNode>> var) {
     stack_.back().insert(var);
+  }
+
+  // push a variable onto global scope
+  void PushGlobal(pair<string, shared_ptr<AstNode>> var) {
+    stack_.front().insert(var);
   }
 
   // returns true if the variable with name <name> already exists in any scope
@@ -137,92 +143,24 @@ private:
   vector<map<string, shared_ptr<AstNode>>> stack_;
 };
 
-class VStack {
-public:
-
-  // default constructor
-  VStack() {
-    CreateScope();
+static void PrintMap(const map<string, shared_ptr<AstNode>> &m) {
+  for (const auto &i : m) {
+    printf("%s : ", i.first.c_str());
+    PrintASTObject(i.second);
+    printf("\n");
   }
+}
 
-  // create a block scope
-  void CreateScope() {
-    stack_.push_back(map<string, shared_ptr<JSBasicObject>>());
+static void PrintHeap(const Stack &stack) {
+  if (stack.stack_.empty()) {
+    printf("Heap is empty\n");
+    return;
   }
-
-  // remove the block scope
-  // Removing the scope will simply removes all the javascript objects and
-  // deletes them automatically because the reference count of these shared_ptr
-  // goes to 0 (maybe not if there is a global reference or a reference from
-  // a object which lie in the outer scope to this object)
-  void RemoveScope() {
-    stack_.pop_back();
+  for (const auto &i : stack.stack_) {
+    PrintMap(i);
   }
+}
 
-  // get the javascript object or variable from its name
-  shared_ptr<JSBasicObject> FindVariable(const string &name) {
-    auto size = stack_.size();
-    for (int i = size - 1; i >= 0; i--) {
-      auto find = _Find(stack_.at(i), name);
-      if (find.get()) {
-        return find;
-      }
-    }
-    return shared_ptr<JSBasicObject>();
-  }
-
-  // push a variable onto stack in the current scope
-  void PushVariable(pair<string, shared_ptr<JSBasicObject>> var) {
-    stack_.back().insert(var);
-  }
-
-  // returns true if the variable with name <name> already exists in any scope
-  bool Exists(const string &name) {
-    auto size = stack_.size();
-    for (int i = size - 1; i >= 0; i--) {
-      if (_Exists(stack_.at(i), name)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  void RemoveAllScopes() {
-    stack_.clear();
-  }
-
-  // returns the variable from the current scope. Returns empty pointer
-  // if there is no variable in the current scope
-  shared_ptr<JSBasicObject> FindVariableInScope(const std::string &name) {
-    return _Find(stack_.back(), name);
-  }
-private:
-
-  // internal _Find method
-  shared_ptr<JSBasicObject> _Find(map<string, shared_ptr<JSBasicObject>> &inst,
-                            const std::string &name) {
-    auto find = inst.find(name);
-    if (find != inst.end()) {
-      return find->second;
-    }
-    return std::shared_ptr<JSBasicObject>();
-  }
-
-  // internal _Exists method
-  bool _Exists(map<string, shared_ptr<JSBasicObject>> &inst,
-               const std::string &name) {
-    auto find = inst.find(name);
-    if (find != inst.end()) {
-      return true;
-    }
-    return false;
-  }
-
-  // kind of heap to the javascript variables
-  // it is simply a vector of map's with each map
-  // corresponding to a different scopes
-  vector<map<string, shared_ptr<JSBasicObject>>> stack_;
-};
 
 }
 #endif
