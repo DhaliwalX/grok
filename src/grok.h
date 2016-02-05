@@ -35,6 +35,7 @@
 #include "parser.h"
 #include "bytecode.h"
 #include "vm.h"
+#include "heap.h"
 #include "codegen.h"
 #include "timer.h"
 
@@ -58,6 +59,11 @@ bool dump_machine(Machine *machine) {
 
 bool clear_stack(Machine *machine) {
   machine->stack_.clear();
+  return true;
+}
+
+bool print_heap(Machine *machine) {
+  js::PrintHeap(Heap::heap);
   return true;
 }
 
@@ -233,14 +239,17 @@ public:
 
   void InstallNatives() {
     NativeInstaller::InstallFunction("dump",
-                                     "function __dump__())",
+                                     "function __dump__()",
                                      dump_machine);
     NativeInstaller::InstallFunction("print",
                                      "function __print__(a)",
                                      print_top);
     NativeInstaller::InstallFunction("clear",
-                                     "function __clear__())",
+                                     "function __clear__()",
                                      clear_stack);
+    NativeInstaller::InstallFunction("heap",
+                                     "function heap()",
+                                     print_heap);
   }
 
   void Run(int argc, char *argv[]) {
