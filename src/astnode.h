@@ -229,5 +229,15 @@ static void PrintAST(std::shared_ptr<AstNode> node,
   }
 }
 
+static void PrintASTObject(std::shared_ptr<AstNode> node,
+                         int tab = 0) {
+  while (tab--)
+    printf("  ");
+  if (!node.get() || !node->obj_.get()) {
+    printf("Undefined");
+  }
+  else
+    printf("%s", node->obj_->ToString().c_str());
+}
 
 #endif // ASTNODE_H_
