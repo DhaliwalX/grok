@@ -24,6 +24,10 @@ class CodeGen;
 static bool GenerateCode(CodeGen *codegen,
                          BytecodeProgram<Register, Bytecode> *p,
                          std::shared_ptr<AstNode> node, Machine *machine);
+static bool __GenerateCode(CodeGen *codegen,
+                           BytecodeProgram<Register, Bytecode> *p,
+                           std::shared_ptr<AstNode> node,
+                           Machine *machine);
 
 #define CASES()                                   \
     case AstNode::ExpressionType::_or:            \
@@ -305,7 +309,7 @@ static bool GenerateIf(CodeGen *codegen,
   p->text_.push_back(B::jmpz());
   p->text_.push_back(B::jmp(1));
 
-  if (!GenerateCode(codegen, p, node->links_[1], machine))
+  if (!__GenerateCode(codegen, p, node->links_[1], machine))
     return false;
 
   int size = p->text_.size() - i; 
@@ -313,7 +317,7 @@ static bool GenerateIf(CodeGen *codegen,
   
   size = p->text_.size();
   if ((node->links_.size() == 3)
-      && !GenerateCode(codegen, p, node->links_[2], machine)) {
+      && !__GenerateCode(codegen, p, node->links_[2], machine)) {
     int s = p->text_.size() - size;
     p->text_.insert(p->text_.begin() + size, B::jmp(s));
     return true;
@@ -336,7 +340,7 @@ static bool GenerateWhile(CodeGen *codegen,
   p->text_.push_back(B::jmpz());
   p->text_.push_back(B::jmp(1));
 
-  if (!GenerateCode(codegen, p, node->links_[1], machine))
+  if (!__GenerateCode(codegen, p, node->links_[1], machine))
     return false;
   p->text_.push_back(B::empty());
 
@@ -366,7 +370,7 @@ static bool GenerateFor(CodeGen *codegen,
   p->text_.push_back(B::jmpz());
   p->text_.push_back(B::jmp(1));
 
-  if (!GenerateCode(codegen, p, node->links_[3], machine))
+  if (!__GenerateCode(codegen, p, node->links_[3], machine))
     return false;
 
   if (!codegen->GenerateCode(p, node->links_[2], machine))
@@ -390,7 +394,7 @@ static bool GenerateBlock(CodeGen *codegen,
     return true;
 
   for (auto &child : node->links_) {
-    if (!GenerateCode(codegen, p, child, machine))
+    if (!__GenerateCode(codegen, p, child, machine))
       return false;
     p->text_.push_back(B::empty());
   }

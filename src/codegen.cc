@@ -173,7 +173,7 @@ CodeGen::GenerateFunction(BytecodeProgram<Register, Bytecode>* program,
   BytecodeProgram<Register, Bytecode> *function_body
     = new BytecodeProgram<Register, Bytecode>();
   
-  if (!Code::GenerateCode(this, function_body, func_body, machine_))
+  if (!Code::__GenerateCode(this, function_body, func_body, machine_))
     return 0;
 
   func->function_body_ = function_body;
