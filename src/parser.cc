@@ -91,11 +91,6 @@ std::string Expression::ParseIdentifier(Lexer * lexer)
   return name;
 }
 
-void Expression::DeleteScope(int scope)
-{ // delete the contents in the given scope
-
-}
-
 // parse a primary expression
 bool Expression::Primary(Lexer * lexer, std::shared_ptr<AstNode>& expr)
 { // parse a primary expression as given in the grammar
