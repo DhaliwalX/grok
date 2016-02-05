@@ -67,7 +67,7 @@ bool print_top(Machine *machine) {
     printf("argument passed was undefined\n");
     return false;
   }
-  std::cout << a->obj_->ToString();
+  printf("%s\n", a->obj_->ToString().c_str());
   return true;
 }
 
