@@ -41,8 +41,10 @@
 
 class Machine;
 
+typedef bool (*native_handle_t)(Machine*);
+
 #define NATIVE_HANDLE(x) std::function<bool(Machine*)> x
-#define NATIVE_HANDLE_TYPE std::function<bool(Machine*)>
+#define NATIVE_HANDLE_TYPE native_handle_t
 
 std::shared_ptr<AstNode> Add(std::shared_ptr<AstNode>);
 
