@@ -119,8 +119,21 @@ public:
       while (isalnum(ch) || ch == '_')
         return Characterize(ch, pos);
 
+      if (LookAhead() == EOF
+          || LookAhead() == '\0'
+          || LookAhead() == ' '
+          || LookAhead() == '\t'
+          || LookAhead() == '\n')
+        goto one;
       // else ch is a symbol
       char ch2 = NextCharacter();
+      
+      if (LookAhead() == EOF
+          || LookAhead() == '\0'
+          || LookAhead() == ' '
+          || LookAhead() == '\t'
+          || LookAhead() == '\n')
+        goto two;
       char ch3 = NextCharacter();
 
       // check if there is a three character symbol
@@ -131,7 +144,7 @@ public:
       }
       // as we have gone ahead one character so time to go back
       GoBack();
-
+    two:
       // so now check whether we are at position of two character symbol
       tok = TwoCharacterSymbol(ch, ch2);
       if (tok != INVALID) {
@@ -142,6 +155,7 @@ public:
       // No! Let's go back one character
       GoBack();
 
+    one:
       // Only possibility left
       tok = OneCharacterSymbol(ch);
       if (tok != INVALID) {
@@ -203,7 +217,7 @@ public:
 
   char NextCharacter()
   { // returns the next character from the string
-    if (!eos_)
+    if (seek_ <= end_)
     { // if eos_ flag has not been set
       char ch = code_[seek_++];
       if (ch == '\0')
@@ -489,7 +503,7 @@ static void MakeLexer(Lexer **lex, std::string &str) {
   }
   (*lex)->code_ = str;
   (*lex)->seek_ = 0;
-  (*lex)->end_ = str.size();
+  (*lex)->end_ = str.size() - 1;
   (*lex)->tok_ = nullptr;
   (*lex)->eos_ = 0;
   (*lex)->size_ = str.size(); 
