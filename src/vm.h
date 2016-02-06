@@ -80,6 +80,11 @@ public:
   inline bool do_less_than();
   inline bool do_greater_than();
   inline bool do_assign();
+  inline bool binary_and();
+  inline bool binary_or();
+  inline bool bit_and();
+  inline bool bit_or();
+  inline bool bit_xor();
 
   inline std::pair<unsigned long long, bool>
     effective_address(Bytecode & code);

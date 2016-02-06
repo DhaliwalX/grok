@@ -19,6 +19,10 @@ js::Stack Heap::heap = js::Stack();
   bytecode.instruction_ = static_cast<ui>(Instruction::HLT);  \
   continue;
 
+// handle a function call
+// first we have to count the number of arguments passed to the function
+// and actual parameters required. The minimum of both is calculated and
+// this minimum is the actual number of arguments passed
 bool handle_call(Machine *machine, Bytecode &bytecode) {
   auto function = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(
     machine->o_stack_.back().object_);
@@ -244,10 +248,11 @@ BINARYOP(binary_div, /)
 BINARYOP(binary_mod, / )
 BINARYOP(shift_left, <<)
 BINARYOP(shift_right, >>)
-//BINARYOP(binary_and, &&)
-//BINARYOP(binary_or, ||)
-//BINARYOP(bit_and, &)
-//BINARYOP(bit_or, |)
+BINARYOP(binary_and, &&)
+BINARYOP(binary_or, ||)
+BINARYOP(bit_and, &)
+BINARYOP(bit_or, |)
+BINARYOP(bit_xor, ^ )
 
 #undef BINARYOP
 
@@ -822,6 +827,26 @@ void Machine::execute() {
       else {
         StopMachine();
       }
+
+    case Instruction::BITOR:
+      status = bit_or();
+      Continue();
+
+    case Instruction::BITXOR:
+      status = bit_xor();
+      Continue();
+
+    case Instruction::BITAND:
+      status = bit_and();
+      Continue();
+
+    case Instruction::AND:
+      status = binary_and();
+      Continue();
+
+    case Instruction::OR:
+      status = binary_or();
+      Continue();
 
     case Instruction::JMP:
     {

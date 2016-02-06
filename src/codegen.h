@@ -20,6 +20,7 @@
 #define REGISTER_FOR_CONDITION 7
 namespace Code {
 
+// forward declarations
 class CodeGen;
 static bool GenerateCode(CodeGen *codegen,
                          BytecodeProgram<Register, Bytecode> *p,
@@ -45,6 +46,7 @@ static bool __GenerateCode(CodeGen *codegen,
 class CodeGen {
 public:
 
+  // internal routine for generating code for various expressions
   bool __gen_code(BytecodeProgram<Register, Bytecode> *program,
                   std::shared_ptr<AstNode> node) {
     current_ = node;
@@ -89,34 +91,22 @@ public:
     return status;
   }
 
-  bool GenerateForMemberIdent(
-    BytecodeProgram<Register, Bytecode>* program,
-    std::shared_ptr<AstNode> node);
-  
-  bool GenerateUnary(
-    BytecodeProgram<Register, Bytecode>* program,
-    std::shared_ptr<AstNode> node);
-
+  bool GenerateForMemberIdent(BytecodeProgram<Register, Bytecode>* program,
+                              std::shared_ptr<AstNode> node);
+  bool GenerateUnary(BytecodeProgram<Register, Bytecode>* program,
+                     std::shared_ptr<AstNode> node);
   bool GeneratePostOperator(BytecodeProgram<Register, Bytecode>* program,
                             std::shared_ptr<AstNode> node);
-
   bool GeneratePreOperator(BytecodeProgram<Register, Bytecode>* program,
                            std::shared_ptr<AstNode> node);
-
-  bool GenerateForMemberChild(
-    BytecodeProgram<Register, Bytecode>* program,
+  bool GenerateForMemberChild(BytecodeProgram<Register, Bytecode>* program,
                               std::shared_ptr<AstNode> node);
-
   bool GenerateFunctionCall(BytecodeProgram<Register, Bytecode>* program,
                             std::shared_ptr<AstNode> node);
-
-  bool GenerateForMemberChildren(
-    BytecodeProgram<Register, Bytecode>* program,
-    std::shared_ptr<AstNode> node);
-
+  bool GenerateForMemberChildren(BytecodeProgram<Register, Bytecode>* program,
+                                 std::shared_ptr<AstNode> node);
   bool GenerateMember(BytecodeProgram<Register, Bytecode> *program,
                       std::shared_ptr<AstNode> node);
-
   bool GenerateMemberW(BytecodeProgram<Register, Bytecode> *program,
                        std::shared_ptr<AstNode> node);
 
@@ -166,6 +156,12 @@ case a:                                                \
       CASE(GT, gt);
       CASE(EQUAL, equal);
       CASE(NOTEQ, _not_eq);
+      CASE(BAND, _bitand);
+      CASE(BOR, _bitor);
+      CASE(AND, _and);
+      CASE(OR, _or);
+      CASE(BNOT, _bitnot);
+      CASE(XOR, _bitxor);
 
     default:
       return;

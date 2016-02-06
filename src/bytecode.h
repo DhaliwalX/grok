@@ -75,6 +75,12 @@ static std::string addr_mod[] = {
   A(NEQ),                          \
   A(LT),                           \
   A(GT),                           \
+  A(BITAND),                       \
+  A(BITOR),                        \
+  A(BITXOR),                       \
+  A(BITNOT),                       \
+  A(OR),                           \
+  A(AND),                          \
   A(JMP),                          \
   A(JMPZ),                         \
   A(CALL),                         \
@@ -257,27 +263,33 @@ static Bytecode popa() {
   return Bytecode(static_cast<ui>(i::POPA));
 }
 
-#define FUNC(name, X)                    \
-  static Bytecode name() {                    \
-    return Bytecode(static_cast<ui>(i::X));                    \
-  }
+#define FUNC(name, X)                       \
+static Bytecode name() {                    \
+  return Bytecode(static_cast<ui>(i::X));   \
+}
 
-FUNC(add, ADD);
-FUNC(sub, SUB);
-FUNC(mul, MUL);
-FUNC(div, DIV);
-FUNC(mod, MOD);
-FUNC(shr, SHR);
-FUNC(shl, SHL);
-FUNC(equal, EQ);
-FUNC(_not_eq, NEQ);
-FUNC(lt, LT);
-FUNC(gt, GT);
-FUNC(inc, INC);
-FUNC(dec, DEC);
-FUNC(pinc, PINC);
-FUNC(pdec, PDEC);
-FUNC(neg, NEG);
+FUNC(add, ADD)
+FUNC(sub, SUB)
+FUNC(mul, MUL)
+FUNC(div, DIV)
+FUNC(mod, MOD)
+FUNC(shr, SHR)
+FUNC(shl, SHL)
+FUNC(equal, EQ)
+FUNC(_not_eq, NEQ)
+FUNC(lt, LT)
+FUNC(gt, GT)
+FUNC(inc, INC)
+FUNC(dec, DEC)
+FUNC(pinc, PINC)
+FUNC(pdec, PDEC)
+FUNC(neg, NEG)
+FUNC(_or, OR)
+FUNC(_and, AND)
+FUNC(_bitor, BITOR)
+FUNC(_bitand, BITAND)
+FUNC(_bitnot, BITNOT)
+FUNC(_bitxor, BITXOR)
 
 #undef FUNC
 
