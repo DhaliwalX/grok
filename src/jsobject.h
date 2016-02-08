@@ -103,6 +103,7 @@ public:
 
   JSBasicObject(const JSBasicObject &obj) = default;
   JSBasicObject& operator=(const JSBasicObject &rhs) = default;
+  virtual ~JSBasicObject() = default;
 
   virtual std::string ToString() const { return "undefined"; }
 
@@ -121,6 +122,10 @@ public:
 
   template <ObjectType T>
   bool is() { return GetType() == T; }
+
+  virtual void reset(std::shared_ptr<JSBasicObject> ptr) {
+    return;
+  }
 
 };
 
@@ -159,8 +164,13 @@ public:
 
   inline long long GetValue() const { return number_; }
   inline long long &GetValue() { return number_; }
-  ObjectType GetType() const { return ObjectType::_number; }
+  ObjectType GetType() const override { return ObjectType::_number; }
   std::string ToString() const override { return std::to_string(number_); }
+
+  void reset(std::shared_ptr<JSBasicObject> ptr) override {
+    if (ptr->is<JSBasicObject::ObjectType::_number>())
+      ;
+  }
 
 private:
   long long number_;
