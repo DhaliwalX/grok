@@ -120,8 +120,9 @@ bool CodeGen::GenerateForMemberChildren(
                              std::shared_ptr<AstNode> node) {
   if (node->links_.size() < 2) {
     printf("FatalError: \nIn GenerateForMemberChildren()> ");
-    printf("The size of children was %d while generating code");
-    printf(" for member expression\n", node->links_.size());
+    printf("The size of children was %d while generating code",
+           node->links_.size());
+    printf(" for member expression\n");
     return false;
   }
 

@@ -414,10 +414,10 @@ static bool __GenerateCode(CodeGen *codegen,
     return GenerateBlock(codegen, p, node, machine);
 
   case AstNode::ExpressionType::_function:
-    return codegen->GenerateFunction(p, node);
+    return (bool)codegen->GenerateFunction(p, node);
 
   default:
-    return codegen->GenerateCode(p, node, machine);
+    return (bool)codegen->GenerateCode(p, node, machine);
   }
 }
 
