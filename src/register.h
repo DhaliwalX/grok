@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 
-#include "jsobject.h"
+#include "astnode.h"
 
 enum class InstructionKind : unsigned short {
   None,
@@ -53,22 +53,22 @@ public:
     value_(0) {
   }
 
-  Register(std::shared_ptr<JSBasicObject> &obj) :
-    object_(obj), value_(0),
+  Register(std::shared_ptr<AstNode> &obj) :
+    handle_(obj), value_(0),
     type_(DataType::Object) { }
 
   Register(const Register &reg) :
     value_(reg.value_),
     str_(reg.str_),
     type_(reg.type_),
-    object_(reg.object_) {
+    handle_(reg.handle_) {
   }
 
   Register &operator=(const Register &reg) {
     value_ = (reg.value_);
     str_ = reg.str_;
     type_ = reg.type_;
-    object_ = reg.object_;
+    handle_ = reg.handle_;
     return *this;
   }
 
@@ -78,8 +78,8 @@ public:
     return *this;
   }
 
-  Register &operator=(std::shared_ptr<JSBasicObject> &object) {
-    object_ = object;
+  Register &operator=(std::shared_ptr<AstNode> &object) {
+    handle_ = object;
     type_ = DataType::Object;
     return *this;
   }
@@ -131,11 +131,11 @@ public:
       break;
 
     case DataType::Array:
-      os << this->object_->ToString();
+      os << this->handle_->obj_->ToString();
       break;
 
     case DataType::Object:
-      os << this->object_->ToString();
+      os << this->handle_->obj_->ToString();
       break;
     }
     return;
@@ -144,7 +144,7 @@ public:
   long long value_;
   std::string str_;
   DataType type_;
-  std::shared_ptr<JSBasicObject> object_;
+  std::shared_ptr<AstNode> handle_;
 };
 
 

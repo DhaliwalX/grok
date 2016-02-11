@@ -7,6 +7,16 @@
 #include <exception>
 
 js::Stack Heap::heap = js::Stack();
+#define ObjectHandleType std::shared_ptr<AstNode>
+#define NewDefaultHandle() std::make_shared<AstNode>()
+#define MakeShared(type, ...) std::make_shared<type>(__VA_ARGS__)
+#define NewHandle(object) MakeShared(AstNode, object)
+#define Cast(object, To, From) std::dynamic_pointer_cast<To, From>(object)
+#define IsArray(object) (object->is<JSBasicObject::ObjectType::_array>())
+#define IsNumber(object) (object->is<JSBasicObject::ObjectType::_number>())
+#define IsString(object) (object->is<JSBasicObject::ObjectType::_string>())
+#define IsObject(object) (object->is<JSBasicObject::ObjectType::_object>())
+
 
 #define NextInstruction()                                     \
   (text_.at(instruction_register_.value_++))
@@ -25,10 +35,9 @@ js::Stack Heap::heap = js::Stack();
 // this minimum is the actual number of arguments passed
 bool handle_call(Machine *machine, Bytecode &bytecode) {
   auto function = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(
-    machine->o_stack_.back().object_);
+    machine->o_stack_.back().handle_->obj_);
 
-  machine->function_stack_.push_back(Register(std::dynamic_pointer_cast<
-                                      JSBasicObject, JSFunction>(function)));
+  machine->function_stack_.push_back(Register(machine->o_stack_.back()));
 
   if (!function->is<JSBasicObject::ObjectType::_function>()) {
     printf("NotAnFunctionError\n");
@@ -50,10 +59,8 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
     std::shared_ptr<AstNode> temp_node;
     auto pit = parameters.end() - 1;
     for (auto i = size_t(0); i < actual_arguments; i++) {
-      temp = machine->stack_.back();
+      temp_node = machine->stack_.back().handle_;
       machine->stack_.pop_back();
-      temp_node = std::make_shared<AstNode>();
-      temp_node->obj_ = temp.object_;
       Heap::heap.PushVariable({ *(pit - i), temp_node });
     }
   }
@@ -109,8 +116,8 @@ J GetType(Register &reg) {
 
   case DataType::Object:
   {
-    if (reg.object_.get()) {
-      return reg.object_->GetType();
+    if (reg.handle_->obj_.get()) {
+      return reg.handle_->obj_->GetType();
     }
   }
   }
@@ -156,8 +163,8 @@ Register Machine::calculate_operand(int r) {
 }
 
 J decode_type(Register r2, Register r3) {
-  auto t1 = r2.object_->GetType();
-  auto t2 = r3.object_->GetType();
+  auto t1 = r2.handle_->obj_->GetType();
+  auto t2 = r3.handle_->obj_->GetType();
   if (t1 == J::_number
       && t2 == J::_number)
     return t1;
@@ -193,19 +200,20 @@ bool Machine::binary_add() {
   b = stack_.back();
   stack_.pop_back();
 
+  res.handle_ = std::make_shared<AstNode>();
   auto type = ::decode_type(a, b);
   switch (type) {
   case J::_number:
-    res.object_ = std::dynamic_pointer_cast<JSBasicObject,
+    res.handle_->obj_ = std::dynamic_pointer_cast<JSBasicObject,
       JSNumber>(std::make_shared<JSNumber>(
-      a.object_->GetNumber() + b.object_->GetNumber()));
+      a.handle_->obj_->GetNumber() + b.handle_->obj_->GetNumber()));
     res.type_ = DataType::Object;
     break;
 
   case J::_string:
-    res.object_ = std::dynamic_pointer_cast<JSBasicObject,
+    res.handle_->obj_ = std::dynamic_pointer_cast<JSBasicObject,
       JSString>(std::make_shared<JSString>(
-        a.object_->ToString() + b.object_->ToString()));
+        a.handle_->obj_->ToString() + b.handle_->obj_->ToString()));
     res.type_ = DataType::Object;
     break;
 
@@ -224,12 +232,14 @@ bool Machine::name() {                                        \
   stack_.pop_back();                                          \
   a = stack_.back();                                          \
   stack_.pop_back();                                          \
+  res.handle_ = std::make_shared<AstNode>();                  \
   auto type = ::decode_type(a, b);                            \
   switch (type) {                                             \
   case J::_number:                                            \
-    res.object_ = std::dynamic_pointer_cast<JSBasicObject,    \
+    res.handle_->obj_ = std::dynamic_pointer_cast<JSBasicObject,\
       JSNumber>(std::make_shared<JSNumber>(                   \
-        a.object_->GetNumber() op b.object_->GetNumber()));   \
+        a.handle_->obj_->GetNumber()                          \
+            op b.handle_->obj_->GetNumber()));                \
     res.type_ = DataType::Object;                             \
     break;                                                    \
                                                               \
@@ -266,18 +276,20 @@ bool Machine::name() {                                        \
   stack_.pop_back();                                          \
                                                               \
   auto type = ::decode_type(a, b);                            \
+  res.handle_ = std::make_shared<AstNode>();                  \
   switch (type) {                                             \
   case J::_number:                                            \
-    res.object_ = std::dynamic_pointer_cast<JSBasicObject,    \
+    res.handle_->obj_ = std::dynamic_pointer_cast<JSBasicObject,\
       JSNumber>(std::make_shared<JSNumber>(                   \
-        a.object_->GetNumber() op b.object_->GetNumber()));   \
+        a.handle_->obj_->GetNumber()                          \
+                   op b.handle_->obj_->GetNumber()));         \
     res.type_ = DataType::Object;                             \
     break;                                                    \
                                                               \
   case J::_string:                                            \
-    res.object_ = std::dynamic_pointer_cast<JSBasicObject,    \
+    res.handle_->obj_ = std::dynamic_pointer_cast<JSBasicObject,\
       JSNumber>(std::make_shared<JSNumber>(                   \
-        a.object_->ToString() op b.object_->ToString()));     \
+        a.handle_->obj_->ToString() op b.handle_->obj_->ToString()));\
     res.type_ = DataType::Object;                             \
     break;                                                    \
                                                               \
@@ -297,10 +309,10 @@ COMPOP(do_greater_than, >)
 #undef COMPOP
 
 bool Machine::do_assign() {
-  auto object = o_stack_.back().object_;
+  auto object = o_stack_.back().handle_;
   auto rhs = stack_.back();
   stack_.pop_back();
-  object = rhs.object_;
+  object->obj_ = rhs.handle_->obj_;
   return true;
 }
 
@@ -308,10 +320,10 @@ bool Machine::is_zero(Register &reg) {
   auto type = GetType(reg);
   switch (type) {
   case J::_number:
-    return !reg.object_->GetNumber();
+    return !reg.handle_->obj_->GetNumber();
 
   case J::_string:
-    return !reg.object_->ToString().size();
+    return !reg.handle_->obj_->ToString().size();
 
   default:
     return false;
@@ -368,7 +380,7 @@ void Machine::execute() {
         status = false;
         break;
       }
-      accumulator_ = Register(obj_->obj_);
+      accumulator_ = Register(obj_);
       Continue();
     }
 
@@ -399,21 +411,23 @@ void Machine::execute() {
         status = false;
         break;
       }
-      stack_.push_back(Register(obj_->obj_));
+      stack_.push_back(Register(obj_));
       Continue();
     }
 
     case Instruction::OPUSHOBJ:
     {
-      o_stack_.push_back(std::dynamic_pointer_cast<JSBasicObject,
-                         JSObject>(std::make_shared<JSObject>()));
+      ObjectHandleType handle = NewDefaultHandle();
+      handle->obj_ = Cast(MakeShared(JSObject), JSBasicObject, JSObject);
+      o_stack_.push_back(handle);
       Continue();
     }
 
     case Instruction::OPUSHARR:
     {
-      o_stack_.push_back(std::dynamic_pointer_cast<JSBasicObject,
-                         JSArray>(std::make_shared<JSArray>()));
+      ObjectHandleType handle = NewDefaultHandle();
+      handle->obj_ = Cast(MakeShared(JSArray), JSBasicObject, JSArray);
+      o_stack_.push_back(handle);
       Continue();
     }
 
@@ -426,28 +440,28 @@ void Machine::execute() {
         status = false;
         break;
       }
-      o_stack_.push_back(Register(obj->obj_));
+      o_stack_.push_back(Register(obj));
       Continue();
     }
 
     case Instruction::OPUSHOBJPROP:
     {
       auto &parent_object = o_stack_.back();
-      auto real_parent_object = parent_object.object_;
-      std::shared_ptr<JSBasicObject> object;
-      if (real_parent_object->is<JSBasicObject::ObjectType::_object>()) {
-        object = std::dynamic_pointer_cast<JSObject, JSBasicObject>(
-          real_parent_object)->GetProperty(bytecode.value_.str_)->obj_;
+      auto real_parent_object = parent_object.handle_->obj_;
+      std::shared_ptr<AstNode> object;
+      if (IsObject(real_parent_object)) {
+        object = Cast(real_parent_object, JSObject, JSBasicObject)
+                    ->GetProperty(bytecode.value_.str_);
         if (!object.get()) {
           printf("ReferenceError: Property named %s doesn't exists\n",
-                 bytecode.value_.str_);
+                 bytecode.value_.str_.c_str());
           break;
         }
         o_stack_.push_back(object);
       }
       else if (!HandleSpecialObject(real_parent_object, bytecode)) {
         printf("ReferenceError: %s operation not allowed\n",
-               bytecode.value_.str_);
+               bytecode.value_.str_.c_str());
         status = false;
         break;
       }
@@ -457,17 +471,15 @@ void Machine::execute() {
     case Instruction::OPUSHARROBJ:
     {
       auto &parent_array = o_stack_.back();
-      auto real_parent_array = parent_array.object_;
-      std::shared_ptr<JSBasicObject> object;
+      auto real_parent_array = parent_array.handle_->obj_;
+      std::shared_ptr<AstNode> object = NewHandle();
       Register temp = stack_.back();
       stack_.pop_back();
-      if (real_parent_array->is<JSBasicObject::ObjectType::_array>()) {
-        switch (temp.object_->GetType()) {
+      if (IsArray(real_parent_array)) {
+        switch (temp.handle_->obj_->GetType()) {
         case JSBasicObject::ObjectType::_number:
-          object = std::dynamic_pointer_cast<JSArray, JSBasicObject>(
-            real_parent_array)->At(
-              std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
-                temp.object_)->GetNumber())->obj_;
+          object = Cast(real_parent_array, JSArray, JSBasicObject)->At(
+              Cast(temp.handle_->obj_, JSNumber, JSBasicObject)->GetNumber());
           o_stack_.push_back(object);
           break;
 
@@ -477,11 +489,11 @@ void Machine::execute() {
           break;
         }
       }
-      else if (real_parent_array->is<JSBasicObject::ObjectType::_object>()) {
-        if (temp.object_->is<JSBasicObject::ObjectType::_string>()) {
-          std::string &prop = temp.object_->ToString();
-          object = std::dynamic_pointer_cast<JSObject, JSBasicObject>(
-            real_parent_array)->GetProperty(prop)->obj_;
+      else if (IsObject(real_parent_array)) {
+        if (IsString(temp.handle_->obj_)) {
+          std::string &prop = temp.handle_->obj_->ToString();
+          object = Cast(real_parent_array, JSObject, JSBasicObject)
+                  ->GetProperty(prop);
           if (!object.get()) {
             printf("%s property doesn't exists\n", prop.c_str());
             status = false;
@@ -495,13 +507,11 @@ void Machine::execute() {
           break;
         }
       }
-      else if (real_parent_array->is<JSBasicObject::ObjectType::_string>()) {
-        switch (temp.object_->GetType()) {
+      else if (IsString(real_parent_array)) {
+        switch (temp.handle_->obj_->GetType()) {
         case JSBasicObject::ObjectType::_number:
-          object = std::dynamic_pointer_cast<JSString, JSBasicObject>(
-            real_parent_array)->At(
-              std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
-                temp.object_)->GetNumber());
+          object->obj_ = Cast(real_parent_array, JSString, JSBasicObject)
+            ->At(Cast(temp.handle_->obj_, JSNumber, JSBasicObject)->GetNumber());
           o_stack_.push_back(object);
           break;
 
@@ -520,75 +530,72 @@ void Machine::execute() {
     Continue();
 
     case Instruction::LDAARR:
-      accumulator_ = std::dynamic_pointer_cast<JSBasicObject,
-        JSArray>(std::make_shared<JSArray>());
+      accumulator_ = NewHandle(Cast(MakeShared(JSArray),
+                                    JSBasicObject, JSArray));
       Continue();
 
     case Instruction::LDAOBJ:
-      accumulator_ = std::dynamic_pointer_cast<JSBasicObject,
-        JSObject>(std::make_shared<JSObject>());
+      accumulator_ = NewHandle(Cast(MakeShared(JSObject),
+                                    JSBasicObject, JSObject));
       Continue();
 
     case Instruction::LDANUM:
-      accumulator_ = std::dynamic_pointer_cast<JSBasicObject,
-        JSNumber>(std::make_shared<JSNumber>());
+      accumulator_ = NewHandle(Cast(MakeShared(JSNumber),
+                                    JSBasicObject, JSNumber));
       Continue();
 
     case Instruction::LDASTR:
-      accumulator_ = std::dynamic_pointer_cast<JSBasicObject,
-        JSString>(std::make_shared<JSString>());
+      accumulator_ = NewHandle(Cast(MakeShared(JSString),
+                                    JSBasicObject, JSString));
       Continue();
 
     case Instruction::RESIZEARR:
       std::dynamic_pointer_cast<JSArray,
-        JSBasicObject>(accumulator_.object_)->resize(bytecode.value_.value_);
+        JSBasicObject>(accumulator_.handle_->obj_)->resize(
+          bytecode.value_.value_);
       Continue();
 
     case Instruction::POPTOARR:
     {
-      auto arr = std::make_shared<AstNode>();
+      auto arr = NewHandle();
       if (!stack_.empty())
-        arr->obj_ = stack_.back().object_;
+        arr = stack_.back().handle_;
       else arr->obj_ = std::make_shared<JSBasicObject>();
-      std::dynamic_pointer_cast<JSArray,
-        JSBasicObject>(accumulator_.object_)->Push(arr);
+      Cast(accumulator_.handle_->obj_, JSArray, JSBasicObject)->Push(arr);
       stack_.pop_back();
       Continue();
     }
 
     case Instruction::POPTOOBJ:
     {
-      auto object = std::make_shared<AstNode>();
+      auto object = NewHandle();
       if (!stack_.empty())
-        object->obj_ = stack_.back().object_;
+        object = stack_.back().handle_;
       else object->obj_ = std::make_shared<JSBasicObject>();
-      std::dynamic_pointer_cast<JSObject,
-        JSBasicObject>(accumulator_.object_)
-        ->AddProperty(bytecode.value_.str_, object);
+      Cast(accumulator_.handle_->obj_, JSObject,
+        JSBasicObject)->AddProperty(bytecode.value_.str_, object);
       stack_.pop_back();
       Continue();
     }
 
     case Instruction::OPOPTARR:
     {
-      auto arr = std::make_shared<AstNode>();
+      auto arr = NewHandle();
       if (!stack_.empty())
-        arr->obj_ = stack_.back().object_;
+        arr = stack_.back().handle_;
       else arr->obj_ = std::make_shared<JSBasicObject>();
-      std::dynamic_pointer_cast<JSArray,
-        JSBasicObject>(o_stack_.back().object_)->Push(arr);
+      Cast(o_stack_.back().handle_->obj_, JSArray, JSBasicObject)->Push(arr);
       stack_.pop_back();
       Continue();
     }
 
     case Instruction::OPOPTOBJ:
     {
-      auto object = std::make_shared<AstNode>();
+      auto object = NewHandle();
       if (!stack_.empty())
-        object->obj_ = stack_.back().object_;
+        object = stack_.back().handle_;
       else object->obj_ = std::make_shared<JSBasicObject>();
-      std::dynamic_pointer_cast<JSObject,
-        JSBasicObject>(o_stack_.back().object_)
+      Cast(o_stack_.back().handle_->obj_, JSObject, JSBasicObject)
         ->AddProperty(bytecode.value_.str_, object);
       stack_.pop_back();
       Continue();
@@ -616,7 +623,7 @@ void Machine::execute() {
         status = false;
         break;
       }
-      (obj->obj_) = (stack_.back().object_);
+      (obj->obj_) = (stack_.back().handle_->obj_);
       stack_.pop_back();
       Continue();
     }
@@ -639,9 +646,8 @@ void Machine::execute() {
     case Instruction::INC:
     {
       auto &maybenumber = stack_.back();
-      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
-        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
-          maybenumber.object_);
+      if (IsNumber(maybenumber.handle_->obj_)) {
+        auto number = Cast(maybenumber.handle_->obj_, JSNumber, JSBasicObject);
         number->GetNumber()++;
         Continue();
       }
@@ -655,9 +661,8 @@ void Machine::execute() {
     case Instruction::DEC:
     {
       auto &maybenumber = stack_.back();
-      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
-        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
-          maybenumber.object_);
+      if (IsNumber(maybenumber.handle_->obj_)) {
+        auto number = Cast(maybenumber.handle_->obj_, JSNumber, JSBasicObject);
         number->GetNumber()--;
         Continue();
       }
@@ -672,12 +677,11 @@ void Machine::execute() {
     {
       auto maybenumber = stack_.back();
       stack_.pop_back();      // pop the element because we don't need it
-      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
-        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
-          maybenumber.object_);
-        auto tobestacked = std::make_shared<JSNumber>(number->GetNumber()++);
-        auto reg = Register(std::dynamic_pointer_cast<JSBasicObject,
-                            JSNumber>(tobestacked));
+      if (IsNumber(maybenumber.handle_->obj_)) {
+        auto number = Cast(maybenumber.handle_->obj_, JSNumber, JSBasicObject);
+        auto tobestacked = MakeShared(JSNumber, number->GetNumber()++);
+        auto handle = NewHandle(tobestacked);
+        auto reg = Register(handle);
         stack_.push_back(reg);
         Continue();
       }
@@ -692,12 +696,11 @@ void Machine::execute() {
     {
       auto maybenumber = stack_.back();
       stack_.pop_back();      // pop the element because we don't need it
-      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
-        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
-          maybenumber.object_);
-        auto tobestacked = std::make_shared<JSNumber>(number->GetNumber()--);
-        auto reg = Register(std::dynamic_pointer_cast<JSBasicObject,
-                            JSNumber>(tobestacked));
+      if (IsNumber(maybenumber.handle_->obj_)) {
+        auto number = Cast(maybenumber.handle_->obj_, JSNumber, JSBasicObject);
+        auto tobestacked = MakeShared(JSNumber, number->GetNumber()--);
+        auto handle = NewHandle(tobestacked);
+        auto reg = Register(handle);
         stack_.push_back(reg);
         Continue();
       }
@@ -710,11 +713,14 @@ void Machine::execute() {
 
     case Instruction::NEG:
     {
-      auto &maybenumber = stack_.back();
-      if (maybenumber.object_->is<JSBasicObject::ObjectType::_number>()) {
-        auto number = std::dynamic_pointer_cast<JSNumber, JSBasicObject>(
-          maybenumber.object_);
-        number->GetNumber() = -number->GetNumber();
+      auto maybenumber = stack_.back();
+      stack_.pop_back();      // pop the element because we don't need it
+      if (IsNumber(maybenumber.handle_->obj_)) {
+        auto number = Cast(maybenumber.handle_->obj_, JSNumber, JSBasicObject);
+        auto tobestacked = MakeShared(JSNumber, -number->GetNumber());
+        auto handle = NewHandle(tobestacked);
+        auto reg = Register(handle);
+        stack_.push_back(reg);
         Continue();
       }
       else {

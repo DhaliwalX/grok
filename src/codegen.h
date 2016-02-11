@@ -180,11 +180,11 @@ case a:                                                \
       break;
 
     case DIGIT:
-      program->text_.push_back(B::pushi(Register(node->obj_)));
+      program->text_.push_back(B::pushi(Register(node)));
       break;
 
     case STRING:
-      program->text_.push_back(B::pushi(Register(node->obj_)));
+      program->text_.push_back(B::pushi(Register(node)));
       break;
 
     case LSQB:
