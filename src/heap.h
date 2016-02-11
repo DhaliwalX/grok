@@ -42,6 +42,9 @@
 namespace js {
 using namespace std;
 
+class Stack;
+static void PrintHeap(const Stack &stack);
+
 // 	**Stack class**
 // This class holds all the javascript objects and functions.
 // It uses the std::map for storage because the map
