@@ -167,11 +167,6 @@ public:
   ObjectType GetType() const override { return ObjectType::_number; }
   std::string ToString() const override { return std::to_string(number_); }
 
-  void reset(std::shared_ptr<JSBasicObject> ptr) override {
-    if (ptr->is<JSBasicObject::ObjectType::_number>())
-      ;
-  }
-
 private:
   long long number_;
 };
