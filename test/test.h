@@ -241,7 +241,6 @@ void test9() {
     //time.PrintUS();
     //printf("%s\n ", machine->dump().c_str());
   
-  backup:
     delete program;
   }
   delete lex;
