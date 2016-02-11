@@ -134,6 +134,13 @@ struct AstNode {
     links_( )
   { }
 
+  AstNode(std::shared_ptr<JSBasicObject> obj) :
+    expression_type_(ExpressionType::_undefined),
+    relation1_(TokenType::POUND), relation2_(POUND),
+    obj_(obj), variable_(std::string("")),
+    links_()       {
+ }
+
   // copy constructor
   AstNode(const AstNode &node) :
     expression_type_(node.expression_type_),
