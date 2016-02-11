@@ -14,7 +14,6 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "list.h"
 #include <list>
 #include <vector>
 #include <map>
@@ -64,7 +63,9 @@ public:
     program_start_ = 0;
   }
 
-  inline Register accumulator() { return data_[accumulator_.value_]; }
+  inline Register accumulator() { 
+    return data_[(unsigned int)accumulator_.value_];
+  }
 
   void execute();
 

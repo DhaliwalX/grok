@@ -19,7 +19,7 @@ js::Stack Heap::heap = js::Stack();
 
 
 #define NextInstruction()                                     \
-  (text_.at(instruction_register_.value_++))
+  (text_.at((size_t)instruction_register_.value_++))
 
 #define Continue()                                            \
   { bytecode = NextInstruction();                             \
@@ -154,7 +154,7 @@ bool Machine::check_if_valid(int a, int b, int c) {
 Register Machine::calculate_operand(int r) {
   Register res;
   try {
-    res = data_[registers_[r].value_];
+    res = data_[(size_t)registers_[r].value_];
   }
   catch (std::exception e) {
     return Register();
@@ -189,7 +189,7 @@ J decode_type(Register r2, Register r3) {
 }
 
 void Machine::set_object(Register &res) {
-  data_[registers_[(reg_ >> 8) & 0xf].value_] = res;
+  data_[(size_t)registers_[(reg_ >> 8) & 0xf].value_] = res;
 }
 
 bool Machine::binary_add() {
@@ -367,7 +367,7 @@ void Machine::execute() {
       continue;
 
     case Instruction::LDADR:
-      accumulator_ = data_.at(bytecode.value_.value_);
+      accumulator_ = data_.at((size_t)bytecode.value_.value_);
       Continue();
 
     case Instruction::LDAKEY:
@@ -386,7 +386,7 @@ void Machine::execute() {
 
     case Instruction::STRA:
     {
-      data_[bytecode.value_.value_] = accumulator_;
+      data_[(size_t)bytecode.value_.value_] = accumulator_;
       Continue();
     }
 
@@ -395,7 +395,7 @@ void Machine::execute() {
       Continue();
 
     case Instruction::PUSHADR:
-      stack_.push_back(data_[bytecode.value_.value_]);
+      stack_.push_back(data_[(size_t)bytecode.value_.value_]);
       Continue();
 
     case Instruction::PUSHREG:
@@ -491,7 +491,7 @@ void Machine::execute() {
       }
       else if (IsObject(real_parent_array)) {
         if (IsString(temp.handle_->obj_)) {
-          std::string &prop = temp.handle_->obj_->ToString();
+          std::string prop = temp.handle_->obj_->ToString();
           object = Cast(real_parent_array, JSObject, JSBasicObject)
                   ->GetProperty(prop);
           if (!object.get()) {
@@ -552,7 +552,7 @@ void Machine::execute() {
     case Instruction::RESIZEARR:
       std::dynamic_pointer_cast<JSArray,
         JSBasicObject>(accumulator_.handle_->obj_)->resize(
-          bytecode.value_.value_);
+          (size_t)bytecode.value_.value_);
       Continue();
 
     case Instruction::POPTOARR:
