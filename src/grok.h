@@ -45,6 +45,8 @@
 
 #define DEBUG_OPT(opt)  options.push_back(opt)
 
+#define DEBUG 0
+
 bool dump_machine(Machine *machine) {
   if (!machine->text_.size()) {
     std::cout << "stack is empty!\n";
@@ -174,7 +176,6 @@ public:
         return false;
       }
       else if (option == "-t") {
-        RunTest();
         return false;
       }
       else if (option == "-v") {
@@ -196,14 +197,13 @@ public:
         return false;
       }
     }
-  }
-
-  void RunTest() {
+    return true;
   }
 
   void PromptInput() {
     std::fprintf(stdout, ">> ");
     std::getline(std::cin, program_);
+    program_ += ';';
   }
 
   void RunWithNewInterpreter() {
@@ -222,10 +222,14 @@ public:
       printf("Code Generation failed\n");
       return;
     }
+#if DEBUG
     bytecodes.print(std::cout);
+#endif  // DEBUG
     bytecodes.text_.push_back(B::hlt());
     machine_.prepare_machine(&bytecodes);
     machine_.execute();
+
+#if DEBUG
     try {
       Register result = machine_.StackTop();
       result.print(std::cout);
@@ -235,6 +239,7 @@ public:
       printf("undefined\n");
       return;
     }
+#endif
   }
 
   void InstallNatives() {
