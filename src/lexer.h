@@ -38,12 +38,13 @@
 #define ERROR(source, arg) source(arg)
 #define EX(source, arg1, arg2) throw source(arg1, arg2)
 
-
+class Lexer;
+static void MakeLexer(Lexer **lex, std::string &str);
 // class Lexer : this class takes input as a string and converts
 // the string into stream of tokens. It can also be passed a file
 // name
 class Lexer {
-  friend static void MakeLexer(Lexer **lex, std::string &str);
+  friend void MakeLexer(Lexer **lex, std::string &str);
 public:
 
   // constructor taking string
@@ -67,7 +68,7 @@ public:
       return;
     }
     infile.seekg(0, infile.end);
-    length = infile.tellg();
+    length = (size_t)infile.tellg();
     infile.seekg(0, infile.beg);
     code_.resize(length + 2, ' ');
     infile.read(&*(code_.begin()), length);
