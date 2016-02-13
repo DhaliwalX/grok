@@ -94,13 +94,18 @@ public:
   // if existed in the buffer
   Token* NextToken()
   {
+    char ch, ch2, ch3;
+    char last;
+    TokenType tok;
+    Position pos;
+
     if (!buffer_.empty()) {
       Token *tok = buffer_.back();
       buffer_.pop_back();
       return tok;
     }
 
-    char ch = NextCharacter(), last = ' ';
+    ch = NextCharacter(), last = ' ';
     // skip whitespaces
     while (ch != EOF && (ch == ' ' || ch == '\n' || ch == '\t'))
       ch = NextCharacter();
@@ -112,7 +117,7 @@ public:
 
     // note the current position as we are about to parse
     // a valid(may be) token from this position
-    Position pos = position_;
+    pos = position_;
 
     if (ch != EOF) {
 
@@ -127,7 +132,7 @@ public:
           || LookAhead() == '\n')
         goto one;
       // else ch is a symbol
-      char ch2 = NextCharacter();
+      ch2 = NextCharacter();
       
       if (LookAhead() == EOF
           || LookAhead() == '\0'
@@ -135,10 +140,10 @@ public:
           || LookAhead() == '\t'
           || LookAhead() == '\n')
         goto two;
-      char ch3 = NextCharacter();
+      ch3 = NextCharacter();
 
       // check if there is a three character symbol
-      TokenType tok = ThreeCharacterSymbol(ch, ch2, ch3);
+      tok = ThreeCharacterSymbol(ch, ch2, ch3);
       if (tok != INVALID) {
         return new Token(
           std::string({ ch, ch2, ch3 }), tok, TOKENS[tok].precedance_, pos);
