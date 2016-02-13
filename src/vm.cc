@@ -12,11 +12,11 @@ js::Stack Heap::heap = js::Stack();
 #define MakeShared(type, ...) std::make_shared<type>(__VA_ARGS__)
 #define NewHandle(object) MakeShared(AstNode, object)
 #define Cast(object, To, From) std::dynamic_pointer_cast<To, From>(object)
-#define IsArray(object) (object->is<JSBasicObject::ObjectType::_array>())
-#define IsNumber(object) (object->is<JSBasicObject::ObjectType::_number>())
-#define IsString(object) (object->is<JSBasicObject::ObjectType::_string>())
-#define IsObject(object) (object->is<JSBasicObject::ObjectType::_object>())
-
+#define IsArray(object) (object->is<J::_array>())
+#define IsNumber(object) (object->is<J::_number>())
+#define IsString(object) (object->is<J::_string>())
+#define IsObject(object) (object->is<J::_object>())
+#define J JSBasicObject::ObjectType
 
 #define NextInstruction()                                     \
   (text_.at((size_t)instruction_register_.value_++))
@@ -39,7 +39,7 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
 
   machine->function_stack_.push_back(Register(machine->o_stack_.back()));
 
-  if (!function->is<JSBasicObject::ObjectType::_function>()) {
+  if (!function->is<J::_function>()) {
     printf("NotAnFunctionError\n");
     return false;
   }
@@ -71,6 +71,11 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
     Machine mac;
     mac.prepare_fast(&function->function_body_->text_);
     mac.execute();
+
+    // store the returned result
+    if (!mac.stack_.empty()) {
+      machine->accumulator_ = mac.stack_.back();
+    }
   }
   machine->function_stack_.pop_back();
   Heap::heap.RemoveScope();
@@ -84,6 +89,11 @@ bool handle_call_native(Machine *machine,
   return function->GetNativeFunction()(machine);
 }
 
+bool do_ret(Machine *machine,
+            Bytecode &bytecode,
+            std::shared_ptr<JSFunction> function) {
+  return false;
+}
 
 // calculate effective address
 // if second field is true then the operand is immediate
@@ -104,15 +114,13 @@ std::pair<unsigned long long, bool>
   }
 }
 
-#define J JSBasicObject::ObjectType
-
 J GetType(Register &reg) {
   switch (reg.type_) {
   case DataType::Number:
-    return JSBasicObject::ObjectType::_number;
+    return J::_number;
 
   case DataType::String:
-    return JSBasicObject::ObjectType::_string;
+    return J::_string;
 
   case DataType::Object:
   {
@@ -332,7 +340,7 @@ bool Machine::is_zero(Register &reg) {
 
 bool Machine::HandleSpecialObject(std::shared_ptr<JSBasicObject> &object,
                                   Bytecode &bytecode) {
-  if (object->is<JSBasicObject::ObjectType::_array>()) {
+  if (object->is<J::_array>()) {
     return false;
   }
   return false;
@@ -477,7 +485,7 @@ void Machine::execute() {
       stack_.pop_back();
       if (IsArray(real_parent_array)) {
         switch (temp.handle_->obj_->GetType()) {
-        case JSBasicObject::ObjectType::_number:
+        case J::_number:
           object = Cast(real_parent_array, JSArray, JSBasicObject)->At(
               Cast(temp.handle_->obj_, JSNumber, JSBasicObject)->GetNumber());
           o_stack_.push_back(object);
@@ -509,7 +517,7 @@ void Machine::execute() {
       }
       else if (IsString(real_parent_array)) {
         switch (temp.handle_->obj_->GetType()) {
-        case JSBasicObject::ObjectType::_number:
+        case J::_number:
           object->obj_ = Cast(real_parent_array, JSString, JSBasicObject)
             ->At(Cast(temp.handle_->obj_, JSNumber, JSBasicObject)->GetNumber());
           o_stack_.push_back(object);
@@ -732,66 +740,31 @@ void Machine::execute() {
 
     case Instruction::ADD:
       status = binary_add();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::SUB:
       status = binary_sub();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::MUL:
       status = binary_mul();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::DIV:
       status = binary_div();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::MOD:
       status = binary_mod();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::SHR:
       status = shift_right();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::SHL:
       status = shift_left();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::CALL:
       handle_call(this, bytecode);
@@ -800,39 +773,19 @@ void Machine::execute() {
 
     case Instruction::EQ:
       status = do_equal();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::NEQ:
       status = do_not_equal();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::LT:
       status = do_less_than();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::GT:
       status = do_greater_than();
-      if (status) {
-        Continue();
-      }
-      else {
-        StopMachine();
-      }
+      Continue();
 
     case Instruction::BITOR:
       status = bit_or();
