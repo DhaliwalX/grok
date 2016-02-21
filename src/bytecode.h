@@ -43,6 +43,7 @@ static std::string addr_mod[] = {
   A(PUSHI),                        \
   A(PUSHADR),                      \
   A(PUSHREG),                      \
+  A(OPUSHREG),                     \
   A(OPUSHOBJ),                     \
   A(OPUSHKEY),                     \
   A(OPUSHARR),                     \
@@ -86,6 +87,7 @@ static std::string addr_mod[] = {
   A(CALL),                         \
   A(CALLNATIVE),                   \
   A(RET),                          \
+  A(RET0),                         \
   A(HLT)
 
 #define INSTRUCTION(x) x
@@ -207,6 +209,10 @@ static Bytecode pushreg() {
   return Bytecode(static_cast<ui>(i::PUSHREG));
 }
 
+static Bytecode opushreg() {
+  return Bytecode(static_cast<ui>(i::OPUSHREG));
+}
+
 static Bytecode pushkey(Register reg) {
   return Bytecode(static_cast<ui>(i::PUSHKEY), reg);
 }
@@ -314,6 +320,10 @@ static Bytecode call_native(Register reg) {
 
 static Bytecode ret() {
   return Bytecode(i::RET);
+}
+
+static Bytecode ret0() {
+  return Bytecode(i::RET0);
 }
 
 static Bytecode empty() {
