@@ -69,6 +69,7 @@ public:
         GenInstruction(program, node);
         return true;
       }
+      status = 0;
       goto err;
       break;
 
@@ -196,7 +197,7 @@ case a:                                                \
       break;
 
     case LPAR:
-      return GenerateFunction(program, node);
+      return GenerateFunction(program, node, machine_);
       break;
 
     default:
@@ -207,7 +208,7 @@ case a:                                                \
   }
 
   int GenerateFunction(BytecodeProgram<Register, Bytecode> *program,
-                       std::shared_ptr<AstNode> node);
+                       std::shared_ptr<AstNode> node, Machine *machine);
 
   int GenerateObject(BytecodeProgram<Register, Bytecode> *program,
                      std::shared_ptr<AstNode> node) {
@@ -396,6 +397,26 @@ static bool GenerateBlock(CodeGen *codegen,
   }
 }
 
+static bool GenerateReturn(CodeGen *codegen,
+                          BytecodeProgram<Register, Bytecode> *p,
+                          std::shared_ptr<AstNode> node,
+                          Machine *machine) {
+  if (node->links_[0]->expression_type_ == AstNode::ExpressionType::_undefined)
+  {
+    p->text_.push_back(B::ret0());
+    return true;
+  }
+  else {
+    if (!codegen->GenerateCode(p, node->links_[0], machine)) {
+      printf("Code Generation for return statement failed\n");
+      return false;
+    }
+    p->text_.push_back(B::ret());
+    return true;
+  }
+  return true;
+}
+
 static bool __GenerateCode(CodeGen *codegen,
                          BytecodeProgram<Register, Bytecode> *p,
                          std::shared_ptr<AstNode> node, 
@@ -414,7 +435,10 @@ static bool __GenerateCode(CodeGen *codegen,
     return GenerateBlock(codegen, p, node, machine);
 
   case AstNode::ExpressionType::_function:
-    return (bool)codegen->GenerateFunction(p, node);
+    return (bool)codegen->GenerateFunction(p, node, machine);
+
+  case AstNode::ExpressionType::_return:
+    return GenerateReturn(codegen, p, node, machine);
 
   default:
     return (bool)codegen->GenerateCode(p, node, machine);

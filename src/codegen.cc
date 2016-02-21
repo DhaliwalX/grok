@@ -92,7 +92,6 @@ bool CodeGen::GenerateForMemberChild(
     break;
 
   case LPAR:
-    // not implemented yet
     return GenerateFunctionCall(program, node);
   }
   return true;
@@ -165,7 +164,7 @@ CodeGen::GenerateMemberW(BytecodeProgram<Register, Bytecode>* program,
 
 int 
 CodeGen::GenerateFunction(BytecodeProgram<Register, Bytecode>* program,
-                          std::shared_ptr<AstNode> node) {
+                          std::shared_ptr<AstNode> node, Machine *machine) {
   auto func = std::dynamic_pointer_cast<JSFunction, JSBasicObject>(node->obj_);
   if (func->IsNative())
     return false;
@@ -174,14 +173,18 @@ CodeGen::GenerateFunction(BytecodeProgram<Register, Bytecode>* program,
   BytecodeProgram<Register, Bytecode> *function_body
     = new BytecodeProgram<Register, Bytecode>();
   
-  if (!Code::__GenerateCode(this, function_body, func_body, machine_))
+  if (!Code::__GenerateCode(this, function_body, func_body, machine)) {
+    printf("Code generation failed for function %s\n", func->GetName().c_str());
     return 0;
+  }
 
   func->function_body_ = function_body;
   std::shared_ptr<AstNode> function_node = std::make_shared<AstNode>();
   function_node->obj_ = func;
 
   Heap::heap.PushVariable({ func->GetName(), function_node });
+
+  function_body->print(std::cout);
   return 1;
 }
 
