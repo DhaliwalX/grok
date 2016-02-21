@@ -45,7 +45,11 @@ public:
     program_(nullptr),
     data_(),
     text_(),
-    stack_() {
+    stack_(),
+    returned_(false) {
+    stack_.resize(1024);
+    o_stack_.resize(1024);
+
   }
 
   void prepare_machine(BytecodeProgram<Register, Bytecode> *program) {
@@ -163,17 +167,18 @@ public:
   std::vector<Bytecode> text_;
 
   // general purpose stack
-  std::list<Register> stack_;
+  std::vector<Register> stack_;
 
   // stack for object storage
-  std::list<Register> o_stack_;
+  std::vector<Register> o_stack_;
 
   // stack for storing functions
-  std::list<Register> function_stack_;
+  std::vector<Register> function_stack_;
 
   // current instruction's register specs
   unsigned int reg_;
   
+  bool returned_;
 };
 
 #endif // VIRTUAL_MACHINE_H_

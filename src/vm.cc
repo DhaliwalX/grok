@@ -73,8 +73,10 @@ bool handle_call(Machine *machine, Bytecode &bytecode) {
     mac.execute();
 
     // store the returned result
-    if (!mac.stack_.empty()) {
-      machine->accumulator_ = mac.stack_.back();
+    if (mac.returned_ == true 
+        && !mac.stack_.empty()) {
+      machine->o_stack_.push_back(mac.stack_.back());
+      mac.stack_.pop_back();
     }
   }
   machine->function_stack_.pop_back();
@@ -408,6 +410,10 @@ void Machine::execute() {
 
     case Instruction::PUSHREG:
       stack_.push_back(accumulator_);
+      Continue();
+    
+    case Instruction::OPUSHREG:
+      o_stack_.push_back(accumulator_);
       Continue();
 
     case Instruction::PUSHKEY:
@@ -821,8 +827,13 @@ void Machine::execute() {
       }
       Continue();
 
+    case Instruction::RET0:
+      return;
+
     case Instruction::RET:
-      Continue();
+      returned_ = true;
+      return;
+
 
     default:
       printf("FatalError: The instruction doesn't exists\n");
