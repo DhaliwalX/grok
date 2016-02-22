@@ -45,7 +45,7 @@
 
 #define DEBUG_OPT(opt)  options.push_back(opt)
 
-#define DEBUG 1
+#define DEBUG 0
 
 bool dump_machine(Machine *machine) {
   if (!machine->text_.size()) {
@@ -143,7 +143,7 @@ public:
   }
 
   std::string GetGrokVersion() const {
-    return std::string("Grok (version 2.1): A simple JavaScript Interpreter");
+    return std::string("Grok (version 3.0): A simple Functional Language Interpreter");
   }
 
   void PrintIntroduction() {

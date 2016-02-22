@@ -47,8 +47,8 @@ public:
     text_(),
     stack_(),
     returned_(false) {
-    stack_.resize(1024);
-    o_stack_.resize(1024);
+    stack_.reserve(1024);
+    o_stack_.reserve(1024);
 
   }
 
