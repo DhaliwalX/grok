@@ -42,41 +42,30 @@ public:
   using iterator = std::unordered_map<Name, Value>::iterator;
   using const_iterator = std::unordered_map<Name, Value>::const_iterator;
 
-  JSObject(const std::unordered_map<Name, Value> &map) :
-    object_(map)
-  { }
+  JSObject(const std::unordered_map<Name, Value> &map) : object_(map) {}
 
-  JSObject() :
-    object_()
-  { }
+  JSObject() : object_() {}
 
-  JSObject(const JSObject &obj)
-   : object_(obj.object_)
-  { }
+  JSObject(const JSObject &obj) : object_(obj.object_) {}
 
-  JSObject &operator=(const JSObject &obj)
-  { // assigned from other object
+  JSObject &operator=(const JSObject &obj) { // assigned from other object
     object_ = obj.object_;
     return (*this);
   }
 
-  ~JSObject()
-  { object_.clear( ); }
+  ~JSObject() { object_.clear(); }
 
-  ObjectType GetType() const
-  { // returns the type of the javascript object
+  ObjectType GetType() const { // returns the type of the javascript object
     return ObjectType::_object;
   }
 
   // add a new property to the object
   void AddProperty(const Name &name, const Value &prop) {
-    object_.insert({ name, prop });
+    object_.insert({name, prop});
   }
 
   // remove a property currently existing in the object
-  void RemoveProperty(const Name &name) {
-    object_.erase(name);
-  }
+  void RemoveProperty(const Name &name) { object_.erase(name); }
 
   // returns true if a property exists in the object
   bool HasOwnProperty(const Name &name) {
@@ -91,15 +80,11 @@ public:
     return Value();
   }
 
-  iterator begin()
-  { return object_.begin(); }
+  iterator begin() { return object_.begin(); }
 
-  iterator end()
-  { return object_.end(); }
+  iterator end() { return object_.end(); }
 
-
-  void Clear()
-  { object_.clear( ); }
+  void Clear() { object_.clear(); }
 
   std::string ToString() const override {
     std::string buff = "";
@@ -113,10 +98,9 @@ public:
     buff += " }";
     return buff;
   }
-private:
 
+private:
   std::unordered_map<Name, Value> object_;
 };
-
 
 #endif // OBJECT_H_

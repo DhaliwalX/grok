@@ -111,109 +111,37 @@ enum TokenType {
 };
 //
 static std::string token_type[] = {
-  "LPAR",
-  "RPAR",
-  "LBRACE",
-  "RBRACE",
-  "LSQB",
-  "RSQB",
-  "COLON",
-  "SCOLON",
-  "SCOMMA",
-  "INVCOMMA",
-  "DOT",
-  "COMMA",
-  "CONDITION",
-  "PLUS",
-  "MINUS",
-  "DIV",
-  "MUL",
-  "MOD",
-  "GT",
-  "LT",
-  "ASSIGN",
-  "XOR",
-  "BOR",
-  "BAND",
-  "NOT",
-  "BNOT",
-  "INC",
-  "DEC",
-  "PLUSEQ",
-  "MINUSEQ",
-  "DIVEQ",
-  "MODEQ",
-  "MULEQ",
-  "GTE",
-  "LTE",
-  "EQUAL",
-  "OR",
-  "AND",
-  "BOREQ",
-  "BANDEQ",
-  "XOREQ",
-  "SHL",
-  "SHR",
-  "NOTEQ",
-  "SHLEQ",
-  "SHREQ",
-  "LET",
-  "VAR",
-  "JSNULL",
-  "WITH",
-  "THEN",
-  "IN",
-  "FUNC",
-  "BREAK",
-  "FOR",
-  "IF",
-  "ELSE",
-  "DO",
-  "WHILE",
-  "CLASS",
-  "THIS",
-  "BOOL",
-  "TRUE",
-  "FALSE",
-  "NEW",
-  "DELETE",
-  "CASE",
-  "CONTINUE",
-  "RET",
-  "IDENT",
-  "INVALID",
-  "DIGIT",
-  "STRING",
-  "POUND",
-  "CMCOMM",
-  "EOS"
-};
+    "LPAR",      "RPAR",     "LBRACE", "RBRACE",   "LSQB",    "RSQB",
+    "COLON",     "SCOLON",   "SCOMMA", "INVCOMMA", "DOT",     "COMMA",
+    "CONDITION", "PLUS",     "MINUS",  "DIV",      "MUL",     "MOD",
+    "GT",        "LT",       "ASSIGN", "XOR",      "BOR",     "BAND",
+    "NOT",       "BNOT",     "INC",    "DEC",      "PLUSEQ",  "MINUSEQ",
+    "DIVEQ",     "MODEQ",    "MULEQ",  "GTE",      "LTE",     "EQUAL",
+    "OR",        "AND",      "BOREQ",  "BANDEQ",   "XOREQ",   "SHL",
+    "SHR",       "NOTEQ",    "SHLEQ",  "SHREQ",    "LET",     "VAR",
+    "JSNULL",    "WITH",     "THEN",   "IN",       "FUNC",    "BREAK",
+    "FOR",       "IF",       "ELSE",   "DO",       "WHILE",   "CLASS",
+    "THIS",      "BOOL",     "TRUE",   "FALSE",    "NEW",     "DELETE",
+    "CASE",      "CONTINUE", "RET",    "IDENT",    "INVALID", "DIGIT",
+    "STRING",    "POUND",    "CMCOMM", "EOS"};
 
 static const int TOKEN_NUM = 76;
 
 class Position {
 public:
-  Position(const int x, const int y) :
-    row_(y), col_(x)
-  { }
+  Position(const int x, const int y) : row_(y), col_(x) {}
 
-  Position(const Position &pos) :
-    row_(pos.row_), col_(pos.col_)
-  { }
+  Position(const Position &pos) : row_(pos.row_), col_(pos.col_) {}
 
-  Position() :
-    row_(0), col_(0)
-  { }
+  Position() : row_(0), col_(0) {}
 
-  Position & operator=(const Position &pos)
-  {
+  Position &operator=(const Position &pos) {
     row_ = pos.row_;
     col_ = pos.col_;
     return *this;
   }
 
-  ~Position()
-  { }
+  ~Position() {}
 
   int row_;
   int col_;
@@ -230,24 +158,20 @@ public:
   TokenType type_;
   Position position_;
 
-  Token(std::string name, int type, int prec = 0) :
-    type_{ static_cast<TokenType>(type) },
-    precedance_{ prec } {
+  Token(std::string name, int type, int prec = 0)
+      : type_{static_cast<TokenType>(type)}, precedance_{prec} {
     value_ = name;
   }
 
-  Token(std::string name, int type, int prec, const Position &pos) :
-    value_(name), type_(static_cast<TokenType>(type)),
-    precedance_(prec), position_(pos)
-  { }
+  Token(std::string name, int type, int prec, const Position &pos)
+      : value_(name), type_(static_cast<TokenType>(type)), precedance_(prec),
+        position_(pos) {}
 
-  Token(const Token &tok) :
-    value_(tok.value_), precedance_(tok.precedance_),
-    type_(tok.type_), position_(tok.position_)
-  { }
+  Token(const Token &tok)
+      : value_(tok.value_), precedance_(tok.precedance_), type_(tok.type_),
+        position_(tok.position_) {}
 
-  Token& operator=(const Token &tok)
-  { // copy from another token
+  Token &operator=(const Token &tok) { // copy from another token
     value_ = tok.value_;
     precedance_ = tok.precedance_;
     type_ = tok.type_;
@@ -255,34 +179,28 @@ public:
     return *this;
   }
 
-  Token() :
-    value_{ "" },
-    type_{ INVALID } { }
+  Token() : value_{""}, type_{INVALID} {}
 
-  ~Token() { }
+  ~Token() {}
 
-  inline const std::string& GetValue() const
-  { // return the value_ of the token
+  inline const std::string &GetValue() const { // return the value_ of the token
     return this->value_;
   }
 
   inline bool IsBinaryOperator() const {
-    return (type_ >= PLUS && type_ <= LT)
-      || ((type_ >= XOR) && (type_ <= DEC))
-      || ((type_ >= GTE) && (type_ <= AND))
-      || ((type_ == SHL) && (type_ == SHR));
-  }
-  
-  inline bool IsAssign() const {
-    return (type_ == ASSIGN) ||
-      (type_ >= PLUSEQ && type_ <= MULEQ)
-      || (type_ >= BOREQ && type_ <= XOREQ)
-      || (type_ >= NOTEQ && type_ <= SHREQ);
+    return (type_ >= PLUS && type_ <= LT) ||
+           ((type_ >= XOR) && (type_ <= DEC)) ||
+           ((type_ >= GTE) && (type_ <= AND)) ||
+           ((type_ == SHL) && (type_ == SHR));
   }
 
-  inline TokenType Type() const {
-    return static_cast<TokenType>(type_);
+  inline bool IsAssign() const {
+    return (type_ == ASSIGN) || (type_ >= PLUSEQ && type_ <= MULEQ) ||
+           (type_ >= BOREQ && type_ <= XOREQ) ||
+           (type_ >= NOTEQ && type_ <= SHREQ);
   }
+
+  inline TokenType Type() const { return static_cast<TokenType>(type_); }
 
   void print(std::ostream &os, int tab = 0) {
     os << "Value: " << value_;
@@ -291,98 +209,49 @@ public:
   }
 }; // Token
 
-
 static Token TOKENS[TOKEN_NUM] = {
-  // punctuations
-  Token{ "(", 0, 0 },
-  Token{ ")", 1, 0 },
-  Token{ "{", 2, 0 },
-  Token{ "}", 3, 0 },
-  Token{ "[", 4, 0 },
-  Token{ "]", 5, 0 },
-  Token{ ":", 6, 0 },
-  Token{ ";", 7, 0 },
-  Token{ "'", 8, 0 },
-  Token{ "\"", 9, 0 },
-  Token{ ".", 10, 0 },
-  Token{ ",", 11, 1 },
-  Token{ "?", 12, 3 },
+    // punctuations
+    Token{"(", 0, 0}, Token{")", 1, 0}, Token{"{", 2, 0}, Token{"}", 3, 0},
+    Token{"[", 4, 0}, Token{"]", 5, 0}, Token{":", 6, 0}, Token{";", 7, 0},
+    Token{"'", 8, 0}, Token{"\"", 9, 0}, Token{".", 10, 0}, Token{",", 11, 1},
+    Token{"?", 12, 3},
 
-  // operators
-  Token{ "+", 13, 12 },
-  Token{ "-", 14, 12 },
-  Token{ "/", 15, 13 },
-  Token{ "*", 16, 13 },
-  Token{ "%", 17, 13 },
-  Token{ ">", 18, 10 },
-  Token{ "<", 19, 10 },
-  Token{ "=", 20, 2 },
-  Token{ "^", 21, 7 },
-  Token{ "|", 22, 6 },
-  Token{ "&", 23, 8 },
-  Token{ "!", 24, 0 },
-  Token{ "~", 25, 0 },
-  Token{ "++", 26, 0 },
-  Token{ "--", 27, 0 },
-  Token{ "+=", 28, 2 },
-  Token{ "-=", 29, 2 },
-  Token{ "/=", 30, 2 },
-  Token{ "%=", 31, 2 },
-  Token{ "*=", 32, 2 },
-  Token{ ">=", 33, 10 },
-  Token{ "<=", 34, 10 },
-  Token{ "==", 35, 9 },
-  Token{ "||", 36, 4 },
-  Token{ "&&", 37, 5 },
-  Token{ "|=", 38, 2 },
-  Token{ "&=", 39, 2 },
-  Token{ "^=", 40, 2 },
-  Token{ "<<", 41, 11 },
-  Token{ ">>", 42, 11 },
-  Token{ "!=", 43, 2 },
-  Token{ "<<=", 44, 2 },
-  Token{ ">>=", 45, 2 },
+    // operators
+    Token{"+", 13, 12}, Token{"-", 14, 12}, Token{"/", 15, 13},
+    Token{"*", 16, 13}, Token{"%", 17, 13}, Token{">", 18, 10},
+    Token{"<", 19, 10}, Token{"=", 20, 2}, Token{"^", 21, 7}, Token{"|", 22, 6},
+    Token{"&", 23, 8}, Token{"!", 24, 0}, Token{"~", 25, 0}, Token{"++", 26, 0},
+    Token{"--", 27, 0}, Token{"+=", 28, 2}, Token{"-=", 29, 2},
+    Token{"/=", 30, 2}, Token{"%=", 31, 2}, Token{"*=", 32, 2},
+    Token{">=", 33, 10}, Token{"<=", 34, 10}, Token{"==", 35, 9},
+    Token{"||", 36, 4}, Token{"&&", 37, 5}, Token{"|=", 38, 2},
+    Token{"&=", 39, 2}, Token{"^=", 40, 2}, Token{"<<", 41, 11},
+    Token{">>", 42, 11}, Token{"!=", 43, 2}, Token{"<<=", 44, 2},
+    Token{">>=", 45, 2},
 
-  // keywords
-  Token{ "let", LET },
-  Token{ "var", VAR },
-  Token{ "null", JSNULL },
-  Token{ "with", WITH },
-  Token{ "then", THEN },
-  Token{ "in", IN },
-  Token{ "function", FUNC },
-  Token{ "break", BREAK },
-  Token{ "for", FOR },
-  Token{ "if", IF },
-  Token{ "else",ELSE },
-  Token{ "do", DO },
-  Token{ "while", WHILE },
-  Token{ "class", CLASS },
-  Token{ "this", THIS },
-  Token{ "boolean", BOOL },
-  Token{ "true", TRUE },
-  Token{ "false", FALSE },
-  Token{ "new", NEW },
-  Token{ "delete", DELETE },
-  Token{ "case", CASE },
-  Token{ "continue", CONTINUE },
-  Token{ "return", RET },
+    // keywords
+    Token{"let", LET}, Token{"var", VAR}, Token{"null", JSNULL},
+    Token{"with", WITH}, Token{"then", THEN}, Token{"in", IN},
+    Token{"function", FUNC}, Token{"break", BREAK}, Token{"for", FOR},
+    Token{"if", IF}, Token{"else", ELSE}, Token{"do", DO},
+    Token{"while", WHILE}, Token{"class", CLASS}, Token{"this", THIS},
+    Token{"boolean", BOOL}, Token{"true", TRUE}, Token{"false", FALSE},
+    Token{"new", NEW}, Token{"delete", DELETE}, Token{"case", CASE},
+    Token{"continue", CONTINUE}, Token{"return", RET},
 
-  // identfier
-  Token{ "", IDENT },
+    // identfier
+    Token{"", IDENT},
 
-  // invalid token
-  Token{ "", INVALID },
+    // invalid token
+    Token{"", INVALID},
 
-  Token{ "", DIGIT },
+    Token{"", DIGIT},
 
-  // comments Token
-  Token{ "\"", STRING },
-  Token{ "$", POUND },
-  Token{ "*/", CMCOMM },
+    // comments Token
+    Token{"\"", STRING}, Token{"$", POUND}, Token{"*/", CMCOMM},
 
-  // end of source
-  Token{ "EOS", EOS },
+    // end of source
+    Token{"EOS", EOS},
 };
 
 #endif

@@ -39,7 +39,6 @@
 // useful for debug operations
 class Timer {
 public:
-
   static const int64_t kMilliSecondsPerSec = 1000;
   static const int64_t kMilliSecondsPerMinutes = kMilliSecondsPerSec * 60;
   static const int64_t kMilliSecondsPerHours = kMilliSecondsPerMinutes * 60;
@@ -48,102 +47,96 @@ public:
   static const int64_t kSecondsPerHour = 3600;
   static const int64_t kSecondsPerDay = 3600 * 24;
 
+  typedef std::chrono::microseconds MicroSeconds;
+  typedef std::chrono::milliseconds MilliSeconds;
+  typedef std::chrono::nanoseconds NanoSeconds;
+  typedef std::chrono::high_resolution_clock HighResolutionClock;
+  typedef std::chrono::system_clock SystemClock;
+  typedef std::chrono::hours Hours;
+  typedef std::chrono::seconds Seconds;
 
-  typedef std::chrono::microseconds            MicroSeconds;
-  typedef std::chrono::milliseconds            MilliSeconds;
-  typedef std::chrono::nanoseconds             NanoSeconds;
-  typedef std::chrono::high_resolution_clock   HighResolutionClock;
-  typedef std::chrono::system_clock            SystemClock;
-  typedef std::chrono::hours                   Hours;
-  typedef std::chrono::seconds                 Seconds;
-
-  void Start() {
-    start_ = std::chrono::system_clock::now();
-  }
+  void Start() { start_ = std::chrono::system_clock::now(); }
 
   void StartHR() {
     this->HighResStart_ = std::chrono::high_resolution_clock::now();
   }
 
-
   double SecondsPassed() {
     std::chrono::time_point<std::chrono::system_clock> mid;
     mid = std::chrono::system_clock::now();
-    std::chrono::duration<long double> elapsedMilliSeconds =
-      mid - start_;
+    std::chrono::duration<long double> elapsedMilliSeconds = mid - start_;
     return elapsedMilliSeconds.count();
   }
 
   long long MilliSecondsPassed() {
-    return std::chrono::duration_cast<MilliSeconds>
-      (std::chrono::system_clock::now() - start_).count();
+    return std::chrono::duration_cast<MilliSeconds>(
+               std::chrono::system_clock::now() - start_)
+        .count();
   }
 
   long long MicrosecondsPassed() {
-    return static_cast<long long>(std::chrono::duration_cast<MicroSeconds>
-      (std::chrono::system_clock::now() - this->start_).count());
+    return static_cast<long long>(
+        std::chrono::duration_cast<MicroSeconds>(
+            std::chrono::system_clock::now() - this->start_)
+            .count());
   }
 
   long long NanoSecondsPassed() {
-    return static_cast<long long>(std::chrono::duration_cast<NanoSeconds>
-      (std::chrono::high_resolution_clock::now() - this->HighResEnd_).count());
+    return static_cast<long long>(
+        std::chrono::duration_cast<NanoSeconds>(
+            std::chrono::high_resolution_clock::now() - this->HighResEnd_)
+            .count());
   }
 
-  void Stop() {
-    this->end_ = std::chrono::system_clock::now();
-  }
+  void Stop() { this->end_ = std::chrono::system_clock::now(); }
 
   void StopHR() {
     this->HighResEnd_ = std::chrono::high_resolution_clock::now();
   }
 
   long long ElapsedTimeInMicroseconds() {
-    return std::chrono::duration_cast<MicroSeconds>
-      (this->end_ - this->start_).count();
+    return std::chrono::duration_cast<MicroSeconds>(this->end_ - this->start_)
+        .count();
   }
 
   long long ElapsedTimeInMilliSeconds() {
-    return std::chrono::duration_cast<MilliSeconds>
-      (this->end_ - this->start_).count();
+    return std::chrono::duration_cast<MilliSeconds>(this->end_ - this->start_)
+        .count();
   }
 
   long long ElapsedTimeInNanoSeconds() {
-    return std::chrono::duration_cast<NanoSeconds>
-      (this->HighResEnd_ - this->HighResStart_).count();
+    return std::chrono::duration_cast<NanoSeconds>(this->HighResEnd_ -
+                                                   this->HighResStart_)
+        .count();
   }
 
   void PrintNS() {
-    std::cout << "Time Elapsed: "
-      << ElapsedTimeInNanoSeconds() << "ns" << std::endl;
+    std::cout << "Time Elapsed: " << ElapsedTimeInNanoSeconds() << "ns"
+              << std::endl;
   }
 
   void PrintMS() {
-    std::cout << "Time Elapsed: "
-      << ElapsedTimeInMilliSeconds() << "ms" << std::endl;
+    std::cout << "Time Elapsed: " << ElapsedTimeInMilliSeconds() << "ms"
+              << std::endl;
   }
 
   void PrintUS() {
-    std::cout << "Time Elapsed: "
-      << ElapsedTimeInMicroseconds() << "us" << std::endl;
+    std::cout << "Time Elapsed: " << ElapsedTimeInMicroseconds() << "us"
+              << std::endl;
   }
 
-  long long ElapsedTime() {
-
-  }
+  long long ElapsedTime() {}
 
 private:
-  std::chrono::time_point<std::chrono::system_clock>            start_;
-  std::chrono::time_point<std::chrono::system_clock>            end_;
-  std::chrono::time_point<std::chrono::high_resolution_clock>   HighResStart_;
-  std::chrono::time_point<std::chrono::high_resolution_clock>   HighResEnd_;
-};  // Timer
-
+  std::chrono::time_point<std::chrono::system_clock> start_;
+  std::chrono::time_point<std::chrono::system_clock> end_;
+  std::chrono::time_point<std::chrono::high_resolution_clock> HighResStart_;
+  std::chrono::time_point<std::chrono::high_resolution_clock> HighResEnd_;
+}; // Timer
 
 class Factory {
 public:
-  static void * Create(size_t size) {
-    return std::malloc(size);
-  }
+  static void *Create(size_t size) { return std::malloc(size); }
 
   static void Destroy(void *object) {
     if (object != nullptr)
@@ -158,10 +151,7 @@ public:
     return start + std::rand() % (end - start);
   }
 
-  static std::time_t Time() {
-    return std::clock();
-  }
+  static std::time_t Time() { return std::clock(); }
 };
-
 
 #endif

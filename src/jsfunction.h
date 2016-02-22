@@ -41,9 +41,9 @@
 
 class Machine;
 
-typedef bool (*native_handle_t)(Machine*);
+typedef bool (*native_handle_t)(Machine *);
 
-#define NATIVE_HANDLE(x) std::function<bool(Machine*)> x
+#define NATIVE_HANDLE(x) std::function<bool(Machine *)> x
 #define NATIVE_HANDLE_TYPE native_handle_t
 
 std::shared_ptr<AstNode> Add(std::shared_ptr<AstNode>);
@@ -53,34 +53,26 @@ std::shared_ptr<AstNode> Add(std::shared_ptr<AstNode>);
 // from JSBasicObject so that it can be easily referenced
 class JSFunction : public JSBasicObject {
 public:
-
   // there are two types of functions :
   //        1) Functions defined in the script
   //        2) Functions which are defined natively
-  enum class JSFunctionType : bool {
-    _native,
-    _js
-  };
+  enum class JSFunctionType : bool { _native, _js };
 
   // default constructor
-  JSFunction() :
-    function_(), parameters_(), name_(),
-    type_(JSFunctionType::_js), native_handle_(nullptr) {
-  }
+  JSFunction()
+      : function_(), parameters_(), name_(), type_(JSFunctionType::_js),
+        native_handle_(nullptr) {}
 
   // constructor for normal Javascript functions
-  JSFunction(const std::string &name,
-             std::shared_ptr<AstNode> function,
+  JSFunction(const std::string &name, std::shared_ptr<AstNode> function,
              std::vector<std::string> parameters)
-    : function_(function), name_(name), native_handle_(nullptr),
-    parameters_(parameters), type_(JSFunctionType::_js) {
-  }
+      : function_(function), name_(name), native_handle_(nullptr),
+        parameters_(parameters), type_(JSFunctionType::_js) {}
 
   JSFunction(const JSFunction &rhs)
-    : function_(rhs.function_), name_(rhs.name_),
-    parameters_(rhs.parameters_), type_(rhs.type_),
-    native_handle_(rhs.native_handle_) {
-  }
+      : function_(rhs.function_), name_(rhs.name_),
+        parameters_(rhs.parameters_), type_(rhs.type_),
+        native_handle_(rhs.native_handle_) {}
 
   JSFunction &operator=(const JSFunction &rhs) {
     function_ = rhs.function_;
@@ -92,8 +84,7 @@ public:
   }
 
   // constructor for native javascript functions
-  JSFunction(const std::string &name,
-             NATIVE_HANDLE_TYPE native_handle) {
+  JSFunction(const std::string &name, NATIVE_HANDLE_TYPE native_handle) {
     name_ = name;
     type_ = JSFunctionType::_native;
     native_handle_ = native_handle;
@@ -106,9 +97,7 @@ public:
   NATIVE_HANDLE_TYPE GetNativeFunction() { return native_handle_; }
 
   // return the parameters in the form of vector<string>
-  const std::vector<std::string>& GetParameters() const {
-    return parameters_;
-  }
+  const std::vector<std::string> &GetParameters() const { return parameters_; }
 
   // returns the javascripyt function callback
   std::shared_ptr<AstNode> GetJSHandle() { return function_; }
@@ -143,7 +132,6 @@ private:
   // If the function is defined within the javascript then the
   // callback will be stored here
   std::shared_ptr<AstNode> function_;
-  
 
   // All the parameters are stored in a vector of string
   std::vector<std::string> parameters_;

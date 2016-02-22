@@ -7,14 +7,7 @@
 
 #include "astnode.h"
 
-enum class InstructionKind : unsigned short {
-  None,
-  Imm,
-  Adr,
-  Reg,
-  Key,
-  Idx
-};
+enum class InstructionKind : unsigned short { None, Imm, Adr, Reg, Key, Idx };
 
 enum class DataType : unsigned short {
   Undefined,
@@ -25,44 +18,25 @@ enum class DataType : unsigned short {
   Array
 };
 
-static std::string instruction_kinds[] = {
-  "None",
-  "Imm",
-  "Adr",
-  "Reg",
-  "Key",
-  "Count"
-};
-
+static std::string instruction_kinds[] = {"None", "Imm", "Adr",
+                                          "Reg",  "Key", "Count"};
 
 // register class
 class Register {
 public:
-  Register() :
-    value_(0), type_(DataType::Undefined) {
-  }
+  Register() : value_(0), type_(DataType::Undefined) {}
 
-  Register(long long value) :
-    value_(value),
-    type_(DataType::Number) {
-  }
+  Register(long long value) : value_(value), type_(DataType::Number) {}
 
-  Register(const std::string &str) :
-    str_(str),
-    type_(DataType::String),
-    value_(0) {
-  }
+  Register(const std::string &str)
+      : str_(str), type_(DataType::String), value_(0) {}
 
-  Register(std::shared_ptr<AstNode> &obj) :
-    handle_(obj), value_(0),
-    type_(DataType::Object) { }
+  Register(std::shared_ptr<AstNode> &obj)
+      : handle_(obj), value_(0), type_(DataType::Object) {}
 
-  Register(const Register &reg) :
-    value_(reg.value_),
-    str_(reg.str_),
-    type_(reg.type_),
-    handle_(reg.handle_) {
-  }
+  Register(const Register &reg)
+      : value_(reg.value_), str_(reg.str_), type_(reg.type_),
+        handle_(reg.handle_) {}
 
   Register &operator=(const Register &reg) {
     value_ = (reg.value_);
@@ -106,8 +80,7 @@ public:
     type_ = DataType::String;
   }
 
-  void set(long long address,
-           unsigned long size) {
+  void set(long long address, unsigned long size) {
     this->value_ = address;
     str_ = "";
   }
@@ -147,22 +120,13 @@ public:
   std::shared_ptr<AstNode> handle_;
 };
 
-
-template <typename data_t>
-class RegisterHeavy {
+template <typename data_t> class RegisterHeavy {
 public:
-  RegisterHeavy() :
-    data_(nullptr) {
-  }
+  RegisterHeavy() : data_(nullptr) {}
 
-  RegisterHeavy(data_t data) :
-    data_(data) {
-  }
+  RegisterHeavy(data_t data) : data_(data) {}
 
-
-  RegisterHeavy(const RegisterHeavy &reg) :
-    data_(reg.data_) {
-  }
+  RegisterHeavy(const RegisterHeavy &reg) : data_(reg.data_) {}
 
   RegisterHeavy &operator=(const RegisterHeavy &reg) {
     data_ = reg.data_;
@@ -173,6 +137,5 @@ public:
 
   data_t data_;
 };
-
 
 #endif

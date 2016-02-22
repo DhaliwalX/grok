@@ -13,7 +13,7 @@
 
 #include <iostream>
 #include <string>
-#include <vector>  // stack
+#include <vector> // stack
 #include <memory>
 
 #define JS JSBasicObject::ObjectType
@@ -27,25 +27,23 @@ static bool GenerateCode(CodeGen *codegen,
                          std::shared_ptr<AstNode> node, Machine *machine);
 static bool __GenerateCode(CodeGen *codegen,
                            BytecodeProgram<Register, Bytecode> *p,
-                           std::shared_ptr<AstNode> node,
-                           Machine *machine);
+                           std::shared_ptr<AstNode> node, Machine *machine);
 
-#define CASES()                                   \
-    case AstNode::ExpressionType::_or:            \
-    case AstNode::ExpressionType::_and:           \
-    case AstNode::ExpressionType::_bitor:         \
-    case AstNode::ExpressionType::_bitxor:        \
-    case AstNode::ExpressionType::_bitand:        \
-    case AstNode::ExpressionType::_equality:      \
-    case AstNode::ExpressionType::_relational:    \
-    case AstNode::ExpressionType::_shift:         \
-    case AstNode::ExpressionType::_term:          \
-    case AstNode::ExpressionType::_factor
+#define CASES()                                                                \
+  case AstNode::ExpressionType::_or:                                           \
+  case AstNode::ExpressionType::_and:                                          \
+  case AstNode::ExpressionType::_bitor:                                        \
+  case AstNode::ExpressionType::_bitxor:                                       \
+  case AstNode::ExpressionType::_bitand:                                       \
+  case AstNode::ExpressionType::_equality:                                     \
+  case AstNode::ExpressionType::_relational:                                   \
+  case AstNode::ExpressionType::_shift:                                        \
+  case AstNode::ExpressionType::_term:                                         \
+  case AstNode::ExpressionType::_factor
 
 // CodeGen class : generates code for various expressions
 class CodeGen {
 public:
-
   // internal routine for generating code for various expressions
   bool __gen_code(BytecodeProgram<Register, Bytecode> *program,
                   std::shared_ptr<AstNode> node) {
@@ -63,9 +61,9 @@ public:
       return false;
       break;
 
-    CASES():
-      if (__gen_code(program, node->links_[0])
-          && __gen_code(program, node->links_[1])) {
+      CASES()
+          : if (__gen_code(program, node->links_[0]) &&
+                __gen_code(program, node->links_[1])) {
         GenInstruction(program, node);
         return true;
       }
@@ -92,19 +90,19 @@ public:
     return status;
   }
 
-  bool GenerateForMemberIdent(BytecodeProgram<Register, Bytecode>* program,
+  bool GenerateForMemberIdent(BytecodeProgram<Register, Bytecode> *program,
                               std::shared_ptr<AstNode> node);
-  bool GenerateUnary(BytecodeProgram<Register, Bytecode>* program,
+  bool GenerateUnary(BytecodeProgram<Register, Bytecode> *program,
                      std::shared_ptr<AstNode> node);
-  bool GeneratePostOperator(BytecodeProgram<Register, Bytecode>* program,
+  bool GeneratePostOperator(BytecodeProgram<Register, Bytecode> *program,
                             std::shared_ptr<AstNode> node);
-  bool GeneratePreOperator(BytecodeProgram<Register, Bytecode>* program,
+  bool GeneratePreOperator(BytecodeProgram<Register, Bytecode> *program,
                            std::shared_ptr<AstNode> node);
-  bool GenerateForMemberChild(BytecodeProgram<Register, Bytecode>* program,
+  bool GenerateForMemberChild(BytecodeProgram<Register, Bytecode> *program,
                               std::shared_ptr<AstNode> node);
-  bool GenerateFunctionCall(BytecodeProgram<Register, Bytecode>* program,
+  bool GenerateFunctionCall(BytecodeProgram<Register, Bytecode> *program,
                             std::shared_ptr<AstNode> node);
-  bool GenerateForMemberChildren(BytecodeProgram<Register, Bytecode>* program,
+  bool GenerateForMemberChildren(BytecodeProgram<Register, Bytecode> *program,
                                  std::shared_ptr<AstNode> node);
   bool GenerateMember(BytecodeProgram<Register, Bytecode> *program,
                       std::shared_ptr<AstNode> node);
@@ -114,33 +112,31 @@ public:
   // generate code for assignment expression
   bool AssignmentExpression(BytecodeProgram<Register, Bytecode> *program,
                             std::shared_ptr<AstNode> node) {
-    if (node->links_[0]->relation1_ != IDENT
-        && (node->links_[0]->expression_type_ 
-            != AstNode::ExpressionType::_member)) {
+    if (node->links_[0]->relation1_ != IDENT &&
+        (node->links_[0]->expression_type_ !=
+         AstNode::ExpressionType::_member)) {
       printf("Can't assign to a rvalue\n");
       return false;
     }
     __gen_code(program, node->links_[1]);
-    if (node->links_[0]->expression_type_ 
-        == AstNode::ExpressionType::_member) {
+    if (node->links_[0]->expression_type_ == AstNode::ExpressionType::_member) {
       GenerateMemberW(program, node->links_[0]);
       program->text_.push_back(B::oassign(0));
       program->text_.push_back(B::opopts());
-    }
-    else {
+    } else {
       AddSymbol(program, node->links_[0]);
-      program->text_.push_back(B::popkey(Register(
-        node->links_[0]->variable_.GetName())));
-      program->text_.push_back(B::pushkey(Register(
-        node->links_[0]->variable_.GetName())));
+      program->text_.push_back(
+          B::popkey(Register(node->links_[0]->variable_.GetName())));
+      program->text_.push_back(
+          B::pushkey(Register(node->links_[0]->variable_.GetName())));
     }
     return true;
   }
 
-#define CASE(a, b)                                     \
-case a:                                                \
-    program->text_.push_back(B::b());                  \
-    break;
+#define CASE(a, b)                                                             \
+  \
+case a : program->text_.push_back(B::b());                                     \
+  break;
 
   // generate instruction for binary operations
   void GenInstruction(BytecodeProgram<Register, Bytecode> *program,
@@ -216,8 +212,8 @@ case a:                                                \
     for (auto it = node->links_.begin(); it != node->links_.end(); it++) {
       if (!__gen_code(program, (*it)->links_[0]))
         return 0;
-      program->text_.push_back(B::opoptobj(
-        Register((*it)->variable_.GetName())));
+      program->text_.push_back(
+          B::opoptobj(Register((*it)->variable_.GetName())));
     }
     program->text_.push_back(B::opopts());
     return 1;
@@ -238,18 +234,16 @@ case a:                                                \
   int AddSymbol(BytecodeProgram<Register, Bytecode> *program,
                 std::shared_ptr<AstNode> node) {
     auto v = Heap::heap.FindVariable(node->variable_.GetName());
-    
+
     // if symbol already exists return the address of that variable
-    if (v.get()
-        && v->expression_type_ == AstNode::ExpressionType::_undefined)
+    if (v.get() && v->expression_type_ == AstNode::ExpressionType::_undefined)
       return 1;
 
     auto temp = std::make_shared<AstNode>();
     temp->obj_ = std::make_shared<JSBasicObject>();
     temp->expression_type_ = AstNode::ExpressionType::_primary;
     // else create an undefined object in current scope
-    Heap::heap.PushVariable({ node->variable_.GetName(),
-                             temp });    
+    Heap::heap.PushVariable({node->variable_.GetName(), temp});
     return 1;
   }
 
@@ -281,24 +275,22 @@ case a:                                                \
     return __gen_code(program, node);
   }
 
-
   static unsigned long addr_;
+
 private:
   // needed for postorder evaluation
   std::vector<std::shared_ptr<AstNode>> stack_;
 
-  std::shared_ptr<AstNode> current_;    // current node being evaluated
+  std::shared_ptr<AstNode> current_; // current node being evaluated
   std::vector<int> addr_stack_;
   Machine *machine_;
 };
 
-static bool GenerateIf(CodeGen *codegen, 
-                       BytecodeProgram<Register, Bytecode> *p,
-                       std::shared_ptr<AstNode> node,
-                       Machine *machine) {
+static bool GenerateIf(CodeGen *codegen, BytecodeProgram<Register, Bytecode> *p,
+                       std::shared_ptr<AstNode> node, Machine *machine) {
   if (!codegen->GenerateCode(p, node->links_[0], machine))
     return false;
-  
+
   int i = p->text_.size();
 
   // last register is always used for conditional expression
@@ -309,12 +301,12 @@ static bool GenerateIf(CodeGen *codegen,
   if (!__GenerateCode(codegen, p, node->links_[1], machine))
     return false;
 
-  int size = p->text_.size() - i; 
+  int size = p->text_.size() - i;
   p->text_.insert(p->text_.begin() + i + 3, B::jmp(size - 3));
-  
+
   size = p->text_.size();
-  if ((node->links_.size() == 3)
-      && !__GenerateCode(codegen, p, node->links_[2], machine)) {
+  if ((node->links_.size() == 3) &&
+      !__GenerateCode(codegen, p, node->links_[2], machine)) {
     int s = p->text_.size() - size;
     p->text_.insert(p->text_.begin() + size, B::jmp(s));
     return true;
@@ -325,8 +317,7 @@ static bool GenerateIf(CodeGen *codegen,
 
 static bool GenerateWhile(CodeGen *codegen,
                           BytecodeProgram<Register, Bytecode> *p,
-                          std::shared_ptr<AstNode> node,
-                          Machine *machine) {
+                          std::shared_ptr<AstNode> node, Machine *machine) {
   int start = p->text_.size();
   if (!codegen->GenerateCode(p, node->links_[0], machine))
     return false;
@@ -351,8 +342,7 @@ static bool GenerateWhile(CodeGen *codegen,
 
 static bool GenerateFor(CodeGen *codegen,
                         BytecodeProgram<Register, Bytecode> *p,
-                        std::shared_ptr<AstNode> node,
-                        Machine *machine) {
+                        std::shared_ptr<AstNode> node, Machine *machine) {
   if (!codegen->GenerateCode(p, node->links_[0], machine))
     return false;
   int start = p->text_.size();
@@ -385,8 +375,7 @@ static bool GenerateFor(CodeGen *codegen,
 
 static bool GenerateBlock(CodeGen *codegen,
                           BytecodeProgram<Register, Bytecode> *p,
-                          std::shared_ptr<AstNode> node,
-                          Machine *machine) {
+                          std::shared_ptr<AstNode> node, Machine *machine) {
   if (!node->links_.size())
     return true;
 
@@ -398,15 +387,13 @@ static bool GenerateBlock(CodeGen *codegen,
 }
 
 static bool GenerateReturn(CodeGen *codegen,
-                          BytecodeProgram<Register, Bytecode> *p,
-                          std::shared_ptr<AstNode> node,
-                          Machine *machine) {
-  if (node->links_[0]->expression_type_ == AstNode::ExpressionType::_undefined)
-  {
+                           BytecodeProgram<Register, Bytecode> *p,
+                           std::shared_ptr<AstNode> node, Machine *machine) {
+  if (node->links_[0]->expression_type_ ==
+      AstNode::ExpressionType::_undefined) {
     p->text_.push_back(B::ret0());
     return true;
-  }
-  else {
+  } else {
     if (!codegen->GenerateCode(p, node->links_[0], machine)) {
       printf("Code Generation for return statement failed\n");
       return false;
@@ -418,9 +405,8 @@ static bool GenerateReturn(CodeGen *codegen,
 }
 
 static bool __GenerateCode(CodeGen *codegen,
-                         BytecodeProgram<Register, Bytecode> *p,
-                         std::shared_ptr<AstNode> node, 
-                           Machine *machine) {
+                           BytecodeProgram<Register, Bytecode> *p,
+                           std::shared_ptr<AstNode> node, Machine *machine) {
   switch (node->expression_type_) {
   case AstNode::ExpressionType::_for:
     return GenerateFor(codegen, p, node, machine);
@@ -446,9 +432,8 @@ static bool __GenerateCode(CodeGen *codegen,
 }
 
 static bool GenerateCode(CodeGen *codegen,
-                           BytecodeProgram<Register, Bytecode> *p,
-                           std::shared_ptr<AstNode> node,
-                         Machine *machine) {
+                         BytecodeProgram<Register, Bytecode> *p,
+                         std::shared_ptr<AstNode> node, Machine *machine) {
   if (!node.get() && !p && !codegen) {
     printf("tree or program or codegen was null\n");
     return false;

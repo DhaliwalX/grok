@@ -28,7 +28,6 @@
 #ifndef HEAP_H_
 #define HEAP_H_
 
-
 #include "jsobject.h"
 #include "lexer.h"
 #include "parser.h"
@@ -55,26 +54,20 @@ static void PrintHeap(const Stack &stack);
 // accurate, though it is little slower.
 class Stack {
   friend void PrintHeap(const Stack &stack);
-public:
 
+public:
   // default constructor
-  Stack() {
-    CreateScope();
-  }
+  Stack() { CreateScope(); }
 
   // create a block scope
-  void CreateScope() {
-    stack_.push_back(map<string, shared_ptr<AstNode>>());
-  }
+  void CreateScope() { stack_.push_back(map<string, shared_ptr<AstNode>>()); }
 
   // remove the block scope
   // Removing the scope will simply removes all the javascript objects and
   // deletes them automatically because the reference count of these shared_ptr
   // goes to 0 (maybe not if there is a global reference or a reference from
   // a object which lie in the outer scope to this object)
-  void RemoveScope() {
-    stack_.pop_back();
-  }
+  void RemoveScope() { stack_.pop_back(); }
 
   // get the javascript object or variable from its name
   shared_ptr<AstNode> FindVariable(const string &name) {
@@ -109,17 +102,15 @@ public:
     return false;
   }
 
-  void RemoveAllScopes() {
-    stack_.clear();
-  }
+  void RemoveAllScopes() { stack_.clear(); }
 
   // returns the variable from the current scope. Returns empty pointer
   // if there is no variable in the current scope
   shared_ptr<AstNode> FindVariableInScope(const std::string &name) {
     return _Find(stack_.back(), name);
   }
-private:
 
+private:
   // internal _Find method
   shared_ptr<AstNode> _Find(map<string, shared_ptr<AstNode>> &inst,
                             const std::string &name) {
@@ -163,7 +154,5 @@ static void PrintHeap(const Stack &stack) {
     PrintMap(i);
   }
 }
-
-
 }
 #endif

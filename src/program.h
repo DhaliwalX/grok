@@ -8,27 +8,18 @@
 // A program contains the data section and instruction section
 // A vector contains all the data section and another vector contains the
 // instructions of the program
-template <typename DataType,
-  typename BytecodeType>
-class BytecodeProgram {
+template <typename DataType, typename BytecodeType> class BytecodeProgram {
 public:
-  BytecodeProgram() :
-    data_(),
-    text_() {
-  }
+  BytecodeProgram() : data_(), text_() {}
 
-  BytecodeProgram(std::vector<DataType> data,
-                  std::vector<BytecodeType> text)
-    : data_(data),
-    text_(text) {
-  }
+  BytecodeProgram(std::vector<DataType> data, std::vector<BytecodeType> text)
+      : data_(data), text_(text) {}
 
   BytecodeProgram(const BytecodeProgram<DataType, BytecodeType> &program)
-    : data_(program.data_),
-    text_(program.text_) {
-  }
+      : data_(program.data_), text_(program.text_) {}
 
-  BytecodeProgram &operator=(const BytecodeProgram<DataType, BytecodeType> &program) {
+  BytecodeProgram &
+  operator=(const BytecodeProgram<DataType, BytecodeType> &program) {
     data_ = program.data_;
     text_ = program.text_;
     return *this;
@@ -53,9 +44,8 @@ public:
 
   ~BytecodeProgram() = default;
 
-
-  std::vector<DataType>& Data() { return this->data_; }
-  std::vector<BytecodeType>& Text() { return this->text_; }
+  std::vector<DataType> &Data() { return this->data_; }
+  std::vector<BytecodeType> &Text() { return this->text_; }
 
   std::vector<DataType> data_;
   std::vector<BytecodeType> text_;

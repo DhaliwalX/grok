@@ -9,24 +9,19 @@
 namespace list {
 
 // doubly linked list node
-template <typename DataType>
-struct list_node {
+template <typename DataType> struct list_node {
   DataType data_;
-  list_node * next_;
-  list_node * prev_;
+  list_node *next_;
+  list_node *prev_;
 
   // default constructor
-  list_node() :
-    data_() {
-  }
+  list_node() : data_() {}
 
-  list_node(const DataType &data) :
-    data_(data), next_(nullptr), prev_(nullptr) {
-  }
+  list_node(const DataType &data)
+      : data_(data), next_(nullptr), prev_(nullptr) {}
 
-  list_node(const list_node &rhs) :
-    data_(rhs.data_), next_(rhs.next_), prev_(rhs.prev_) {
-  }
+  list_node(const list_node &rhs)
+      : data_(rhs.data_), next_(rhs.next_), prev_(rhs.prev_) {}
 
   list_node &operator=(const list_node &rhs) {
     data_ = rhs.data_;
@@ -35,33 +30,24 @@ struct list_node {
     return *this;
   }
 
-  void remove_links() {
-    next_ = prev_ = nullptr;
-  }
+  void remove_links() { next_ = prev_ = nullptr; }
 
   ~list_node() = default;
 };
 
 // list_iterator : iterator class for doubly linked list node
-template <typename DataType>
-class list_iterator {
+template <typename DataType> class list_iterator {
 public:
   using size_type = unsigned long long;
   using reference = DataType;
 
   // default constructor
-  list_iterator() :
-    curr_{ nullptr } {
-  }
+  list_iterator() : curr_{nullptr} {}
 
   // from a pointer
-  list_iterator(list_node<DataType> * curr) :
-    curr_(curr) {
-  }
+  list_iterator(list_node<DataType> *curr) : curr_(curr) {}
 
-  list_iterator(const list_iterator &rhs) :
-    curr_(rhs.curr_) {
-  }
+  list_iterator(const list_iterator &rhs) : curr_(rhs.curr_) {}
 
   list_iterator &operator=(const list_iterator &rhs) {
     curr_ = rhs.curr_;
@@ -74,7 +60,7 @@ public:
     if (curr_) {
       if (curr_->next_)
         return list_iterator(curr_ = curr_->next_);
-      else  //  we're at end so we don't want to increment here
+      else //  we're at end so we don't want to increment here
         return *this;
     }
     throw std::out_of_range("pointer was NULL");
@@ -84,11 +70,11 @@ public:
   list_iterator operator++(int) {
     if (curr_) {
       if (curr_->next_) {
-        list_node<DataType> * save = curr_;
+        list_node<DataType> *save = curr_;
         curr_ = curr_->next_;
         return list_iterator(save);
-      }
-      else return *this;
+      } else
+        return *this;
     }
     throw std::out_of_range("pointer was NULL");
   }
@@ -98,7 +84,7 @@ public:
     if (curr_) {
       if (curr_->prev_)
         return list_iterator(curr_ = curr_->prev_);
-      else  //  we're at start and we don't want to decrement here
+      else //  we're at start and we don't want to decrement here
         return *this;
     }
     throw std::out_of_range("pointer was NULL");
@@ -108,16 +94,16 @@ public:
   list_iterator operator--(int) {
     if (curr_) {
       if (curr_->next_) {
-        list_node<DataType> * save = curr_;
+        list_node<DataType> *save = curr_;
         curr_ = curr_->prev_;
         return list_iterator<DataType>(save);
-      }
-      else return *this;
+      } else
+        return *this;
     }
     throw std::out_of_range("pointer was NULL");
   }
 
-  // plus operator 
+  // plus operator
   list_iterator<DataType> operator+(size_type off) {
     list_iterator<DataType> node = *this;
     while (off--)
@@ -134,53 +120,38 @@ public:
   }
 
   // dereference operator
-  DataType& operator*() {
-    return curr_->data_;
-  }
+  DataType &operator*() { return curr_->data_; }
 
   // arrow operator
-  DataType* operator->() {
-    return &(curr_->data_);
-  }
+  DataType *operator->() { return &(curr_->data_); }
 
-  bool operator==(const list_iterator &rhs) {
-    return curr_ == rhs.curr_;
-  }
+  bool operator==(const list_iterator &rhs) { return curr_ == rhs.curr_; }
 
-  bool operator!=(const list_iterator &rhs) {
-    return !(*this == rhs);
-  }
+  bool operator!=(const list_iterator &rhs) { return !(*this == rhs); }
 
-  list_node<DataType> * _Ptr() const {
-    return curr_;
-  }
+  list_node<DataType> *_Ptr() const { return curr_; }
 
-  list_node<DataType> *& _Ptr() {
-    return curr_;
-  }
+  list_node<DataType> *&_Ptr() { return curr_; }
 
 private:
-  list_node<DataType> * curr_;
+  list_node<DataType> *curr_;
 };
 
 // main list class
-template <typename DataType>
-class List {
+template <typename DataType> class List {
 public:
   typedef typename list_iterator<DataType> iterator;
   typedef typename list_iterator<DataType>::size_type size_type;
 
-  List() :
-    head_(new list_node<DataType>()),
-    last_(new list_node<DataType>()),
-    size_(0) {
+  List()
+      : head_(new list_node<DataType>()), last_(new list_node<DataType>()),
+        size_(0) {
     init();
   }
 
-  List(const std::initializer_list<DataType> &list) :
-    head_(new list_node<DataType>()),
-    last_(new list_node<DataType>()),
-    size_(0) {
+  List(const std::initializer_list<DataType> &list)
+      : head_(new list_node<DataType>()), last_(new list_node<DataType>()),
+        size_(0) {
     init();
     for (const auto &element : list) {
       _push_back(new list_node<DataType>(element));
@@ -195,8 +166,7 @@ public:
 
   // insert a range of element to the list after a given position
   // \complexity : O(n)
-  iterator insert(const iterator &pos,
-                  const iterator &first,
+  iterator insert(const iterator &pos, const iterator &first,
                   const iterator &last) {
     iterator pos_c = pos;
     for (iterator it = first; it != last; ++it) {
@@ -235,7 +205,7 @@ public:
   // insert an element after a given position
   // \complexity : O(1)
   iterator insert(const iterator &pos, const DataType &data) {
-    list_node<DataType> *data_node{ new list_node<DataType>(data) };
+    list_node<DataType> *data_node{new list_node<DataType>(data)};
     _insert_after(pos._Ptr(), data_node);
     return iterator(data_node);
   }
@@ -246,42 +216,29 @@ public:
   }
 
   // get iterator to the beginning of the list
-  iterator begin() {
-    return iterator(head_->next_);
-  }
+  iterator begin() { return iterator(head_->next_); }
 
   // get iterator to the end of the list
-  iterator end() {
-    return iterator(last_);
-  }
+  iterator end() { return iterator(last_); }
 
-  bool empty() const {
-    return !size_;
-  }
+  bool empty() const { return !size_; }
 
   // removes the last element
-  inline void pop_back() {
-    erase(--end());
-  }
+  inline void pop_back() { erase(--end()); }
 
-  DataType &back() {
-    return *iterator(end() - 1);
-  }
+  DataType &back() { return *iterator(end() - 1); }
 
-  DataType back() const {
-    return *iterator(end() - 1);
-  }
+  DataType back() const { return *iterator(end() - 1); }
 
-  void clear() {
-    erase(begin(), end());
-  }
+  void clear() { erase(begin(), end()); }
 
   size_type size() const { return this->size_; }
 
   // rotates the list towards left with first element to the last
   // rotation occurs in constant time
   void rotate_left() {
-    if (size() > size_type(1)) { // rotation occurs only if size is greater than 1
+    if (size() >
+        size_type(1)) { // rotation occurs only if size is greater than 1
       auto save = head_->next_;
       head_->next_ = save->next_;
       head_->next_->prev_ = head_;
@@ -312,6 +269,7 @@ public:
     this->size_ += list.size();
     list.init();
   }
+
 private:
   // internal routine of push_back
   inline void _push_back(list_node<DataType> *element) {
@@ -363,20 +321,14 @@ private:
 };
 
 // node class for singly linked list
-template <typename DataType>
-class forward_list_node {
+template <typename DataType> class forward_list_node {
 public:
-  forward_list_node(const DataType &data)
-    : data_(data), next_(nullptr) {
-  }
+  forward_list_node(const DataType &data) : data_(data), next_(nullptr) {}
 
-  forward_list_node()
-    : data_(), next_(nullptr) {
-  }
+  forward_list_node() : data_(), next_(nullptr) {}
 
   forward_list_node(const forward_list_node &rhs)
-    : data_(rhs.data_), next_(rhs.next_) {
-  }
+      : data_(rhs.data_), next_(rhs.next_) {}
 
   forward_list_node &operator=(const forward_list_node &rhs) {
     data_ = rhs.data_;
@@ -390,25 +342,18 @@ public:
 };
 
 // iterator class for singly linked list
-template <typename DataType>
-class f_list_iterator {
+template <typename DataType> class f_list_iterator {
 public:
-  using NodePtr = typename forward_list_node<DataType>*;
+  using NodePtr = typename forward_list_node<DataType> *;
   using reference = DataType;
   using pointer = DataType *;
   using ptrdiff_t = std::ptrdiff_t;
 
-  f_list_iterator() :
-    current_(nullptr) {
-  }
+  f_list_iterator() : current_(nullptr) {}
 
-  f_list_iterator(NodePtr ptr)
-    : current_(ptr) {
-  }
+  f_list_iterator(NodePtr ptr) : current_(ptr) {}
 
-  f_list_iterator(const f_list_iterator &rhs)
-    : current_(rhs.current_) {
-  }
+  f_list_iterator(const f_list_iterator &rhs) : current_(rhs.current_) {}
 
   f_list_iterator &operator=(const f_list_iterator &rhs) {
     current_ = rhs.current_;
@@ -417,13 +362,9 @@ public:
 
   ~f_list_iterator() = default;
 
-  reference &operator*() {
-    return current_->data_;
-  }
+  reference &operator*() { return current_->data_; }
 
-  pointer operator->() {
-    return (&(current_->data_));
-  }
+  pointer operator->() { return (&(current_->data_)); }
 
   f_list_iterator &operator++() {
     if (current_) {
@@ -454,18 +395,15 @@ public:
     return rhs.current_ != current_;
   }
 
-  bool operator==(const f_list_iterator &rhs) {
-    return !((*this) != rhs);
-  }
+  bool operator==(const f_list_iterator &rhs) { return !((*this) != rhs); }
 
-  NodePtr& _Ptr() { return current_; }
+  NodePtr &_Ptr() { return current_; }
 
 private:
-  forward_list_node<DataType>* current_;
+  forward_list_node<DataType> *current_;
 };
 
-template <typename DataType>
-class forward_list {
+template <typename DataType> class forward_list {
 public:
   using iterator = typename f_list_iterator<DataType>;
   using NodePtr = typename iterator::NodePtr;
@@ -474,17 +412,11 @@ public:
   using Node = typename forward_list_node<DataType>;
   using size_type = typename unsigned long long;
 
-  forward_list() :
-    head_(new Node()),
-    end_(new Node()),
-    size_(0) {
-    init();
-  }
+  forward_list() : head_(new Node()), end_(new Node()), size_(0) { init(); }
 
-  forward_list(const std::initializer_list<DataType> &list) :
-    head_(new Node()),
-    end_(new Node()),
-    size_(0) { // create list from initializer list
+  forward_list(const std::initializer_list<DataType> &list)
+      : head_(new Node()), end_(new Node()),
+        size_(0) { // create list from initializer list
     init();
     auto beg = list.begin();
     iterator pos(head_);
@@ -507,13 +439,9 @@ public:
   // add a new element to the end
   // \complexity : O(1)
   // may invalidate iterators pointing to the end
-  void push_back(const DataType &data) {
-    insert(end_, new Node(data));
-  }
+  void push_back(const DataType &data) { insert(end_, new Node(data)); }
 
-  void push_front(const DataType &data) {
-    insert(head_, new Node(data));
-  }
+  void push_front(const DataType &data) { insert(head_, new Node(data)); }
 
   void pop_front(const DataType &data) {
     auto rem = head_->next_;
@@ -529,7 +457,7 @@ public:
     delete rem;
   }
 
-  // erase an element after a given position 
+  // erase an element after a given position
   // \complexity : O(1);
   iterator erase_after(iterator element) {
     NodePtr e = element._Ptr()->next_;
@@ -555,10 +483,9 @@ public:
   }
 
   // insert a range of elements
-  // \complexity : O(n) 
+  // \complexity : O(n)
   template <typename AnotherIterator>
-  iterator insert_after(iterator pos,
-                        AnotherIterator start,
+  iterator insert_after(iterator pos, AnotherIterator start,
                         AnotherIterator end) {
     while (start != end) {
       pos = insert_after(pos, (*start));
@@ -569,8 +496,8 @@ public:
 
   size_type size() const { return this->size_; }
   bool empty() const { return !this->size_; }
-  NodePtr& GetHead() { return head_; }
-  NodePtr& GetEnd() { return end_; }
+  NodePtr &GetHead() { return head_; }
+  NodePtr &GetEnd() { return end_; }
   // remove all the elements from the list
   void clear() { erase_after(begin(), end()); }
 
@@ -579,14 +506,16 @@ public:
   iterator find(const DataType &data) {
     iterator beg = begin();
     for (; beg != end(); ++beg)
-      if (*beg == data) break;
+      if (*beg == data)
+        break;
     return beg;
   }
+
 protected:
   virtual void insert(NodePtr pos, NodePtr element) {
     if (pos == end_) {
       // if we're at end then, we just copy the data to the end_, and
-      // make the element new end_, by resetting the data_. It thus 
+      // make the element new end_, by resetting the data_. It thus
       // invalidates the iterator pointing to the end
       end_->data_ = element->data_;
       end_->next_ = element;
@@ -615,7 +544,7 @@ protected:
   // this function is quite safe. You can never go back the head_
   // \complexity : O(n)
   NodePtr go_back(ptrdiff_t off, NodePtr pos) {
-    iterator head{ head_ };
+    iterator head{head_};
     iterator save = head;
     head = head + off;
     while (head._Ptr() != pos) {
@@ -642,8 +571,8 @@ public:
   using size_type = typename unsigned long long;
 
   using base = list::forward_list<DataType>;
-  using predicate_type
-    = typename std::function<bool(const DataType&, const DataType&)>;
+  using predicate_type =
+      typename std::function<bool(const DataType &, const DataType &)>;
 
   // inherit some base methods to public part
   using base::size;
@@ -654,22 +583,13 @@ public:
   using base::erase_after;
 
   // default constructor
-  sorted_list() :
-    base(),
-    pred_(std::less<DataType>()) {
-  }
+  sorted_list() : base(), pred_(std::less<DataType>()) {}
 
   // constructor using predicate
-  explicit sorted_list(predicate_type &pred) :
-    base(),
-    pred_(pred) {
-  }
+  explicit sorted_list(predicate_type &pred) : base(), pred_(pred) {}
 
-
-  sorted_list(const std::initializer_list<DataType> &list) :
-    base(list),
-    pred_(std::less<DataType>()) {
-  }
+  sorted_list(const std::initializer_list<DataType> &list)
+      : base(list), pred_(std::less<DataType>()) {}
 
   // insert the element into the list at  correct position
   // \complexity : O(n)
@@ -679,7 +599,6 @@ public:
   }
 
 private:
-
   // returns the pointer to the largest node such that data > node->data_
   // \complexity : O(n)
   NodePtr find_position(const DataType &data) {
@@ -687,13 +606,14 @@ private:
     iterator save = beg, en = end();
     while (pred_(*beg, data)) {
       save = beg;
-      ++beg;    // this method is safer
-      if (beg == en) break;
+      ++beg; // this method is safer
+      if (beg == en)
+        break;
     }
 
     // in case the element that is to be added is smaller than first element
-    // then, we have to add the element just after the head_ node. Since 
-    // iterator can never point to head_ node so head_ node is explicitly 
+    // then, we have to add the element just after the head_ node. Since
+    // iterator can never point to head_ node so head_ node is explicitly
     // returned
     return save == beg ? head_ : save._Ptr();
   }

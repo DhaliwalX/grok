@@ -38,7 +38,6 @@
 
 class Expression {
 public:
-
   inline static std::string ParseIdentifier(Lexer *lexer);
 
   // deletes the current scope and heap associated with it
@@ -78,8 +77,7 @@ public:
   static bool ForStatement(Lexer *lexer, std::shared_ptr<AstNode> &expr);
   static bool WithStatement(Lexer *lexer, std::shared_ptr<AstNode> &expr);
   static bool ReturnStatement(Lexer *lexer, std::shared_ptr<AstNode> &expr);
-  static bool FunctionStatement(Lexer *lexer,
-                                std::shared_ptr<AstNode> &expr,
+  static bool FunctionStatement(Lexer *lexer, std::shared_ptr<AstNode> &expr,
                                 bool native,
                                 NATIVE_HANDLE_TYPE native_handle = nullptr);
 
@@ -88,6 +86,5 @@ public:
   static std::string err_msg_;
   static std::string file_name_;
 };
-
 
 #endif // EXPRESSION_H_

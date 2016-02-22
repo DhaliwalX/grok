@@ -14,8 +14,7 @@
 
 class NativeInstaller {
 public:
-  static void InstallFunction(std::string name,
-                              std::string proto,
+  static void InstallFunction(std::string name, std::string proto,
                               NATIVE_HANDLE_TYPE handle) {
     Lexer *lexer = new Lexer(proto);
     std::shared_ptr<AstNode> proto_node;
@@ -24,11 +23,11 @@ public:
       Expression::err_msg_.clear();
       return;
     }
-    Heap::heap.PushVariable({ name, proto_node });
+    Heap::heap.PushVariable({name, proto_node});
     delete lexer;
   }
 
-  static void InstallNativeObject() { }
+  static void InstallNativeObject() {}
 };
 
 #endif // NATIVE_H_

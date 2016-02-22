@@ -43,7 +43,7 @@
 #include <cstdio>
 #include <string>
 
-#define DEBUG_OPT(opt)  options.push_back(opt)
+#define DEBUG_OPT(opt) options.push_back(opt)
 
 #define DEBUG 0
 
@@ -81,10 +81,7 @@ bool print_top(Machine *machine) {
 
 class Grok {
 public:
-  Grok() :
-    expression_(), is_debug_(false),
-    lexer_(nullptr) {
-  }
+  Grok() : expression_(), is_debug_(false), lexer_(nullptr) {}
 
   void WorkAndDebug() {
     Timer t;
@@ -100,26 +97,22 @@ public:
     t.Start();
     bool result = Expression::Parse(lexer, expression_);
     t.Stop();
-    std::cout << "[time: " << t.ElapsedTimeInMicroseconds() / 1000.0
-      << "ms]\n";
+    std::cout << "[time: " << t.ElapsedTimeInMicroseconds() / 1000.0 << "ms]\n";
     if (result) {
       std::cout << "Executing...     ";
       t.Start();
       for (auto link : expression_->links_)
-        ;// interpreter_.ExecuteHighLevelStatement(link);
+        ; // interpreter_.ExecuteHighLevelStatement(link);
       t.Stop();
       std::cout << "\n[Execution time: "
-        << t.ElapsedTimeInMicroseconds() / 1000.0
-        << "ms]\n";
-    }
-    else {
+                << t.ElapsedTimeInMicroseconds() / 1000.0 << "ms]\n";
+    } else {
       std::printf("%s\n", Expression::err_msg_.c_str());
       Expression::err_msg_.clear();
     }
     delete lexer;
     std::printf("\n");
   }
-
 
   void Loadfile(const char *file) {
     bool f = true;
@@ -128,14 +121,12 @@ public:
       bool result = Expression::Parse(lexer, expression_);
       if (result) {
         for (auto link : expression_->links_)
-          ;// interpreter_.ExecuteHighLevelStatement(link);
-      }
-      else {
+          ; // interpreter_.ExecuteHighLevelStatement(link);
+      } else {
         std::printf("%s\n", Expression::err_msg_.c_str());
         Expression::err_msg_.clear();
       }
-    }
-    else {
+    } else {
       printf("%s", lexer->GetErrorReport().c_str());
     }
     delete lexer;
@@ -143,7 +134,8 @@ public:
   }
 
   std::string GetGrokVersion() const {
-    return std::string("Grok (version 3.0): A simple Functional Language Interpreter");
+    return std::string(
+        "Grok (version 3.0): A simple Functional Language Interpreter");
   }
 
   void PrintIntroduction() {
@@ -165,33 +157,27 @@ public:
                 GetGrokVersion().c_str());
   }
 
-  bool SetCommandOptions(std::vector<std::string>& options) {
+  bool SetCommandOptions(std::vector<std::string> &options) {
     for (auto &option : options) {
       if (option == "-d") {
         is_debug_ = true;
         return true;
-      }
-      else if (option == "-h") {
+      } else if (option == "-h") {
         ShowHelp();
         return false;
-      }
-      else if (option == "-t") {
+      } else if (option == "-t") {
         return false;
-      }
-      else if (option == "-v") {
+      } else if (option == "-v") {
         std::printf("%s\n", GetGrokVersion().c_str());
         return false;
-      }
-      else if (option == "-n") {
+      } else if (option == "-n") {
         std::printf("%s\n", GetGrokVersion().c_str());
         new_ = 1;
         return true;
-      }
-      else if (option[0] == '-') {
+      } else if (option[0] == '-') {
         std::printf("Bad arguments\n"
                     " Use -h to print help\n");
-      }
-      else {
+      } else {
         // it should be a file-name
         Loadfile(option.c_str());
         return false;
@@ -224,7 +210,7 @@ public:
     }
 #if DEBUG
     bytecodes.print(std::cout);
-#endif  // DEBUG
+#endif // DEBUG
     bytecodes.text_.push_back(B::hlt());
     machine_.prepare_machine(&bytecodes);
     machine_.execute();
@@ -234,8 +220,7 @@ public:
       Register result = machine_.StackTop();
       result.print(std::cout);
       printf("\n");
-    }
-    catch (...) {
+    } catch (...) {
       printf("undefined\n");
       return;
     }
@@ -243,18 +228,13 @@ public:
   }
 
   void InstallNatives() {
-    NativeInstaller::InstallFunction("dump",
-                                     "function __dump__()",
+    NativeInstaller::InstallFunction("dump", "function __dump__()",
                                      dump_machine);
-    NativeInstaller::InstallFunction("print",
-                                     "function __print__(a)",
+    NativeInstaller::InstallFunction("print", "function __print__(a)",
                                      print_top);
-    NativeInstaller::InstallFunction("clear",
-                                     "function __clear__()",
+    NativeInstaller::InstallFunction("clear", "function __clear__()",
                                      clear_stack);
-    NativeInstaller::InstallFunction("heap",
-                                     "function heap()",
-                                     print_heap);
+    NativeInstaller::InstallFunction("heap", "function heap()", print_heap);
   }
 
   void Run(int argc, char *argv[]) {
@@ -268,13 +248,14 @@ public:
         options.push_back(std::string(argv[i]));
       }
       bool result = SetCommandOptions(options);
-      if (!result) return;
+      if (!result)
+        return;
     }
     PrintIntroduction();
     Heap::heap.CreateScope();
     InstallNatives();
     while (true) {
-        RunWithNewInterpreter();
+      RunWithNewInterpreter();
     }
   }
 

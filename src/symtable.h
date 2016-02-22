@@ -13,9 +13,7 @@ class SymbolTable : public std::map<std::string, Data> {
 public:
   using base = typename std::map<std::string, Data>;
 
-  SymbolTable() :
-    base() {
-  }
+  SymbolTable() : base() {}
 
   SymbolTable(const SymbolTable<Data> &) = delete;
   SymbolTable &operator=(const SymbolTable<Data> &) = delete;
@@ -25,10 +23,8 @@ private:
   using base::base;
 };
 
-
 namespace SYM {
 static SymbolTable<unsigned long> symbol_table;
 }
-
 
 #endif // SYMTABLE_H_

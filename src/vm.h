@@ -23,33 +23,27 @@ enum class ScriptError : short {
 };
 
 class Heap {
-public: static js::Stack heap;
+public:
+  static js::Stack heap;
 };
 
 class Machine;
 
 static bool handle_call(Machine *machine, Bytecode &bytecode);
-static bool handle_call_native(Machine *machine,
-                               Bytecode &bytecode,
+static bool handle_call_native(Machine *machine, Bytecode &bytecode,
                                std::shared_ptr<JSFunction> function);
 
 class Machine {
   friend bool handle_call(Machine *machine, Bytecode &bytecode);
   friend bool handle_call_native(Machine *machine, Bytecode &bytecode,
                                  std::shared_ptr<JSFunction> function);
+
 public:
-  Machine() :
-    instruction_executed_(0),
-    instruction_register_(),
-    accumulator_(),
-    program_(nullptr),
-    data_(),
-    text_(),
-    stack_(),
-    returned_(false) {
+  Machine()
+      : instruction_executed_(0), instruction_register_(), accumulator_(),
+        program_(nullptr), data_(), text_(), stack_(), returned_(false) {
     stack_.reserve(1024);
     o_stack_.reserve(1024);
-
   }
 
   void prepare_machine(BytecodeProgram<Register, Bytecode> *program) {
@@ -57,7 +51,8 @@ public:
     instruction_executed_ = 0;
     if (text_.size())
       program_start_.set(text_.size());
-    else program_start_ = 0;
+    else
+      program_start_ = 0;
     data_.insert(data_.end(), program->data_.begin(), program->data_.end());
     text_.insert(text_.end(), program->text_.begin(), program->text_.end());
   }
@@ -67,7 +62,7 @@ public:
     program_start_ = 0;
   }
 
-  inline Register accumulator() { 
+  inline Register accumulator() {
     return data_[(unsigned int)accumulator_.value_];
   }
 
@@ -91,22 +86,21 @@ public:
   inline bool bit_or();
   inline bool bit_xor();
 
-  inline std::pair<unsigned long long, bool>
-    effective_address(Bytecode & code);
+  inline std::pair<unsigned long long, bool> effective_address(Bytecode &code);
 
-  inline void report_error(const std::string&);
-  inline void script_error(const std::string&);
+  inline void report_error(const std::string &);
+  inline void script_error(const std::string &);
   inline void print_stack_trace();
-  inline void decode_registers(int r, int&, int&, int&);
+  inline void decode_registers(int r, int &, int &, int &);
   inline bool check_if_valid(int, int, int);
   inline Register calculate_operand(int r);
 
   inline void set_object(Register &res);
 
-  inline bool is_zero(Register&);
+  inline bool is_zero(Register &);
 
-  bool HandleSpecialObject(std::shared_ptr<JSBasicObject>& object,
-                           Bytecode & bytecode);
+  bool HandleSpecialObject(std::shared_ptr<JSBasicObject> &object,
+                           Bytecode &bytecode);
 
   inline std::string dump() {
     std::ostringstream str;
@@ -177,7 +171,7 @@ public:
 
   // current instruction's register specs
   unsigned int reg_;
-  
+
   bool returned_;
 };
 

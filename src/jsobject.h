@@ -38,17 +38,11 @@
 // A javascript variable (name only)
 class JSVariable {
 public:
-  JSVariable(const std::string &name) :
-    name_(name) {
-  }
+  JSVariable(const std::string &name) : name_(name) {}
 
-  JSVariable() :
-    name_("") {
-  }
+  JSVariable() : name_("") {}
 
-  JSVariable(const JSVariable &var) :
-    name_(var.name_) {
-  }
+  JSVariable(const JSVariable &var) : name_(var.name_) {}
 
   JSVariable &operator=(const JSVariable &var) {
     name_ = var.name_;
@@ -62,15 +56,8 @@ private:
   std::string name_;
 };
 
-static std::string __type[7] = {
-  "null",
-  "undefined",
-  "number",
-  "string",
-  "object",
-  "array",
-  "function"
-};
+static std::string __type[7] = {"null",   "undefined", "number",  "string",
+                                "object", "array",     "function"};
 
 class JSArray;
 class JSObject;
@@ -85,7 +72,6 @@ class JSObject;
 //    JSFunction
 class JSBasicObject {
 public:
-
   // type of javascript objects
   enum class ObjectType {
     _null,
@@ -97,12 +83,11 @@ public:
     _function
   };
 
-
   // default constructor
   JSBasicObject() = default;
 
   JSBasicObject(const JSBasicObject &obj) = default;
-  JSBasicObject& operator=(const JSBasicObject &rhs) = default;
+  JSBasicObject &operator=(const JSBasicObject &rhs) = default;
   virtual ~JSBasicObject() = default;
 
   virtual std::string ToString() const { return "undefined"; }
@@ -116,17 +101,14 @@ public:
     return k;
   }
 
-  virtual ObjectType GetType() const { // returns the type of the javascript object
+  virtual ObjectType
+  GetType() const { // returns the type of the javascript object
     return ObjectType::_undefined;
   }
 
-  template <ObjectType T>
-  bool is() { return GetType() == T; }
+  template <ObjectType T> bool is() { return GetType() == T; }
 
-  virtual void reset(std::shared_ptr<JSBasicObject> ptr) {
-    return;
-  }
-
+  virtual void reset(std::shared_ptr<JSBasicObject> ptr) { return; }
 };
 
 // JSNumber class holding a javascript number
@@ -136,31 +118,22 @@ public:
   // derive some constructors
   using JSBasicObject::JSBasicObject;
 
-  JSNumber(long long num) :
-    number_(num) {
-  }
+  JSNumber(long long num) : number_(num) {}
 
   JSNumber(const std::string &str) { number_ = std::stoll(str); }
 
-  JSNumber(const JSNumber &number)
-    : number_(number.number_) {
-  }
+  JSNumber(const JSNumber &number) : number_(number.number_) {}
 
   JSNumber &operator=(const JSNumber &rhs) {
     number_ = (rhs.number_);
     return *this;
   }
 
-  JSNumber() :
-    number_(0) {
-  }
+  JSNumber() : number_(0) {}
 
-  long long &GetNumber() override {
-    return number_;
-  }
+  long long &GetNumber() override { return number_; }
 
-  ~JSNumber() {
-  }
+  ~JSNumber() {}
 
   inline long long GetValue() const { return number_; }
   inline long long &GetValue() { return number_; }
@@ -173,16 +146,11 @@ private:
 
 class JSString : public JSBasicObject {
 public:
-  JSString(const std::string &str) :
-    js_string_(str) {
-  }
+  JSString(const std::string &str) : js_string_(str) {}
 
-  JSString() :
-    js_string_("") {
-  }
+  JSString() : js_string_("") {}
 
-  ~JSString() {
-  }
+  ~JSString() {}
 
   inline std::string &GetString() { return js_string_; }
   inline std::string GetString() const { return js_string_; }
@@ -191,8 +159,9 @@ public:
 
   std::shared_ptr<JSBasicObject> At(int i) {
     return std::dynamic_pointer_cast<JSBasicObject, JSString>(
-      std::make_shared<JSString>(std::string() + (js_string_[i])));
+        std::make_shared<JSString>(std::string() + (js_string_[i])));
   }
+
 private:
   std::string js_string_;
 };

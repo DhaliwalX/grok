@@ -35,43 +35,14 @@
 #include <iostream>
 
 static std::string expression_type[] = {
-  "undefined",    /* for undefined type */
-  "_empty",
-  "_primary",
-  "_member",
-  "_argument",
-  "_array_access",
-  "_constructor",
-  "_constructorcall",
-  "_declaration",
-  "_declarations",
-  "_unary",
-  "_factor",
-  "_functioncall",
-  "_term",
-  "_shift",
-  "_relational",
-  "_equality",
-  "_bitand",
-  "_bitxor",
-  "_bitor",
-  "_and",
-  "_or",
-  "_conditional",
-  "_assignment",
-  "_single",
-  "_break",
-  "_continue",
-  "_compound",
-  "if",
-  "ifelse",
-  "for",
-  "for_in",
-  "while",
-  "_with",
-  "_return",
-  "_function",
-  "_native"   /* tells whether the given node contains the native call */
+    "undefined", /* for undefined type */
+    "_empty", "_primary", "_member", "_argument", "_array_access",
+    "_constructor", "_constructorcall", "_declaration", "_declarations",
+    "_unary", "_factor", "_functioncall", "_term", "_shift", "_relational",
+    "_equality", "_bitand", "_bitxor", "_bitor", "_and", "_or", "_conditional",
+    "_assignment", "_single", "_break", "_continue", "_compound", "if",
+    "ifelse", "for", "for_in", "while", "_with", "_return", "_function",
+    "_native" /* tells whether the given node contains the native call */
 };
 
 // struct for Abstract Syntax Tree Node,
@@ -79,7 +50,7 @@ struct AstNode {
   // defines the type of the astnode
   // helpful in interpreting the node
   enum class ExpressionType {
-    _undefined,    /* for undefined type */
+    _undefined, /* for undefined type */
     _empty,
     _primary,
     _member,
@@ -115,41 +86,30 @@ struct AstNode {
     _with,
     _return,
     _function,
-    _native   /* tells whether the given node contains the native call */
+    _native /* tells whether the given node contains the native call */
   };
 
   // default constructor
-  AstNode( ) :
-    expression_type_(ExpressionType::_undefined),
-    relation1_(TokenType::POUND), relation2_(POUND),
-    obj_(nullptr), variable_(std::string("")),
-    links_( )
-  { }
+  AstNode()
+      : expression_type_(ExpressionType::_undefined),
+        relation1_(TokenType::POUND), relation2_(POUND), obj_(nullptr),
+        variable_(std::string("")), links_() {}
 
   // create a astnode using the type of the expression
-  AstNode(ExpressionType type) :
-    expression_type_(type),
-    relation1_(TokenType::POUND), relation2_(POUND),
-    obj_(nullptr), variable_(std::string("")),
-    links_( )
-  { }
+  AstNode(ExpressionType type)
+      : expression_type_(type), relation1_(TokenType::POUND), relation2_(POUND),
+        obj_(nullptr), variable_(std::string("")), links_() {}
 
-  AstNode(std::shared_ptr<JSBasicObject> obj) :
-    expression_type_(ExpressionType::_undefined),
-    relation1_(TokenType::POUND), relation2_(POUND),
-    obj_(obj), variable_(std::string("")),
-    links_()       {
- }
+  AstNode(std::shared_ptr<JSBasicObject> obj)
+      : expression_type_(ExpressionType::_undefined),
+        relation1_(TokenType::POUND), relation2_(POUND), obj_(obj),
+        variable_(std::string("")), links_() {}
 
   // copy constructor
-  AstNode(const AstNode &node) :
-    expression_type_(node.expression_type_),
-    relation1_(node.relation1_),
-    relation2_(node.relation2_),
-    obj_(node.obj_),
-    variable_(node.variable_),
-    links_(node.links_)
-  { }
+  AstNode(const AstNode &node)
+      : expression_type_(node.expression_type_), relation1_(node.relation1_),
+        relation2_(node.relation2_), obj_(node.obj_), variable_(node.variable_),
+        links_(node.links_) {}
 
   // copy assignment
   AstNode &operator=(const AstNode &rhs) {
@@ -164,57 +124,59 @@ struct AstNode {
 
   // Add a new child to the node. This is done by inserting a
   // blank node to the links_ vector in the end (using push_back)
-  inline void AddChild(std::shared_ptr<AstNode> node)
-                              { links_.push_back(node); }
+  inline void AddChild(std::shared_ptr<AstNode> node) {
+    links_.push_back(node);
+  }
 
   // set the primary relation i.e. relation1_
-  inline void SetRelation(TokenType rel){ relation1_ = rel; }
+  inline void SetRelation(TokenType rel) { relation1_ = rel; }
 
   // removes the child from the node using vector::pop_back operation in links_
-  inline void RemoveChild( ) { links_.pop_back( ); }
+  inline void RemoveChild() { links_.pop_back(); }
 
   // set the secondary relation, while secondary relation is not used
   // so it will be removed in the future
-  inline void SetSecRelation(TokenType rel2){ relation2_ = rel2; }
+  inline void SetSecRelation(TokenType rel2) { relation2_ = rel2; }
 
   // get the nth child of the node, for now no index checking has been done
   // so, prior knowledge of the number of children is required
-  inline std::shared_ptr<AstNode> &GetNthChild(int i){ return links_[i]; }
+  inline std::shared_ptr<AstNode> &GetNthChild(int i) { return links_[i]; }
 
   // get the number of children
-  inline size_t GetChildrenNumber( ) const { return links_.size( ); }
+  inline size_t GetChildrenNumber() const { return links_.size(); }
 
   // get the primary relation
-  inline TokenType GetRelation( ) const { return relation1_; }
+  inline TokenType GetRelation() const { return relation1_; }
 
   // get the secondary relation, as SetSecRelation this function will also
   // be removed from the structure
-  inline TokenType GetSecRelation( ) const { return relation2_; }
+  inline TokenType GetSecRelation() const { return relation2_; }
 
   // get the last child of the node, as the children are stored in the vector
   // or sequence, so it uses the vector::back() operation
-  inline std::shared_ptr<AstNode>& GetLastChild( ){ return links_.back( ); }
+  inline std::shared_ptr<AstNode> &GetLastChild() { return links_.back(); }
 
   void print(std::ostream &os, int tab = 0) {
     std::string sp = "";
     sp.resize(3 * tab, ' ');
     os << sp << "Name: " << variable_.GetName();
     if (obj_.get()) {
-      os <<  "\n" << sp << "JSBasicObject: ";
+      os << "\n" << sp << "JSBasicObject: ";
       obj_->print(os);
     }
-    os << "\n" << sp << "ExpressionType: " << expression_type[(int)expression_type_];
+    os << "\n" << sp
+       << "ExpressionType: " << expression_type[(int)expression_type_];
     os << "\n" << sp << "Links: " << links_.size();
     os << "\n" << sp << "Relation1: " << token_type[(int)relation1_];
     os << "\n" << sp << "Relation2: " << token_type[(int)relation2_];
   }
 
-  std::shared_ptr<JSBasicObject> obj_;    // Javascript object is stored here
-  ExpressionType expression_type_;        // type of the expression
+  std::shared_ptr<JSBasicObject> obj_; // Javascript object is stored here
+  ExpressionType expression_type_;     // type of the expression
   std::vector<std::shared_ptr<AstNode>> links_;
-                                          // children of the node
-  JSVariable variable_;                   // useful for storing the name of
-                                          // javascript variables
+  // children of the node
+  JSVariable variable_; // useful for storing the name of
+                        // javascript variables
 
   // relation1_ is basically TokenType object. It defines the action of the
   // expression. For e.g. for a expression 2 + 3, the expression_type_ variable
@@ -226,8 +188,8 @@ struct AstNode {
   TokenType relation2_;
 };
 
-static void PrintAST(std::shared_ptr<AstNode> node,
-                     std::ostream &os, int tab = 0) {
+static void PrintAST(std::shared_ptr<AstNode> node, std::ostream &os,
+                     int tab = 0) {
   os << "\n";
   node->print(os, tab++);
   for (auto &child : node->links_) {
@@ -236,14 +198,12 @@ static void PrintAST(std::shared_ptr<AstNode> node,
   }
 }
 
-static void PrintASTObject(std::shared_ptr<AstNode> node,
-                         int tab = 0) {
+static void PrintASTObject(std::shared_ptr<AstNode> node, int tab = 0) {
   while (tab--)
     printf("  ");
   if (!node.get() || !node->obj_.get()) {
     printf("Undefined");
-  }
-  else
+  } else
     printf("%s", node->obj_->ToString().c_str());
 }
 

@@ -45,18 +45,16 @@ static void MakeLexer(Lexer **lex, std::string &str);
 // name
 class Lexer {
   friend void MakeLexer(Lexer **lex, std::string &str);
-public:
 
+public:
   // constructor taking string
-  Lexer(const std::string &str) :
-    code_(str), seek_(0), end_(str.size() - 1), tok_(nullptr), eos_(0),
-    size_(str.size()), position_(), lastColNumber_(0),
-    file_name_("<stdin>"), file_(false)
-  { }
+  Lexer(const std::string &str)
+      : code_(str), seek_(0), end_(str.size() - 1), tok_(nullptr), eos_(0),
+        size_(str.size()), position_(), lastColNumber_(0),
+        file_name_("<stdin>"), file_(false) {}
 
   // constructor taking filename
-  Lexer(const char *file, bool f)
-  {
+  Lexer(const char *file, bool f) {
     file_ = true;
     std::ifstream infile(file);
     file_name_ = file;
@@ -81,19 +79,15 @@ public:
   }
 
   // default constructor
-  Lexer() :
-    code_(), seek_(0), end_(0), size_(0), tok_(nullptr), eos_(0)
-  { }
+  Lexer() : code_(), seek_(0), end_(0), size_(0), tok_(nullptr), eos_(0) {}
 
   // do nothing destructor
-  ~Lexer()
-  { }
+  ~Lexer() {}
 
   // returns next token after parsing from the
   // current position, can also return token
   // if existed in the buffer
-  Token* NextToken()
-  {
+  Token *NextToken() {
     char ch, ch2, ch3;
     char last;
     TokenType tok;
@@ -111,8 +105,8 @@ public:
       ch = NextCharacter();
 
     // skip comments
-    while (ch != EOF && (ch == '/' && LookAhead() == '/'
-      || ch == '/' && LookAhead() == '*'))
+    while (ch != EOF &&
+           (ch == '/' && LookAhead() == '/' || ch == '/' && LookAhead() == '*'))
       StripComments(ch);
 
     // note the current position as we are about to parse
@@ -125,28 +119,22 @@ public:
       while (isalnum(ch) || ch == '_')
         return Characterize(ch, pos);
 
-      if (LookAhead() == EOF
-          || LookAhead() == '\0'
-          || LookAhead() == ' '
-          || LookAhead() == '\t'
-          || LookAhead() == '\n')
+      if (LookAhead() == EOF || LookAhead() == '\0' || LookAhead() == ' ' ||
+          LookAhead() == '\t' || LookAhead() == '\n')
         goto one;
       // else ch is a symbol
       ch2 = NextCharacter();
-      
-      if (LookAhead() == EOF
-          || LookAhead() == '\0'
-          || LookAhead() == ' '
-          || LookAhead() == '\t'
-          || LookAhead() == '\n')
+
+      if (LookAhead() == EOF || LookAhead() == '\0' || LookAhead() == ' ' ||
+          LookAhead() == '\t' || LookAhead() == '\n')
         goto two;
       ch3 = NextCharacter();
 
       // check if there is a three character symbol
       tok = ThreeCharacterSymbol(ch, ch2, ch3);
       if (tok != INVALID) {
-        return new Token(
-          std::string({ ch, ch2, ch3 }), tok, TOKENS[tok].precedance_, pos);
+        return new Token(std::string({ch, ch2, ch3}), tok,
+                         TOKENS[tok].precedance_, pos);
       }
       // as we have gone ahead one character so time to go back
       GoBack();
@@ -154,8 +142,8 @@ public:
       // so now check whether we are at position of two character symbol
       tok = TwoCharacterSymbol(ch, ch2);
       if (tok != INVALID) {
-        return new Token(
-          std::string({ ch, ch2 }), tok, TOKENS[tok].precedance_, pos);
+        return new Token(std::string({ch, ch2}), tok, TOKENS[tok].precedance_,
+                         pos);
       }
 
       // No! Let's go back one character
@@ -165,24 +153,20 @@ public:
       // Only possibility left
       tok = OneCharacterSymbol(ch);
       if (tok != INVALID) {
-        return new Token(std::string({ ch }),
-          tok, TOKENS[tok].precedance_, pos);
-      }
-      else    // oops! something went wrong, token is invalid!
-        return new Token(std::string({ ch }), INVALID, 0, pos);
+        return new Token(std::string({ch}), tok, TOKENS[tok].precedance_, pos);
+      } else // oops! something went wrong, token is invalid!
+        return new Token(std::string({ch}), INVALID, 0, pos);
     }
 
     // finally reached at the end of the given string
-    return new Token(std::string({ ch }), EOS, 0, pos);
+    return new Token(std::string({ch}), EOS, 0, pos);
   }
 
-  char LookAhead()
-  { // returns the next character in the string
+  char LookAhead() { // returns the next character in the string
     return code_[seek_];
   }
 
-  void StripComments(char &ch)
-  { // skips all the comments from the string
+  void StripComments(char &ch) { // skips all the comments from the string
     char last = '\0';
     // skip the comments - single line comment
     if (ch != EOF && (ch == '/' && LookAhead() == '/')) {
@@ -207,37 +191,28 @@ public:
       ch = NextCharacter();
   }
 
-  void GoBack()
-  { // go back one character back
+  void GoBack() { // go back one character back
     --seek_;
-    if (position_.col_ - 1 < 0)
-    { // we don't want our col_ to be negative
-      position_.row_--;     // needed
+    if (position_.col_ - 1 < 0) { // we don't want our col_ to be negative
+      position_.row_--;           // needed
       position_.col_ = lastColNumber_;
-    }
-    else
-    { // okay, so simply decrement col_ member
+    } else { // okay, so simply decrement col_ member
       position_.col_--;
     }
   }
 
-  char NextCharacter()
-  { // returns the next character from the string
-    if (seek_ <= end_)
-    { // if eos_ flag has not been set
+  char NextCharacter() { // returns the next character from the string
+    if (seek_ <= end_) { // if eos_ flag has not been set
       char ch = code_[seek_++];
-      if (ch == '\0')
-      { // if we are not processing EOF file character
+      if (ch == '\0') { // if we are not processing EOF file character
         ch = EOF;
         eos_ = true;
       }
-      if (ch == '\n')
-      { // change the position
+      if (ch == '\n') { // change the position
         position_.row_++;
         lastColNumber_ = position_.col_;
         position_.col_ = 0;
-      }
-      else {
+      } else {
         position_.col_++;
       }
       return ch;
@@ -245,8 +220,9 @@ public:
     return EOF;
   }
 
-  Token* Characterize(char ch, Position &pos)
-  { // characterizes the token being parsed as a
+  Token *
+  Characterize(char ch,
+               Position &pos) { // characterizes the token being parsed as a
     // number, keyword, or a identifier
 
     // check whether it is a identifier
@@ -262,9 +238,10 @@ public:
     return new Token(std::string(""), INVALID, 0, pos);
   }
 
-  Token* ParseNumber(char ch, Position &pos)
-  { // parses the number from the current position
-    std::string buffer; // buffer to store the parsed number
+  Token *
+  ParseNumber(char ch,
+              Position &pos) { // parses the number from the current position
+    std::string buffer;        // buffer to store the parsed number
     while (isdigit(ch)) {
       buffer += ch;
       ch = NextCharacter();
@@ -284,8 +261,10 @@ public:
     return new Token(buffer, DIGIT, 0, pos);
   }
 
-  Token* ParseIdentifierOrKeyWord(char ch, Position &pos)
-  { // parses the identifier or a keyword from the current position
+  Token *ParseIdentifierOrKeyWord(
+      char ch,
+      Position &
+          pos) { // parses the identifier or a keyword from the current position
     std::string buffer;
     // possibly it is an identifier
     while (isalnum(ch) || ch == '_' || ch == '$') {
@@ -297,27 +276,23 @@ public:
     // check for KeyWord
     if (buffer[0] != '_' || buffer[0] != '$') {
       for (int i = LET; i <= RET; i++)
-        if (buffer[0] == TOKENS[i].value_[0]
-          && buffer == TOKENS[i].value_)
+        if (buffer[0] == TOKENS[i].value_[0] && buffer == TOKENS[i].value_)
           return new Token(buffer, i, 0, pos);
     }
     return new Token(buffer, IDENT, 0, pos);
   }
 
   // although not required because of no use
-  Token* ParseStringLiteral(char ch, Position &pos)
-  { // parses the string literal from the string
+  Token *ParseStringLiteral(
+      char ch, Position &pos) { // parses the string literal from the string
     std::string str = "";
-    if (ch == '"')
-    { // string surrounded by "
+    if (ch == '"') { // string surrounded by "
       ch = NextCharacter();
       while (ch != '"') {
         str += ch;
         ch = NextCharacter();
       }
-    }
-    else if (ch == '\'')
-    { // string surrounded by '
+    } else if (ch == '\'') { // string surrounded by '
       ch = NextCharacter();
       while (ch != '\'') {
         str += ch;
@@ -330,21 +305,20 @@ public:
   // this function should be used instead of above function
   // when we found a token of " or ' that means we are about
   // to parse the string from the current position
-  std::string GetStringLiteral()
-  { // returns all the string until it finds "
+  std::string GetStringLiteral() { // returns all the string until it finds "
 
     // create a buffer
     std::string str = "";
     char ch = NextCharacter();
     while (ch != EOF && (ch != '"' && ch != '\'')) {
-      str += ch;    // fill the buffer
+      str += ch; // fill the buffer
       ch = NextCharacter();
     }
     return str;
   }
 
-  TokenType OneCharacterSymbol(char ch)
-  { // returns the type of token from the given symbol
+  TokenType OneCharacterSymbol(
+      char ch) { // returns the type of token from the given symbol
     switch (ch) {
     case '(':
       return LPAR;
@@ -402,8 +376,9 @@ public:
     }
   }
 
-  TokenType TwoCharacterSymbol(char ch1, char ch2)
-  { // returns the type of symbol of two characters
+  TokenType
+  TwoCharacterSymbol(char ch1,
+                     char ch2) { // returns the type of symbol of two characters
     switch (ch2) {
     case '=':
       switch (ch1) {
@@ -461,11 +436,12 @@ public:
     }
   }
 
-  bool IsFile( ) const { return file_; }
-  std::string GetFileName( ) { return file_name_; }
+  bool IsFile() const { return file_; }
+  std::string GetFileName() { return file_name_; }
 
-  TokenType ThreeCharacterSymbol(char ch1, char ch2, char ch3)
-  { // returns the type of symbol of three characters
+  TokenType ThreeCharacterSymbol(
+      char ch1, char ch2,
+      char ch3) { // returns the type of symbol of three characters
     switch (ch3) {
     case '=':
       if (ch1 == '>' && ch2 == '>')
@@ -477,29 +453,28 @@ public:
     }
   }
 
-  void PutBack(Token *tok)
-  { // put in the buffer for one token lookahead required by parser
+  void PutBack(Token *tok) { // put in the buffer for one token lookahead
+                             // required by parser
     buffer_.push_back(tok);
   }
 
-  std::string GetErrorReport( ) {
-    return err_msg_;
-  }
+  std::string GetErrorReport() { return err_msg_; }
+
 private:
-  std::string code_;   // whole code will stored here
-  int seek_;            // current position of the seek
+  std::string code_; // whole code will stored here
+  int seek_;         // current position of the seek
   int save_end_;
-  Position position_;   // current position in terms of line no and column no.
-  int lastColNumber_;   // buffer required for GoBack()
+  Position position_; // current position in terms of line no and column no.
+  int lastColNumber_; // buffer required for GoBack()
   int end_;
-  Token *tok_;          // buffer required for PutBack()
-  std::size_t size_;    // size_ of the string code_
+  Token *tok_;       // buffer required for PutBack()
+  std::size_t size_; // size_ of the string code_
   std::string file_name_;
   std::string err_msg_;
-  short status_;        // status of the lexer
-  bool eos_;            // end of file flag
+  short status_; // status of the lexer
+  bool eos_;     // end of file flag
   bool file_;
-  std::list<Token*> buffer_;
+  std::list<Token *> buffer_;
 };
 
 static void MakeLexer(Lexer **lex, std::string &str) {
@@ -512,7 +487,7 @@ static void MakeLexer(Lexer **lex, std::string &str) {
   (*lex)->end_ = str.size() - 1;
   (*lex)->tok_ = nullptr;
   (*lex)->eos_ = 0;
-  (*lex)->size_ = str.size(); 
+  (*lex)->size_ = str.size();
   (*lex)->position_ = Position();
   (*lex)->lastColNumber_ = 0;
   (*lex)->file_name_ = "<stdin>";
