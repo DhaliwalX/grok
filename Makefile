@@ -1,16 +1,16 @@
 CC = g++
-CFLAGS = -c -g -std=c++11 -fpermissive
+CFLAGS = -c -O2 -std=c++11
 INCLUDES =
 SRC = src/
 OUT = build/
 
-all: main.o parser.o vm.o
+all: build main.o parser.o vm.o codegen.o
 	$(CC) -g $(OUT)*.o -o grok
 
-vm.o: codegen.o
+vm.o: $(SRC)vm.cc $(SRC)bytecode.h $(SRC)astnode.h
 	$(CC) $(CFLAGS) $(INCLUDES) $(SRC)vm.cc -o $(OUT)vm.o
 
-parser.o: build
+parser.o:
 	$(CC) $(CFLAGS) $(INCLUDES) $(SRC)parser.cc -o $(OUT)parser.o
 
 main.o: main/main.cc
