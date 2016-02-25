@@ -198,7 +198,7 @@ static void PrintAST(std::shared_ptr<AstNode> node, std::ostream &os,
   }
 }
 
-static void PrintASTObject(std::shared_ptr<AstNode> node, int tab = 0) {
+static inline void PrintASTObject(std::shared_ptr<AstNode> node, int tab = 0) {
   while (tab--)
     printf("  ");
   if (!node.get() || !node->obj_.get()) {
