@@ -31,7 +31,7 @@ public:
   Register(const std::string &str)
       : str_(str), type_(DataType::String), value_(0) {}
 
-  Register(std::shared_ptr<AstNode> &obj)
+  Register(std::shared_ptr<AstNode> obj)
       : handle_(obj), value_(0), type_(DataType::Object) {}
 
   Register(const Register &reg)
