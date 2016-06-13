@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -c -O2 -std=c++11
+CFLAGS = -g -c -O0 -std=c++11
 INCLUDES =
 SRC = src/
 OUT = build/
