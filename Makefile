@@ -5,7 +5,7 @@ SRC = src/
 OUT = build/
 
 all: build main.o parser.o vm.o codegen.o
-	$(CC) -g $(OUT)*.o -o grok
+	$(CC) -g $(OUT)*.o -o g
 
 vm.o: $(SRC)vm.cc $(SRC)bytecode.h $(SRC)astnode.h
 	$(CC) $(CFLAGS) $(INCLUDES) $(SRC)vm.cc -o $(OUT)vm.o
