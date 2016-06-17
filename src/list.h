@@ -140,8 +140,8 @@ private:
 // main list class
 template <typename DataType> class List {
 public:
-  typedef typename list_iterator<DataType> iterator;
-  typedef typename list_iterator<DataType>::size_type size_type;
+  using iterator = list_iterator<DataType>;
+  using size_type = typename list_iterator<DataType>::size_type;
 
   List()
       : head_(new list_node<DataType>()), last_(new list_node<DataType>()),
@@ -344,7 +344,7 @@ public:
 // iterator class for singly linked list
 template <typename DataType> class f_list_iterator {
 public:
-  using NodePtr = typename forward_list_node<DataType> *;
+  using NodePtr = forward_list_node<DataType> *;
   using reference = DataType;
   using pointer = DataType *;
   using ptrdiff_t = std::ptrdiff_t;
@@ -403,14 +403,19 @@ private:
   forward_list_node<DataType> *current_;
 };
 
+
+template <typename DataType>
+class sorted_list;
+
+
 template <typename DataType> class forward_list {
 public:
-  using iterator = typename f_list_iterator<DataType>;
+  using iterator = f_list_iterator<DataType>;
   using NodePtr = typename iterator::NodePtr;
   using reference = typename iterator::reference;
   using pointer = typename iterator::pointer;
-  using Node = typename forward_list_node<DataType>;
-  using size_type = typename unsigned long long;
+  using Node = forward_list_node<DataType>;
+  using size_type = unsigned long long;
 
   forward_list() : head_(new Node()), end_(new Node()), size_(0) { init(); }
 
@@ -543,7 +548,7 @@ protected:
   // go back from a position in the singly linked list by off
   // this function is quite safe. You can never go back the head_
   // \complexity : O(n)
-  NodePtr go_back(ptrdiff_t off, NodePtr pos) {
+  NodePtr go_back(std::ptrdiff_t off, NodePtr pos) {
     iterator head{head_};
     iterator save = head;
     head = head + off;
@@ -557,6 +562,8 @@ protected:
   size_type size_;
   NodePtr head_;
   NodePtr end_;
+
+  friend class sorted_list<DataType>;
 };
 
 // always sorted list
@@ -568,7 +575,7 @@ public:
   using reference = typename iterator::reference;
   using pointer = typename iterator::pointer;
   using Node = typename list::forward_list_node<DataType>;
-  using size_type = typename unsigned long long;
+  using size_type = unsigned long long;
 
   using base = list::forward_list<DataType>;
   using predicate_type =

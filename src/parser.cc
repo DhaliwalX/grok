@@ -31,6 +31,7 @@
 #include "jsfunction.h"
 #include "jsobject.h"
 #include "lexer.h"
+#include "jsbasicobject.h"
 #include "object.h"
 #include "token.h"
 
@@ -115,7 +116,7 @@ bool Expression::Primary(
     lexer->PutBack(tok);
     name = ParseIdentifier(lexer);
     expr = std::make_shared<AstNode>(); // make some room
-    expr->variable_ = JSVariable(name);
+    expr->variable_ = (name);
     expr->SetRelation(IDENT);
     expr->expression_type_ = AstNode::ExpressionType::_primary;
     expr->obj_ = (std::make_shared<JSBasicObject>());
@@ -128,7 +129,7 @@ bool Expression::Primary(
     expr = std::make_shared<AstNode>();
     expr->expression_type_ = AstNode::ExpressionType::_primary;
     expr->SetRelation(DIGIT);
-    expr->obj_ = std::dynamic_pointer_cast<JSBasicObject, JSNumber>(number);
+    expr->obj_ = (number);
     break;
 
   case STRING:
@@ -138,7 +139,7 @@ bool Expression::Primary(
     expr = std::make_shared<AstNode>();
     expr->expression_type_ = AstNode::ExpressionType::_primary;
     expr->SetRelation(STRING);
-    expr->obj_ = std::dynamic_pointer_cast<JSBasicObject, JSString>(str);
+    expr->obj_ = (str);
     break;
 
   case TRUE:
@@ -151,7 +152,7 @@ bool Expression::Primary(
     expr = std::make_shared<AstNode>();
     expr->expression_type_ = AstNode::ExpressionType::_primary;
     expr->SetRelation(BOOL);
-    expr->obj_ = std::dynamic_pointer_cast<JSBasicObject, JSNumber>(number);
+    expr->obj_ = (number);
     break;
 
   case JSNULL:
@@ -210,7 +211,7 @@ bool Expression::Primary(
       expr->AddChild(std::make_shared<AstNode>());
       result = Expect(tok, IDENT); // todo : make it valid for string also
       if (result) {
-        expr->GetLastChild()->variable_ = JSVariable(tok->GetValue());
+        expr->GetLastChild()->variable_ = tok->GetValue();
         delete tok;
         tok = lexer->NextToken();
         if (Expect(tok, COLON)) {
@@ -420,7 +421,7 @@ bool Expression::ConstructorCall(Lexer *lexer, std::shared_ptr<AstNode> &expr) {
 
   if (result) {
     name = ParseIdentifier(lexer);
-    expr->variable_ = JSVariable(name);
+    expr->variable_ = (name);
     tok = lexer->NextToken();
 
     switch (tok->Type()) {
@@ -1002,7 +1003,7 @@ bool Expression::Variable(Lexer *lexer, std::shared_ptr<AstNode> &expr) {
     lexer->PutBack(tok);
     name = ParseIdentifier(lexer);
     tok = lexer->NextToken();
-    expr->variable_ = JSVariable(name);
+    expr->variable_ = (name);
     expr->SetRelation(TokenType::VAR);
     expr->expression_type_ = AstNode::ExpressionType::_declaration;
     if (tok->Type() == ASSIGN) {
@@ -1023,7 +1024,7 @@ bool Expression::Variable(Lexer *lexer, std::shared_ptr<AstNode> &expr) {
         expr->AddChild(std::make_shared<AstNode>());
         result = FunctionStatement(lexer, expr->GetLastChild(), false);
         if (result) {
-          expr->variable_ = JSVariable(name);
+          expr->variable_ = (name);
         }
         return result;
         break;
@@ -1444,78 +1445,79 @@ bool Expression::FunctionStatement(
   Token *tok = lexer->NextToken();
   bool result = Expect(tok, FUNC);
   delete tok;
+  std::cout << "Function won't be parsed now." << std::endl;
+  return false;
+  // if (result) {
 
-  if (result) {
+  //   std::shared_ptr<JSFunction> func;
+  //   std::shared_ptr<AstNode> func_body = std::make_shared<AstNode>();
+  //   // So, it is a function, it is the time to parse the name of the function.
+  //   // But in Javascript the functions can be unnamed also so we have to parse
+  //   // those function also.
 
-    std::shared_ptr<JSFunction> func;
-    std::shared_ptr<AstNode> func_body = std::make_shared<AstNode>();
-    // So, it is a function, it is the time to parse the name of the function.
-    // But in Javascript the functions can be unnamed also so we have to parse
-    // those function also.
+  //   func = std::make_shared<JSFunction>(JSFunction());
+  //   tok = lexer->NextToken();
+  //   expr = std::make_shared<AstNode>();
+  //   expr->expression_type_ = AstNode::ExpressionType::_function;
 
-    func = std::make_shared<JSFunction>(JSFunction());
-    tok = lexer->NextToken();
-    expr = std::make_shared<AstNode>();
-    expr->expression_type_ = AstNode::ExpressionType::_function;
+  //   // get the name of the function if it exists. Or in Compiler language IDENT?
+  //   if (tok->Type() == IDENT) {
+  //     expr->variable_ = (tok->GetValue());
+  //     func->SetName(tok->GetValue());
+  //     delete tok;
+  //   }
+  //   // else put back the token that we wrongly got in here
+  //   else
+  //     lexer->PutBack(tok);
 
-    // get the name of the function if it exists. Or in Compiler language IDENT?
-    if (tok->Type() == IDENT) {
-      expr->variable_ = JSVariable(tok->GetValue());
-      func->SetName(tok->GetValue());
-      delete tok;
-    }
-    // else put back the token that we wrongly got in here
-    else
-      lexer->PutBack(tok);
+  //   // now the left paranthesis exists
+  //   tok = lexer->NextToken();
+  //   result = Expect(tok, LPAR);
+  //   delete tok;
 
-    // now the left paranthesis exists
-    tok = lexer->NextToken();
-    result = Expect(tok, LPAR);
-    delete tok;
+  //   if (!result)
+  //     return false;
+  //   // get the parameters of the function. Or ICL ParameterList?
+  //   std::vector<std::string> params;
 
-    if (result) {
-      // get the parameters of the function. Or ICL ParameterList?
-      std::vector<std::string> params;
+  //   tok = lexer->NextToken();
+  //   while (tok->Type() != TokenType::RPAR && result) {
+  //     if (Expect(tok, TokenType::IDENT)) {
+  //       params.push_back(tok->GetValue());
+  //       delete tok; // free the memory
+  //       tok = lexer->NextToken();
 
-      tok = lexer->NextToken();
-      while (tok->Type() != TokenType::RPAR && result) {
-        if (Expect(tok, TokenType::IDENT)) {
-          params.push_back(tok->GetValue());
-          delete tok; // free the memory
-          tok = lexer->NextToken();
-
-          // now next token should either be a RPAR or COMMA,
-          // if it is neither of them then this is a token that we
-          // don't expect here.
-          if (tok->Type() != TokenType::COMMA && tok->Type() != TokenType::RPAR)
-            result = false;
-          else if (tok->Type() == TokenType::COMMA) {
-            delete tok;
-            tok = lexer->NextToken();
-          }
-        } else
-          result = false;
-      }
-      func->SetParams(params);
-      delete tok;
-      if (native) {
-        func->SetNativeHandle(native_handle);
-        expr->expression_type_ = AstNode::ExpressionType::_native;
-        expr->obj_ = func;
-        return result;
-      } else {
-        // parsed all the parameters. Now, we have to parse the statements
-        if (result) {
-          result = BlockStatement(lexer, func_body);
-          if (result) {
-            func->SetJSHandle(func_body);
-            expr->obj_ = func;
-          }
-        }
-      }
-    }
-  }
-  return result;
+  //       // now next token should either be a RPAR or COMMA,
+  //       // if it is neither of them then this is a token that we
+  //       // don't expect here.
+  //       if (tok->Type() != TokenType::COMMA && tok->Type() != TokenType::RPAR)
+  //         result = false;
+  //       else if (tok->Type() == TokenType::COMMA) {
+  //         delete tok;
+  //         tok = lexer->NextToken();
+  //       }
+  //     } else
+  //       result = false;
+  //   }
+  //   func->SetParams(params);
+  //   delete tok;
+  //   if (native) {
+  //     func->SetNativeHandle(native_handle);
+  //     expr->expression_type_ = AstNode::ExpressionType::_native;
+  //     expr->obj_ = func;
+  //     return result;
+  //   } else {
+  //     // parsed all the parameters. Now, we have to parse the statements
+  //     if (result) {
+  //       result = BlockStatement(lexer, func_body);
+  //       if (!result)
+  //         return false;
+  //       func->SetJSHandle(func_body);
+  //       expr->obj_ = func;
+  //     }
+  //   }
+  // }
+  // return result;
 }
 
 bool Expression::Parse(Lexer *lexer, std::shared_ptr<AstNode> &expr) {
@@ -1535,3 +1537,4 @@ bool Expression::Parse(Lexer *lexer, std::shared_ptr<AstNode> &expr) {
   }
   return true;
 }
+

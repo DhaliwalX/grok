@@ -92,15 +92,15 @@ struct AstNode {
   // default constructor
   AstNode()
       : expression_type_(ExpressionType::_undefined),
-        relation1_(TokenType::POUND), relation2_(POUND), obj_(nullptr),
+        relation1_(TokenType::POUND), relation2_(POUND), obj_(),
         variable_(std::string("")), links_() {}
 
   // create a astnode using the type of the expression
   AstNode(ExpressionType type)
       : expression_type_(type), relation1_(TokenType::POUND), relation2_(POUND),
-        obj_(nullptr), variable_(std::string("")), links_() {}
+        obj_(), variable_(std::string("")), links_() {}
 
-  AstNode(std::shared_ptr<JSBasicObject> obj)
+  AstNode(Object obj)
       : expression_type_(ExpressionType::_undefined),
         relation1_(TokenType::POUND), relation2_(POUND), obj_(obj),
         variable_(std::string("")), links_() {}
@@ -156,26 +156,20 @@ struct AstNode {
   // or sequence, so it uses the vector::back() operation
   inline std::shared_ptr<AstNode> &GetLastChild() { return links_.back(); }
 
-  void print(std::ostream &os, int tab = 0) {
-    std::string sp = "";
-    sp.resize(3 * tab, ' ');
-    os << sp << "Name: " << variable_.GetName();
-    if (obj_.get()) {
-      os << "\n" << sp << "JSBasicObject: ";
-      obj_->print(os);
-    }
-    os << "\n" << sp
-       << "ExpressionType: " << expression_type[(int)expression_type_];
-    os << "\n" << sp << "Links: " << links_.size();
-    os << "\n" << sp << "Relation1: " << token_type[(int)relation1_];
-    os << "\n" << sp << "Relation2: " << token_type[(int)relation2_];
+  void print(std::ostream &os, int tab)
+  {
+      os << "Expression Type: " << expression_type[(int)expression_type_]
+              << std::endl;
+      os << "Variable: " << variable_ << std::endl;
+      os << "Relation1: " << token_type[relation1_] << std::endl;
+      os << "Relation2: " << token_type[relation2_] << std::endl;
   }
 
-  std::shared_ptr<JSBasicObject> obj_; // Javascript object is stored here
+  Object obj_; // Javascript object is stored here
   ExpressionType expression_type_;     // type of the expression
   std::vector<std::shared_ptr<AstNode>> links_;
   // children of the node
-  JSVariable variable_; // useful for storing the name of
+  std::string variable_; // useful for storing the name of
                         // javascript variables
 
   // relation1_ is basically TokenType object. It defines the action of the
@@ -201,10 +195,10 @@ static void PrintAST(std::shared_ptr<AstNode> node, std::ostream &os,
 static inline void PrintASTObject(std::shared_ptr<AstNode> node, int tab = 0) {
   while (tab--)
     printf("  ");
-  if (!node.get() || !node->obj_.get()) {
+  if (!node.get() || node->obj_.empty()) {
     printf("Undefined");
   } else
-    printf("%s", node->obj_->ToString().c_str());
+    printf("%s", node->obj_.as<JSBasicObject>()->ToString().c_str());
 }
 
 #endif // ASTNODE_H_

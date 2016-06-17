@@ -70,7 +70,7 @@ public:
     return elements_.size();
   }
 
-  ObjectType GetType() const { // returns the type of the javascript object
+  ObjectType GetType() const override { // returns the type of the javascript object
     return ObjectType::_array;
   }
 
@@ -78,6 +78,7 @@ public:
     if (idx < Size())
       elements_[idx];
     elements_[idx] = nullptr;
+    return true;
   }
 
   bool Empty() const { // returns true if the array is empty
@@ -101,7 +102,7 @@ public:
   std::string ToString() const override {
     std::string buff = "[ ";
     for (const auto &element : elements_) {
-      buff += element->obj_->ToString();
+      buff += element->obj_.as<JSBasicObject>()->ToString();
       buff += ", ";
     }
     if (elements_.size()) {

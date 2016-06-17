@@ -63,6 +63,12 @@ private:
   std::string msg_;
 };
 
+class FatalException : public Exception {
+    // exceptions of this type won't be handled be Exception
+    // instead will result in program crash
+public:
+  using Exception = Exception;
+};
 
 class LexerException : public Exception {
 public:

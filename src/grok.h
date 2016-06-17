@@ -30,13 +30,9 @@
 
 #include "jsobject.h"
 #include "symtable.h"
-#include "native.h"
 #include "lexer.h"
 #include "parser.h"
-#include "bytecode.h"
-#include "vm.h"
 #include "heap.h"
-#include "codegen.h"
 #include "timer.h"
 
 #include <chrono>
@@ -46,38 +42,6 @@
 #define DEBUG_OPT(opt) options.push_back(opt)
 
 #define DEBUG 0
-
-bool dump_machine(Machine *machine) {
-  if (!machine->text_.size()) {
-    std::cout << "stack is empty!\n";
-    return true;
-  }
-  for (auto each : machine->stack_) {
-    each.print(std::cout);
-    printf("\n");
-  }
-  return true;
-}
-
-bool clear_stack(Machine *machine) {
-  machine->stack_.clear();
-  return true;
-}
-
-bool print_heap(Machine *machine) {
-  js::PrintHeap(Heap::heap);
-  return true;
-}
-
-bool print_top(Machine *machine) {
-  auto a = Heap::heap.FindVariable(std::string("a"));
-  if (!a.get() || !a->obj_.get()) {
-    printf("argument passed was undefined\n");
-    return false;
-  }
-  printf("%s\n", a->obj_->ToString().c_str());
-  return true;
-}
 
 class Grok {
 public:
@@ -135,7 +99,7 @@ public:
 
   std::string GetGrokVersion() const {
     return std::string(
-        "Grok (version 3.0): A simple Functional Language Interpreter");
+        "Grok (version 0.0): A simple Functional Language Interpreter");
   }
 
   void PrintIntroduction() {
@@ -202,39 +166,6 @@ public:
       Expression::err_msg_.clear();
       return;
     }
-    BytecodeProgram<Register, Bytecode> bytecodes;
-    Code::CodeGen codegen;
-    if (!Code::GenerateCode(&codegen, &bytecodes, parsed, &machine_)) {
-      printf("Code Generation failed\n");
-      return;
-    }
-#if DEBUG
-    bytecodes.print(std::cout);
-#endif // DEBUG
-    bytecodes.text_.push_back(B::hlt());
-    machine_.prepare_machine(&bytecodes);
-    machine_.execute();
-
-#if DEBUG
-    try {
-      Register result = machine_.StackTop();
-      result.print(std::cout);
-      printf("\n");
-    } catch (...) {
-      printf("undefined\n");
-      return;
-    }
-#endif
-  }
-
-  void InstallNatives() {
-    NativeInstaller::InstallFunction("dump", "function __dump__()",
-                                     dump_machine);
-    NativeInstaller::InstallFunction("print", "function __print__(a)",
-                                     print_top);
-    NativeInstaller::InstallFunction("clear", "function __clear__()",
-                                     clear_stack);
-    NativeInstaller::InstallFunction("heap", "function heap()", print_heap);
   }
 
   void Run(int argc, char *argv[]) {
@@ -252,15 +183,12 @@ public:
         return;
     }
     PrintIntroduction();
-    Heap::heap.CreateScope();
-    InstallNatives();
     while (true) {
       RunWithNewInterpreter();
     }
   }
 
 private:
-  Machine machine_;
   Lexer *lexer_;
   std::string program_;
   std::shared_ptr<AstNode> expression_;

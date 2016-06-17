@@ -2,7 +2,6 @@
 #define NATIVE_H_
 
 #include "jsfunction.h"
-#include "vm.h"
 #include "jsobject.h"
 #include "jsarray.h"
 #include "parser.h"
