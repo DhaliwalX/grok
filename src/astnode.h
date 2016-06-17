@@ -34,6 +34,8 @@
 #include <vector>
 #include <iostream>
 
+#define indent(num, ch) std::string(num, ch)
+
 static std::string expression_type[] = {
     "undefined", /* for undefined type */
     "_empty", "_primary", "_member", "_argument", "_array_access",
@@ -158,11 +160,11 @@ struct AstNode {
 
   void print(std::ostream &os, int tab)
   {
-      os << "Expression Type: " << expression_type[(int)expression_type_]
+      os << indent(tab, ' ') << "Expression Type: " << expression_type[(int)expression_type_]
               << std::endl;
-      os << "Variable: " << variable_ << std::endl;
-      os << "Relation1: " << token_type[relation1_] << std::endl;
-      os << "Relation2: " << token_type[relation2_] << std::endl;
+      os << indent(tab, ' ') << "Variable: " << variable_ << std::endl;
+      os << indent(tab, ' ') << "Relation1: " << token_type[relation1_] << std::endl;
+      os << indent(tab, ' ') << "Relation2: " << token_type[relation2_] << std::endl;
   }
 
   Object obj_; // Javascript object is stored here
@@ -184,11 +186,9 @@ struct AstNode {
 
 static void PrintAST(std::shared_ptr<AstNode> node, std::ostream &os,
                      int tab = 0) {
-  os << "\n";
   node->print(os, tab++);
   for (auto &child : node->links_) {
     PrintAST(child, os, tab);
-    os << "\n";
   }
 }
 
