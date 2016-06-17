@@ -30,7 +30,7 @@
 #include "../test/test.h"
 
 int main(int argc, char *argv[]) {
-  // test::testmain();
+  test::testmain();
   Grok grok;
   grok.Run(argc, argv);
   return 0;
