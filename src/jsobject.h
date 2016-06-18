@@ -56,9 +56,7 @@ private:
   std::string name_;
 };
 
-static std::string __type[7] = {"null",   "undefined", "number",  "string",
-                                "object", "array",     "function"};
-
+extern std::string __type[7];
 
 #define DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(op, type) \
     { throw Exception(  \
@@ -108,7 +106,6 @@ public:
   }
 
   virtual long long &GetNumber() {
-    long long k = 0;
     return k;
   }
 
@@ -120,7 +117,10 @@ public:
   template <ObjectType T> bool is() { return GetType() == T; }
 
   virtual void reset(std::shared_ptr<JSBasicObject> ptr) { return; }
+
+  static long long k;
 };
+
 
 class JSString : public JSBasicObject {
 public:
@@ -177,116 +177,27 @@ private:
   long long number_;
 };
 
-static inline bool undefined_operation(JSBasicObject::ObjectType type) {
-  return type == JSBasicObject::ObjectType::_object
-          || type == JSBasicObject::ObjectType::_array
-          || type == JSBasicObject::ObjectType::_undefined;
-}
+extern Object operator+(std::shared_ptr<JSNumber> l, Object r);
 
-static Object operator+(std::shared_ptr<JSNumber> l, Object r) 
-{
-  auto type = r.as<JSBasicObject>()->GetType();
+#define DECLARE_OPERATOR(op)  \
+extern Object operator op(std::shared_ptr<JSNumber> l, Object r)
+DECLARE_OPERATOR(-);
+DECLARE_OPERATOR(*);
+DECLARE_OPERATOR(/);
+DECLARE_OPERATOR(%);
+#undef DECLARE_OPERATOR
 
-  if (type == JSBasicObject::ObjectType::_number) {
-    auto rhs = r.as<JSNumber>();
-    auto result = std::make_shared<JSNumber>(l->GetNumber()
-                        + rhs->GetNumber());
-    return Object(result);
-  } else if (type == JSBasicObject::ObjectType::_string) {
-    auto rhs = r.as<JSString>();
-    auto result = std::make_shared<JSString>(l->ToString()
-                        + rhs->ToString());
-    return Object(result);
-  } else {
-    throw Exception("Code reached a place where it"
-                          " was not supposed to be");
-  }
-}
+extern Object operator +(std::shared_ptr<JSString> l, Object r);
+extern Object operator+(Object l, Object r);
 
-#define OPERATOR_FOR_NUMBER(op) \
-static Object operator op(std::shared_ptr<JSNumber> l, Object r) \
-{ \
-  auto type = r.as<JSBasicObject>()->GetType(); \
-  \
-  if (type == JSBasicObject::ObjectType::_number) { \
-    auto rhs = r.as<JSNumber>();  \
-    auto result = std::make_shared<JSNumber>(l->GetNumber() \
-                      op rhs->GetNumber()); \
-    return Object(result);  \
-  } else { \
-    throw Exception("We can't apply operator '" #op "' on string"); \
-  } \
-}
+#define DECLARE_OTHER_OPERATOR(op) \
+extern Object operator op (Object l, Object r)
 
-OPERATOR_FOR_NUMBER(-)
-OPERATOR_FOR_NUMBER(*)
-OPERATOR_FOR_NUMBER(/)
-OPERATOR_FOR_NUMBER(%)
-
-static Object operator +(std::shared_ptr<JSString> l, Object r)
-{
-  auto type = r.as<JSBasicObject>()->GetType();
-
-  if (type == JSBasicObject::ObjectType::_string) {
-    auto rhs = r.as<JSString>();
-    auto result = std::make_shared<JSString>(l->ToString()
-                        + rhs->ToString());
-  } else if (type == JSBasicObject::ObjectType::_number) {
-    auto rhs = r.as<JSNumber>();
-    return rhs + Object(l);
-  } else 
-    throw Exception("Code reached a place where it"
-                          " was not supposed to be");
-}
-
-static Object operator+(Object l, Object r)
-{
-  auto ltype = l.as<JSBasicObject>()->GetType();
-  auto rtype = r.as<JSBasicObject>()->GetType();
-
-  if (undefined_operation(ltype) || undefined_operation(rtype)) {
-    DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(+, Object);
-  }
-
-  switch (ltype) {
-  case JSBasicObject::ObjectType::_string:
-  {
-    auto strobject = l.as<JSString>();
-    return strobject + r;
-  }
-
-  case JSBasicObject::ObjectType::_number:
-  {
-    auto numobject = l.as<JSNumber>();
-    return numobject + r;
-  }
-
-  case JSBasicObject::ObjectType::_object:
-  case JSBasicObject::ObjectType::_array:
-  case JSBasicObject::ObjectType::_undefined:
-  default:
-    throw Exception("unknown type caught in Object operator+");
-  }
-}
-
-#define OTHER_OPERATOR(op) \
-static Object operator op (Object l, Object r) \
-{ \
-  auto ltype = l.as<JSBasicObject>()->GetType(); \
-  auto rtype = r.as<JSBasicObject>()->GetType(); \
-  \
-  if (ltype != JSBasicObject::ObjectType::_number \
-      && rtype != JSBasicObject::ObjectType::_number) \
-    throw Exception("fatal: can't apply operator '" #op "'"); \
-  \
-  auto numobject = l.as<JSNumber>(); \
-  return numobject op r; \
-}
-
-OTHER_OPERATOR(-)
-OTHER_OPERATOR(*)
-OTHER_OPERATOR(/)
-OTHER_OPERATOR(%)
+DECLARE_OTHER_OPERATOR(*);
+DECLARE_OTHER_OPERATOR(-);
+DECLARE_OTHER_OPERATOR(/);
+DECLARE_OTHER_OPERATOR(%);
+#undef DECLARE_OTHER_OPERATOR
 
 #endif
 

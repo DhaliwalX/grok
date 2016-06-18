@@ -39,7 +39,7 @@
 #define EX(source, arg1, arg2) throw source(arg1, arg2)
 
 class Lexer;
-static void MakeLexer(Lexer **lex, std::string &str);
+extern void MakeLexer(Lexer **lex, std::string &str);
 // class Lexer : this class takes input as a string and converts
 // the string into stream of tokens. It can also be passed a file
 // name
@@ -58,7 +58,7 @@ public:
     file_ = true;
     std::ifstream infile(file);
     file_name_ = file;
-    int length = 0, start = 0;
+    int length = 0;
     if (infile.fail()) {
       ERROR(std::string, "cannot open file");
       f = false;
@@ -79,7 +79,7 @@ public:
   }
 
   // default constructor
-  Lexer() : code_(), seek_(0), end_(0), size_(0), tok_(nullptr), eos_(0) {}
+  Lexer() : code_(), seek_(0), end_(0), tok_(nullptr), eos_(0), size_(0) {}
 
   // do nothing destructor
   ~Lexer() {}
@@ -89,7 +89,6 @@ public:
   // if existed in the buffer
   Token *NextToken() {
     char ch, ch2, ch3;
-    char last;
     TokenType tok;
     Position pos;
 
@@ -99,14 +98,14 @@ public:
       return tok;
     }
 
-    ch = NextCharacter(), last = ' ';
+    ch = NextCharacter();
     // skip whitespaces
     while (ch != EOF && (ch == ' ' || ch == '\n' || ch == '\t'))
       ch = NextCharacter();
 
     // skip comments
     while (ch != EOF &&
-           (ch == '/' && LookAhead() == '/' || ch == '/' && LookAhead() == '*'))
+           ((ch == '/' && LookAhead() == '/') || (ch == '/' && LookAhead() == '*')))
       StripComments(ch);
 
     // note the current position as we are about to parse
@@ -224,9 +223,6 @@ public:
   Characterize(char ch,
                Position &pos) { // characterizes the token being parsed as a
     // number, keyword, or a identifier
-
-    // check whether it is a identifier
-    int i = 0, dot = 0;
     std::string buffer;
     if (isdigit(ch))
       return ParseNumber(ch, pos);
@@ -463,35 +459,18 @@ public:
 private:
   std::string code_; // whole code will stored here
   int seek_;         // current position of the seek
-  int save_end_;
-  Position position_; // current position in terms of line no and column no.
-  int lastColNumber_; // buffer required for GoBack()
   int end_;
   Token *tok_;       // buffer required for PutBack()
+  bool eos_;     // end of file flag
   std::size_t size_; // size_ of the string code_
+  Position position_;
+  int lastColNumber_; // current position in terms of line no and column no.
   std::string file_name_;
   std::string err_msg_;
+  int save_end_;
   short status_; // status of the lexer
-  bool eos_;     // end of file flag
   bool file_;
   std::list<Token *> buffer_;
 };
-
-static void MakeLexer(Lexer **lex, std::string &str) {
-  if (!*lex) {
-    *lex = new Lexer(str);
-    return;
-  }
-  (*lex)->code_ = str;
-  (*lex)->seek_ = 0;
-  (*lex)->end_ = str.size() - 1;
-  (*lex)->tok_ = nullptr;
-  (*lex)->eos_ = 0;
-  (*lex)->size_ = str.size();
-  (*lex)->position_ = Position();
-  (*lex)->lastColNumber_ = 0;
-  (*lex)->file_name_ = "<stdin>";
-  (*lex)->file_ = false;
-}
 
 #endif

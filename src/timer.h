@@ -125,7 +125,7 @@ public:
               << std::endl;
   }
 
-  long long ElapsedTime() {}
+  long long ElapsedTime() { return 0l; }
 
 private:
   std::chrono::time_point<std::chrono::system_clock> start_;

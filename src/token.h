@@ -154,8 +154,8 @@ public:
 class Token {
 public:
   std::string value_;
-  int precedance_;
   TokenType type_;
+  int precedance_;
   Position position_;
 
   Token(std::string name, int type, int prec = 0)
@@ -168,7 +168,7 @@ public:
         position_(pos) {}
 
   Token(const Token &tok)
-      : value_(tok.value_), precedance_(tok.precedance_), type_(tok.type_),
+      : value_(tok.value_), type_(tok.type_), precedance_(tok.precedance_),
         position_(tok.position_) {}
 
   Token &operator=(const Token &tok) { // copy from another token

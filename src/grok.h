@@ -45,7 +45,7 @@
 
 class Grok {
 public:
-  Grok() : expression_(), is_debug_(false), lexer_(nullptr) {}
+  Grok() :  lexer_(nullptr), expression_(), is_debug_(false) {}
 
   void WorkAndDebug() {
     Timer t;

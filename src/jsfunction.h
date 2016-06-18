@@ -31,7 +31,6 @@
 #include "astnode.h"
 #include "jsobject.h"
 #include "program.h"
-#include "bytecode.h"
 
 #include <cstdio>
 #include <functional>

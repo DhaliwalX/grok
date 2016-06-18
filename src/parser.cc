@@ -281,7 +281,7 @@ bool Expression::Member(
     return false;
   }
 
-  bool result = true;
+  bool result = false, loop = false;
   std::shared_ptr<AstNode> node = std::make_shared<AstNode>();
   node->AddChild(expr);
   node->expression_type_ = AstNode::ExpressionType::_member;
@@ -328,10 +328,10 @@ bool Expression::Member(
 
     default:
       lexer->PutBack(tok);
-      result = false;
+      loop = false;
       break;
     }
-  } while (result);
+  } while (loop && result);
   expr = (!i) ? node->links_[0] : node;
   return true;
 }
@@ -1298,7 +1298,7 @@ bool Expression::WhileStatement(
   expr->AddChild(std::make_shared<AstNode>());
 
   // parse the condition or we can say the conditional expression
-  if (!Expr(lexer, expr->GetNthChild(0))) {
+  if (!(result = Expr(lexer, expr->GetNthChild(0)))) {
     printf("Expected an expression in while (..)\n");
     return false;
   }
@@ -1355,7 +1355,7 @@ bool Expression::ForStatement(
   }
   delete tok;
 
-  Expr(lexer, expr);
+  result = Expr(lexer, expr);
   node->AddChild(expr);
 
   tok = lexer->NextToken();
@@ -1367,7 +1367,7 @@ bool Expression::ForStatement(
   }
   delete tok;
 
-  Expr(lexer, expr);
+  result = Expr(lexer, expr);
   node->AddChild(expr);
 
   tok = lexer->NextToken();
@@ -1381,7 +1381,9 @@ bool Expression::ForStatement(
 
   expr = node;
   expr->AddChild(std::make_shared<AstNode>());
-  return Statement(lexer, expr->GetLastChild());
+  result = Statement(lexer, expr->GetLastChild());
+
+  return result;
 }
 
 bool Expression::WithStatement(
@@ -1442,10 +1444,10 @@ bool Expression::FunctionStatement(
   //      3) And, a node consisting the statements under that function.
   //
 
-  Token *tok = lexer->NextToken();
-  bool result = Expect(tok, FUNC);
-  delete tok;
-  std::cout << "Function won't be parsed now." << std::endl;
+  // Token *tok = lexer->NextToken();
+  // Expect(tok, FUNC);
+  // delete tok;
+  // std::cout << "Function won't be parsed now." << std::endl;
   return false;
   // if (result) {
 

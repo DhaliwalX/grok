@@ -36,16 +36,7 @@
 
 #define indent(num, ch) std::string(num, ch)
 
-static std::string expression_type[] = {
-    "undefined", /* for undefined type */
-    "_empty", "_primary", "_member", "_argument", "_array_access",
-    "_constructor", "_constructorcall", "_declaration", "_declarations",
-    "_unary", "_factor", "_functioncall", "_term", "_shift", "_relational",
-    "_equality", "_bitand", "_bitxor", "_bitor", "_and", "_or", "_conditional",
-    "_assignment", "_single", "_break", "_continue", "_compound", "if",
-    "ifelse", "for", "for_in", "while", "_with", "_return", "_function",
-    "_native" /* tells whether the given node contains the native call */
-};
+extern std::string expression_type[];
 
 // struct for Abstract Syntax Tree Node,
 struct AstNode {
@@ -158,21 +149,10 @@ struct AstNode {
   // or sequence, so it uses the vector::back() operation
   inline std::shared_ptr<AstNode> &GetLastChild() { return links_.back(); }
 
-  void print(std::ostream &os, int tab)
-  {
-      os << indent(tab, ' ') << "Expression Type: " << expression_type[(int)expression_type_]
-              << std::endl;
-      os << indent(tab, ' ') << "Variable: " << variable_ << std::endl;
-      os << indent(tab, ' ') << "Relation1: " << token_type[relation1_] << std::endl;
-      os << indent(tab, ' ') << "Relation2: " << token_type[relation2_] << std::endl;
-  }
+  void print(std::ostream &os, int tab);
 
-  Object obj_; // Javascript object is stored here
   ExpressionType expression_type_;     // type of the expression
-  std::vector<std::shared_ptr<AstNode>> links_;
-  // children of the node
-  std::string variable_; // useful for storing the name of
-                        // javascript variables
+
 
   // relation1_ is basically TokenType object. It defines the action of the
   // expression. For e.g. for a expression 2 + 3, the expression_type_ variable
@@ -182,23 +162,16 @@ struct AstNode {
 
   // not so useful and will be removed
   TokenType relation2_;
+  Object obj_; // Javascript object is stored here
+  std::string variable_; // useful for storing the name of
+                        // javascript variables
+  std::vector<std::shared_ptr<AstNode>> links_;
+  // children of the node
 };
 
-static void PrintAST(std::shared_ptr<AstNode> node, std::ostream &os,
-                     int tab = 0) {
-  node->print(os, tab++);
-  for (auto &child : node->links_) {
-    PrintAST(child, os, tab);
-  }
-}
+extern void PrintAST(std::shared_ptr<AstNode> node, std::ostream &os,
+                     int tab = 0);
 
-static inline void PrintASTObject(std::shared_ptr<AstNode> node, int tab = 0) {
-  while (tab--)
-    printf("  ");
-  if (!node.get() || node->obj_.empty()) {
-    printf("Undefined");
-  } else
-    printf("%s", node->obj_.as<JSBasicObject>()->ToString().c_str());
-}
+extern void PrintASTObject(std::shared_ptr<AstNode> node, int tab = 0);
 
 #endif // ASTNODE_H_

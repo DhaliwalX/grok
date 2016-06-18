@@ -275,3 +275,50 @@
 
 // #undef I
 // #endif // BYTECODE_H_
+
+/**
+ * instructions for virtual machine, as previously i used so many different
+ * instructions. They were so many that some of them I didn't even use
+ * So this time I thought of making simple and multipurpose instructions
+ * Last time I cared about the speed of the interpreter. Now I don't care
+ * if the speed of te interpreter is slow. All I want is to make it bug free
+ *
+ * Since everything in this language is object. So these instructions should 
+ * focus more on objects. Loading storing should involve objects Not basic types
+ * Hence it will be easier to write instructions. Since there would be
+ * uniformity.
+ *
+ * About virtual machine
+ * ========================
+ * Virtual machine will be based on Stack oriented. That is, instructions like 
+ *
+ *          add a, b
+ *
+ * will be transformed as 
+ *
+ *          push a
+ *          push b
+ *          add
+ *
+ * This will be basis for almost every instruction. Also since we have to store 
+ * the variable in the memory. But since the language is dynamic, the variable
+ * must be stored in a way so that we can easily access that variable at later
+ * time. That is basis for almost all dynamic languages. Example javascript,
+ * python etc. 
+ *
+ * Now to store the variable (so that we can later access it by its name), we've
+ * to store it with some relation to its name. One way is to store all the variable
+ * data in contigous memory. In this way we can access the variable in O(1) time,
+ * but we've to store the offset of the data in some relation to its name. 
+ * That we can do by mapping the addresses with names in map<string, int>. So
+ * we have to find the address corresponding to the name at the parsing time. 
+ * At the runtime we will get performance boost. But when code generation in this
+ * case will be difficult for me. Another way which I prefer is to store the
+ * variable directly in map without involvement of any offsets i.e. 
+ *
+ *            map<string, object>
+ * 
+ * Here, we can access a variable in O(log n) time. That will impact performance.
+ */
+
+

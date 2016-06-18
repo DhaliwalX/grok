@@ -31,6 +31,7 @@
 #include "jsobject.h"
 #include "lexer.h"
 #include "parser.h"
+#include "astnode.h"
 
 #include <algorithm>
 #include <memory>
@@ -42,7 +43,7 @@ namespace js {
 using namespace std;
 
 class Stack;
-static void PrintHeap(const Stack &stack);
+// static void PrintHeap(const Stack &stack);
 
 // 	**Stack class**
 // This class holds all the javascript objects and functions.
@@ -53,7 +54,7 @@ static void PrintHeap(const Stack &stack);
 // As shared_ptr are used so the garbage handling is implicit and much
 // accurate, though it is little slower.
 class Stack {
-  friend void PrintHeap(const Stack &stack);
+  // friend void PrintHeap(const Stack &stack);
 
 public:
   // default constructor
@@ -137,22 +138,22 @@ private:
   vector<map<string, shared_ptr<AstNode>>> stack_;
 };
 
-static void PrintMap(const map<string, shared_ptr<AstNode>> &m) {
-  for (const auto &i : m) {
-    printf("%s : ", i.first.c_str());
-    PrintASTObject(i.second);
-    printf("\n");
-  }
-}
+// static void PrintMap(const map<string, shared_ptr<AstNode>> &m) {
+//   for (const auto &i : m) {
+//     printf("%s : ", i.first.c_str());
+//     PrintASTObject(i.second);
+//     printf("\n");
+//   }
+// }
 
-static void PrintHeap(const Stack &stack) {
-  if (stack.stack_.empty()) {
-    printf("Heap is empty\n");
-    return;
-  }
-  for (const auto &i : stack.stack_) {
-    PrintMap(i);
-  }
-}
+// static void PrintHeap(const Stack &stack) {
+//   if (stack.stack_.empty()) {
+//     printf("Heap is empty\n");
+//     return;
+//   }
+//   for (const auto &i : stack.stack_) {
+//     PrintMap(i);
+//   }
+// }
 }
 #endif
