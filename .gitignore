@@ -7,3 +7,7 @@ grok/grok/Debug/*
 *.o
 build
 *.exe
+g
+grok
+a.out
+.ycm*
