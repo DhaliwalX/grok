@@ -312,13 +312,98 @@
  * but we've to store the offset of the data in some relation to its name. 
  * That we can do by mapping the addresses with names in map<string, int>. So
  * we have to find the address corresponding to the name at the parsing time. 
- * At the runtime we will get performance boost. But when code generation in this
+ * At the runtime we will get performance boost. But code generation in this
  * case will be difficult for me. Another way which I prefer is to store the
  * variable directly in map without involvement of any offsets i.e. 
  *
  *            map<string, object>
  * 
  * Here, we can access a variable in O(log n) time. That will impact performance.
+ * 
+ *
+ * Instructions
+ * -------------------
+ *
+ *  + Immediate Instructions ==> (LD 0), (LD "prince")
+ *  + Direct Address Instructions ==> (LD a), (LD b)
+ *  + Allocation Deallocation Instructions ==> (NEW a) (NEW a 0) (NEW a "string")
+ *  + Indexed instructions ==> (LDI 0) (LDI "str")  ## `a` is in accumulator
+ *  + Arithematic instructions ==> (ADD b) (ADD 0) (ADD a[0]) (ADD a['str'])
+ *
  */
 
+#ifndef BYTECODE_H_
+#define BYTECODE_H_
 
+#include "object.h"
+#include <vector>
+
+#define BYTECODE_LIST(L)    \
+ L(ld),  \
+ L(nw),  \
+ L(dl),  \
+ L(li),  \
+ L(ad),  \
+ L(sb),  \
+ L(ml),  \
+ L(dv),  \
+ L(md),  \
+ L(cl),  \
+ L(rt)
+
+enum class BCode {
+#define ENUM(op)    op
+BYTECODE_LIST(ENUM)
+#undef ENUM
+};
+
+const char *bcode_str[] = {
+#define STR(op) #op
+BYTECODE_LIST(STR)
+#undef STR
+};
+
+#undef BYTECODE_LIST
+#define BCODE_TYPE_LIST(L)  \
+ L(imm),    \
+ L(dir),    \
+ L(idx),    \
+ L(alc)
+
+enum class BType {
+#define ENUM(type) type
+BCODE_TYPE_LIST(ENUM)
+#undef ENUM
+};
+
+const char *btype_str[] = {
+#define STR(type) #type
+BCODE_TYPE_LIST(STR)
+#undef STR
+};
+
+#undef BCODE_TYPE_LIST
+
+class Bytecode {
+public:
+    Bytecode() = default;
+    Bytecode(const Bytecode &) = default;
+    Bytecode &operator=(const Bytecode &) = default;
+    ~Bytecode() = default;
+
+    void set(BCode code, BType type, Object data)
+    {
+        code_ = code;
+        type_ = type;
+        data_ = data;
+    }
+
+private:
+    BCode code_;
+    BType type_;
+    Object data_;
+};
+
+using BytecodeList = std::vector<Bytecode>;
+
+#endif
