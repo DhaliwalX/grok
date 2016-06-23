@@ -26,12 +26,26 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "../src/grok.h"
-#include "../test/test.h"
+#include "parser/parser.h"
+#include <iostream>
+#include <memory>
+#include <string>
 
 int main(int argc, char *argv[]) {
-  test::testmain();
-  Grok grok;
-  grok.Run(argc, argv);
-  return 0;
+    std::string in;
+    bool result = false;
+
+    std::cout << ">> ";
+    std::getline(std::cin, in);
+    auto lex = std::make_unique<Lexer>(in);
+    
+    grok::parser::GrokParser parser{ std::move(lex) };
+    result = parser.ParseExpression();
+
+    if (result) {
+        std::cout << parser;
+    } else {
+        std::cout << "Errors occurred" << std::endl;
+    }
+    return 0;
 }

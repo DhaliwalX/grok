@@ -214,7 +214,7 @@ static Token TOKENS[TOKEN_NUM] = {
     Token{"(", 0}, Token{")", 1}, Token{"{", 2}, Token{"}", 3},
     Token{"[", 4}, Token{"]", 5}, Token{":", 6}, Token{";", 7},
     Token{"'", 8}, Token{"\"", 9}, Token{".", 10}, Token{",", 11, 1},
-    Token{"?", 12, 3},
+    Token{"?", 12, 2},
 
     // operators
     Token{"+", 13, 12}, Token{"-", 14, 12}, Token{"/", 15, 13},

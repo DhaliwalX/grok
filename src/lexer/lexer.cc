@@ -95,7 +95,7 @@ Token *Lexer::NextToken() {
     }
 
     // finally reached at the end of the given string
-    return new Token(std::string({ch}), EOS, 0, pos);
+    return new Token(std::string({ch}), EOS, -1, pos);
 }
 
 void Lexer::StripComments(char &ch) { // skips all the comments from the string
@@ -163,7 +163,7 @@ Token *Lexer::Characterize(char ch,
     return ParseIdentifierOrKeyWord(ch, pos);
 
   // if none of both then we have to return a invalid token
-  return new Token(std::string(""), INVALID, 0, pos);
+  return new Token(std::string(""), INVALID, -1, pos);
 }
 
 Token *
@@ -186,7 +186,7 @@ Lexer::ParseNumber(char ch,
   // we've gone one character ahead, so go back
   GoBack();
 
-  return new Token(buffer, DIGIT, 0, pos);
+  return new Token(buffer, DIGIT, -1, pos);
 }
 
 Token *Lexer::ParseIdentifierOrKeyWord(
@@ -207,7 +207,7 @@ Token *Lexer::ParseIdentifierOrKeyWord(
       if (buffer[0] == TOKENS[i].value_[0] && buffer == TOKENS[i].value_)
         return new Token(buffer, i, 0, pos);
   }
-  return new Token(buffer, IDENT, 0, pos);
+  return new Token(buffer, IDENT, -1, pos);
 }
 
 // although not required because of no use
@@ -227,7 +227,7 @@ Token *Lexer::ParseStringLiteral(
       ch = NextCharacter();
     }
   }
-  return new Token(str, STRING, 0, pos);
+  return new Token(str, STRING, -1, pos);
 }
 
 // this function should be used instead of above function

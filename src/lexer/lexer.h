@@ -87,6 +87,8 @@ public:
     return tok_->precedance_;
   }
 
+  Position GetCurrentPosition() const { return tok_->position_; }
+
 private:
   std::string code_; // whole code will stored here
   int seek_;         // current position of the seek
