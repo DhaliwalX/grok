@@ -38,6 +38,7 @@ private:
 public:
     Identifier(const std::string &name) : name_(name) { }
     std::ostream &operator<<(std::ostream &os) const override;
+    const std::string &GetName() const { return name_; }
 };
 
 class BooleanLiteral : public Expression {
@@ -45,6 +46,19 @@ class BooleanLiteral : public Expression {
 public:
     BooleanLiteral(bool val) : pred_(val) { }   
     std::ostream &operator<<(std::ostream &os) const override;
+};
+
+class FunctionCallExpression : public Expression {
+public:
+    FunctionCallExpression(std::string name,
+        std::vector<std::unique_ptr<Expression>> args)
+        : args_{ std::move(args) }, name_{ std::move(name) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+private:
+    std::vector<std::unique_ptr<Expression>> args_;
+    std::string name_;
 };
 
 class BinaryExpression : public Expression {
