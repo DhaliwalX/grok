@@ -1,8 +1,8 @@
 #ifndef EXPRESSION_H_
 #define EXPRESSION_H_
 
-#include "common.h"
-#include "../lexer/lexer.h"
+#include "parser/common.h"
+#include "lexer/lexer.h"
 
 namespace grok { namespace parser {
 

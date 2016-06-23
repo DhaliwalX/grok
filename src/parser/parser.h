@@ -1,9 +1,9 @@
 #ifndef PARSER_H_
 #define PARSER_H_
 
-#include "common.h"
-#include "expression.h"
-#include "../lexer/lexer.h"
+#include "parser/common.h"
+#include "parser/expression.h"
+#include "lexer/lexer.h"
 
 namespace grok { namespace parser {
 

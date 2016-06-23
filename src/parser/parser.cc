@@ -1,5 +1,5 @@
-#include "parser.h"
-#include "../lexer/token.h"
+#include "parser/parser.h"
+#include "lexer/token.h"
 
 using namespace grok::parser;
 
@@ -29,15 +29,15 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary()
     std::unique_ptr<Expression> result;
 
     if (tok == DIGIT) {
-        result = myunique::make_unique<IntegralLiteral>(lex_->GetNumber());
+        result = std::make_unique<IntegralLiteral>(lex_->GetNumber());
     } else if (tok == STRING) {
-        result = myunique::make_unique<StringLiteral>(lex_->GetStringLiteral());
+        result = std::make_unique<StringLiteral>(lex_->GetStringLiteral());
     } else if (tok == IDENT) {
-        result = myunique::make_unique<Identifier>(lex_->GetIdentifierName());
+        result = std::make_unique<Identifier>(lex_->GetIdentifierName());
     } else if (tok == TRUE) {
-        result = myunique::make_unique<BooleanLiteral>(true);
+        result = std::make_unique<BooleanLiteral>(true);
     } else if (tok == FALSE) {
-        result = myunique::make_unique<BooleanLiteral>(false);
+        result = std::make_unique<BooleanLiteral>(false);
     } else {
         throw std::runtime_error("expected a primary expression");
     }
@@ -70,7 +70,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
         }
 
         // merge lhs and rhs
-        lhs = myunique::make_unique<BinaryExpression>(tok,
+        lhs = std::make_unique<BinaryExpression>(tok,
                 std::move(lhs), std::move(rhs));
     }
 }

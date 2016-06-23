@@ -1,8 +1,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#include "../exceptions.h"
+#include "common/exceptions.h"
 #include <memory>
-
 
 #endif

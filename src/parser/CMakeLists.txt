@@ -1,3 +1,6 @@
+include_directories(../)
+include_directories(../common)
+
 set (LIBS
     ${LIBS}
     expression.cc
@@ -8,5 +11,3 @@ set (LIBS
     )
 
 add_library(parser ${LIBS})
-
-

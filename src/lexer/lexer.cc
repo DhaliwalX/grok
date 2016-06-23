@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "lexer/lexer.h"
 
 Lexer::Lexer(const char *file, bool f) {
     file_ = true;

@@ -28,7 +28,7 @@
 #ifndef EXCEPTIONS_H_
 #define EXCEPTIONS_H_
 
-#include "token.h"
+#include "lexer/token.h"
 
 #include <cstdio>
 #include <cstdlib>
