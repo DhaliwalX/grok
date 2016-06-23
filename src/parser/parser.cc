@@ -33,11 +33,12 @@ bool IsAssign(TokenType type_) {
 } // grok
 
 
-std::unique_ptr<Expression> GrokParser::ParsePrimary()
+std::unique_ptr<Expression> GrokParser::ParsePrimary(TokenType &type)
 {
     TokenType tok = lex_->peek();
     std::unique_ptr<Expression> result;
 
+    type = tok;
     if (tok == DIGIT) {
         result = std::make_unique<IntegralLiteral>(lex_->GetNumber());
     } else if (tok == STRING) {
@@ -48,6 +49,13 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary()
         result = std::make_unique<BooleanLiteral>(true);
     } else if (tok == FALSE) {
         result = std::make_unique<BooleanLiteral>(false);
+    } else if (tok == LPAR) {
+        lex_->advance();    // eat '('
+        result = ParseCommaExpression();
+        tok = lex_->peek();
+
+        if (tok != RPAR)
+            throw std::runtime_error("expected a ')'");
     } else {
         throw std::runtime_error("expected a primary expression");
     }
@@ -56,9 +64,61 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary()
     return std::move(result);
 }
 
-// reference for this function ::= llvm/examples/Kaleidoscope/chapter3/toy.cpp
-// if you are unable to understand the function just imagine you are 
-// parsing 2 + 3 * 5 - 6 / 7, (I too used that as a reference)
+std::vector<std::unique_ptr<Expression>> GrokParser::ParseParameters()
+{
+    std::vector<std::unique_ptr<Expression>> exprs;
+
+    auto tok = lex_->peek();
+    if (tok != LPAR)
+        throw std::runtime_error("expected a '('");
+    lex_->advance();
+
+    tok = lex_->peek();
+    if (tok == RPAR) {
+        lex_->advance();
+        return { };
+    }
+
+    // loop until we don't find a ','
+    while (true) {
+        auto one = ParseAssignExpression();
+        exprs.push_back(std::move(one));
+
+        tok = lex_->peek();
+        if (tok == RPAR)
+            break;
+        if (tok != COMMA)
+            throw std::runtime_error("expected a ',' or ')'");
+        lex_->advance();
+    }
+
+    lex_->advance(); // eat the last ')'
+    return std::move(exprs);    
+}
+
+/// ParseFunctionCall ::= Parses a Function call expression like
+///                 call(a, b);
+std::unique_ptr<Expression> GrokParser::ParseFunctionCall()
+{
+    TokenType type;
+    auto maybemember = ParsePrimary(type);
+    auto tok = lex_->peek();
+
+    if (tok != LPAR)
+        return std::move(maybemember);
+    if (type != IDENT)
+        throw std::runtime_error("expected an identifier");
+
+    // now in this statement lot things are happening
+    auto name = dynamic_cast<Identifier*>(maybemember.get())->GetName();
+    auto args = ParseParameters();
+
+    return std::make_unique<FunctionCallExpression>(name, std::move(args));
+}
+
+/// reference for this function ::= llvm/examples/Kaleidoscope/chapter3/toy.cpp
+/// if you are unable to understand the function just imagine you are 
+/// parsing 2 + 3 * 5 - 6 / 7, (I too used that as a reference)
 std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
         std::unique_ptr<Expression> lhs)
 {
@@ -73,7 +133,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
         auto tok = lex_->peek();
         lex_->advance();
 
-        auto rhs = ParsePrimary();
+        auto rhs = ParseFunctionCall();
 
         auto nextprec = lex_->GetPrecedance();
         if (tokprec < nextprec) {
@@ -88,7 +148,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
 
 std::unique_ptr<Expression> GrokParser::ParseBinary()
 {
-    auto lhs = ParsePrimary();
+    auto lhs = ParseFunctionCall();
 
     // parse the rhs
     return ParseBinaryRhs(3, std::move(lhs));
@@ -255,8 +315,10 @@ std::vector<std::string> GrokParser::ParseArgumentList()
 
     // check for ')'
     tok = lex_->peek();
-    if (tok == RPAR)
+    if (tok == RPAR) {
+        lex_->advance();
         return { }; // return an empty vector
+    }
 
     while (true) {
         tok = lex_->peek();
@@ -358,7 +420,8 @@ bool GrokParser::ParseExpression()
     } catch (std::exception &e) {
         std::cerr << "<" << lex_->GetCurrentPosition().row_
             << ":" << lex_->GetCurrentPosition().col_ << "> ";
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << ", got '"
+            << TOKENS[lex_->peek()].value_ << "'." << std::endl;
         return false;
     }
 
