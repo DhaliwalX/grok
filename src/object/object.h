@@ -3,6 +3,7 @@
 
 #include <memory>
 
+namespace grok { namespace obj {
 class Object {
 public:
     Object() :
@@ -36,6 +37,9 @@ public:
     template <typename C>
     auto as() -> decltype(std::shared_ptr<C>())
     {
+        if (empty()) {
+            throw std::runtime_error("invalid pointer access");
+        }
         return std::static_pointer_cast<C>(data_);
     }
 
@@ -47,5 +51,7 @@ private:
     std::shared_ptr<void> data_;
 };
 
+} // obj
+} // grok
 #endif
 
