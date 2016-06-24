@@ -22,7 +22,12 @@ public:
 
     /// Create ::= creates a new instruction on heap and return it
     template <Instructions instr>
-    std::unique_ptr<Instruction> Create();
+    static std::unique_ptr<Instruction> Create()
+    {
+        auto inst = std::make_unique<Instruction>();
+        inst->kind_ = instr;
+        return std::move(inst);
+    }
 
     /// CreateBlock ::= creates a new block and from now on all the 
     ///     instructions added will be appended to this block
@@ -51,7 +56,14 @@ public:
     /// CurrentLength() ::= returns the length of the working block
     auto CurrentLength() const { return working_block_->Length(); }
 
-    static std::unique_ptr<InstructionBuilder> CreateBuilder();
+    static std::unique_ptr<InstructionBuilder> CreateBuilder()
+    {
+        std::unique_ptr<InstructionBuilder> builder{ new InstructionBuilder() };
+        builder->good_state_ = true;
+
+        return std::move(builder);
+    }
+
 private:
 
     bool good_state_; // 0 for not good, 1 for good
@@ -59,21 +71,6 @@ private:
     std::shared_ptr<InstructionBlock> working_block_;
 };
 
-template <Instructions instr>
-std::unique_ptr<Instruction> InstructionBuilder::Create()
-{
-    auto inst = std::make_unique<Instruction>();
-    inst->kind_ = instr;
-    return std::move(inst);
-}
-
-std::unique_ptr<InstructionBuilder> InstructionBuilder::CreateBuilder()
-{
-    auto builder = std::make_unique<InstructionBuilder>();
-    builder->good_state_ = true;
-
-    return std::move(builder);
-}
 
 }
 }

@@ -1,4 +1,4 @@
-#include "vm/instruction-builder.cc"
+#include "vm/instruction-builder.h"
 
 namespace grok {
 namespace vm {
@@ -94,10 +94,11 @@ std::unique_ptr<InstructionList> InstructionBuilder::ReleaseInstructionList()
 void InstructionBuilder::UpdateStackedJump()
 {
     auto last_block = blockstack_.back();
-    auto size = working_block_.size();
+    auto size = working_block_->Length();
 
     last_block->UpdateStackedJump(size);
 }
+
 
 } // vm
 } // grok

@@ -34,10 +34,11 @@
 #include <memory>
 #include <string>
 
+namespace grok { namespace obj {
 extern std::string __type[7];
 
 #define DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(op, type) \
-    { throw Exception(  \
+    { throw std::runtime_error(  \
             std::string("operator '" #op "' is not defined for '" \
                 #type "'")); }
 
@@ -79,7 +80,7 @@ public:
   virtual std::string ToString() const { return "undefined"; }
 
   virtual void print(std::ostream &os) const {
-    os << "Type: " << __type[static_cast<int>(GetType())];
+    // os << "Type: " << __type[static_cast<int>(GetType())];
   }
 
   virtual long long &GetNumber() {
@@ -176,5 +177,7 @@ DECLARE_OTHER_OPERATOR(/);
 DECLARE_OTHER_OPERATOR(%);
 #undef DECLARE_OTHER_OPERATOR
 
+}
+}
 #endif
 

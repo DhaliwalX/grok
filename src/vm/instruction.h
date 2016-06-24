@@ -52,7 +52,7 @@ enum Datatypes {
 
 /// RawInstruction ::= template data structure for instruction
 ///     @param T ::= represents the type of address for jmp instructions
-template <T>
+template <typename T>
 struct RawInstruction {
     int32_t kind_;
     int32_t data_type_;

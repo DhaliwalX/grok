@@ -15,6 +15,7 @@ public:
     { }
 
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 private:
     std::vector<std::unique_ptr<Expression>> stmts_;
 };

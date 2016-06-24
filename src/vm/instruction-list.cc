@@ -9,7 +9,7 @@ InstructionBlock::InstructionBlock()
 
 void InstructionBlock::Append(std::shared_ptr<Instruction> instr)
 {
-    list_.push_back(instr);
+    list_->push_back(instr);
 }
 
 void InstructionBlock::AppendBlock(std::shared_ptr<InstructionBlock> block)

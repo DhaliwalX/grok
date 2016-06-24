@@ -34,6 +34,8 @@
 #include <memory>
 #include <vector>
 
+namespace grok { namespace obj {
+
 class JSArray : public JSBasicObject {
 public:
   using ObjectPointer = std::shared_ptr<Object>;
@@ -117,4 +119,6 @@ private:
   std::vector<ObjectPointer> elements_;
 };
 
+} // obj
+} // grok
 #endif // JSARRAY_H_

@@ -5,8 +5,14 @@
 namespace grok {
 namespace parser {
 
+using namespace grok::vm;
 /// emits code for function
 void FunctionStatement::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+
+}
+
+void FunctionPrototype::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     
 }

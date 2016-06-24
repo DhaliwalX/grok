@@ -33,6 +33,8 @@
 
 #include <unordered_map>
 
+namespace grok { namespace obj {
+
 // A javascript object is a set of name : value pair
 class JSObject : public JSBasicObject {
 public:
@@ -102,5 +104,6 @@ private:
   std::unordered_map<Name, Value> object_;
 };
 
+} // obj
+} // grok
 #endif // OBJECT_H_
-

@@ -1,6 +1,8 @@
 #include "object/object.h"
 #include "object/jsobject.h"
 
+
+namespace grok { namespace obj {
 std::string __type[7] = {"null",   "undefined", "number",  "string",
                                 "object", "array",     "function"};
 
@@ -27,7 +29,7 @@ Object operator+(std::shared_ptr<JSNumber> l, Object r)
                         + rhs->ToString());
     return Object(result);
   } else {
-    throw Exception("Code reached a place where it"
+    throw std::runtime_error("Code reached a place where it"
                           " was not supposed to be");
   }
 }
@@ -43,7 +45,7 @@ Object operator op(std::shared_ptr<JSNumber> l, Object r) \
                       op rhs->GetNumber()); \
     return Object(result);  \
   } else { \
-    throw Exception("We can't apply operator '" #op "' on string"); \
+    throw std::runtime_error("We can't apply operator '" #op "' on string"); \
   } \
 }
 
@@ -65,7 +67,7 @@ Object operator +(std::shared_ptr<JSString> l, Object r)
     auto rhs = r.as<JSNumber>();
     return rhs + Object(l);
   } else 
-    throw Exception("Code reached a place where it"
+    throw std::runtime_error("Code reached a place where it"
                           " was not supposed to be");
 }
 
@@ -95,7 +97,7 @@ Object operator+(Object l, Object r)
   case JSBasicObject::ObjectType::_array:
   case JSBasicObject::ObjectType::_undefined:
   default:
-    throw Exception("unknown type caught in Object operator+");
+    throw std::runtime_error("unknown type caught in Object operator+");
   }
 }
 
@@ -107,7 +109,7 @@ Object operator op (Object l, Object r) \
   \
   if (ltype != JSBasicObject::ObjectType::_number \
       && rtype != JSBasicObject::ObjectType::_number) \
-    throw Exception("fatal: can't apply operator '" #op "'"); \
+    throw std::runtime_error("fatal: can't apply operator '" #op "'"); \
   \
   auto numobject = l.as<JSNumber>(); \
   return numobject op r; \
@@ -117,3 +119,6 @@ OTHER_OPERATOR(-)
 OTHER_OPERATOR(*)
 OTHER_OPERATOR(/)
 OTHER_OPERATOR(%)
+
+} // obj
+} // grok

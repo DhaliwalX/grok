@@ -1,6 +1,10 @@
 #include "parser/expression.h"
+#include "parser/ifstatement.h"
+#include "parser/forstatement.h"
+#include "parser/blockstatement.h"
 #include "vm/instruction.h"
 #include "vm/instruction-builder.h"
+#include "lexer/token.h"
 
 namespace grok {
 namespace parser {
@@ -54,10 +58,10 @@ void EmitBinaryOperator(BinaryExpression::Operator op,
     switch (op) {
     default:
         throw std::runtime_error("unknown operator");
-    case ADD:
+    case PLUS:
         instr->kind_ = Instructions::adds;
         break;
-    case SUB:
+    case MINUS:
         instr->kind_ = Instructions::subs;
         break;
     case MUL:
@@ -81,10 +85,10 @@ void EmitBinaryOperator(BinaryExpression::Operator op,
     case GT:
         instr->kind_ = Instructions::gts;
         break;
-    case EQ:
+    case EQUAL:
         instr->kind_ = Instructions::eqs;
         break;
-    case NEQ:
+    case NOTEQ:
         instr->kind_ = Instructions::neqs;
         break;
     }
@@ -224,8 +228,8 @@ void ForStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     // end of the condition instructions
     auto cmp_blk_end = builder->CurrentLength();
 
-    body_->emit();
-    update_->emit();
+    body_->emit(builder);
+    update_->emit(builder);
     
     // insert a jmp back instruction
     instr = InstructionBuilder::Create<Instructions::jmp>();
@@ -240,6 +244,18 @@ void ForStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     // update the jump instructions
     instr_ptr->jmp_addr_ = for_loop_end - cmp_blk_end;
     jmp_back_ptr->jmp_addr_ = -(for_loop_end - cmp_blk_start);
+}
+
+void BlockStatement::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    for (auto &stmt : stmts_) {
+        stmt->emit(builder);
+    }
+}
+
+void FunctionCallExpression::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    // TODO
 }
 
 }

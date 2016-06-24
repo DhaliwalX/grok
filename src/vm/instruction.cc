@@ -3,6 +3,7 @@
 #include "object/jsobject.h"
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 namespace grok {
 namespace vm {
@@ -27,13 +28,13 @@ std::string InstrDataToString(const RawInstruction<int> &instr)
     default:
         throw std::runtime_error("fatal: unknown data type in the instruction");
 
-    case DataTypes::d_null:
+    case Datatypes::d_null:
         return "Null";
 
-    case DataTypes::d_num:
+    case Datatypes::d_num:
         return std::to_string(instr.GetNumber());
 
-    case DataTypes::d_str:
+    case Datatypes::d_str:
         return instr.GetString();
     }
 }
