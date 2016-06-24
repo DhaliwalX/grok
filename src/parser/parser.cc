@@ -79,7 +79,7 @@ std::vector<std::unique_ptr<Expression>> GrokParser::ParseParameters()
         return { };
     }
 
-    // loop until we don't find a ','
+    // loop until we find a ','
     while (true) {
         auto one = ParseAssignExpression();
         exprs.push_back(std::move(one));
@@ -150,7 +150,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinary()
 {
     auto lhs = ParseFunctionCall();
 
-    // parse the rhs
+    // parse the rhs, if any
     return ParseBinaryRhs(3, std::move(lhs));
 }
 

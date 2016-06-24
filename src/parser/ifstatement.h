@@ -14,6 +14,7 @@ public:
     { }
 
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 private:
     std::unique_ptr<Expression> condition_;
     std::unique_ptr<Expression> body_;
@@ -29,6 +30,7 @@ public:
     { }
 
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 private:
     std::unique_ptr<Expression> condition_;
     std::unique_ptr<Expression> body_;

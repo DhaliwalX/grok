@@ -3,6 +3,8 @@
 
 #include "parser/common.h"
 #include "lexer/lexer.h"
+#include "vm/instruction-list.h"
+#include "vm/instruction-builder.h"
 #include <vector>
 #include <string>
 
@@ -12,6 +14,7 @@ class Expression {
 public:
     virtual ~Expression() { }
     virtual std::ostream &operator<<(std::ostream &os) const = 0;
+    virtual void emit(std::shared_ptr<grok::vm::InstructionBuilder>) = 0;
 };
 
 class IntegralLiteral : public Expression {
@@ -22,6 +25,7 @@ public:
     IntegralLiteral(double value) : value_(value) { }
 
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 };
 
 class StringLiteral : public Expression {
@@ -30,6 +34,7 @@ private:
 public:
     StringLiteral(const std::string &str) : str_(str) { }
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 };
 
 class Identifier : public Expression {
@@ -39,6 +44,7 @@ public:
     Identifier(const std::string &name) : name_(name) { }
     std::ostream &operator<<(std::ostream &os) const override;
     const std::string &GetName() const { return name_; }
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 };
 
 class BooleanLiteral : public Expression {
@@ -46,6 +52,7 @@ class BooleanLiteral : public Expression {
 public:
     BooleanLiteral(bool val) : pred_(val) { }   
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 };
 
 class FunctionCallExpression : public Expression {
@@ -56,6 +63,7 @@ public:
     { }
 
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 private:
     std::vector<std::unique_ptr<Expression>> args_;
     std::string name_;
@@ -65,6 +73,7 @@ class BinaryExpression : public Expression {
 public:
     using Operator = TokenType;
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 
 private:
     Operator op_;
@@ -82,6 +91,7 @@ public:
         std::unique_ptr<Expression> rhs)
         : lhs_(std::move(lhs)), rhs_(std::move(rhs)) { }
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 
 private:
     std::unique_ptr<Expression> lhs_;
@@ -97,6 +107,7 @@ public:
         third_(std::move(third))
     { }
     std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 
 private:
     std::unique_ptr<Expression> first_;
@@ -112,6 +123,7 @@ public:
     std::ostream &operator<<(std::ostream &os) const override {
         return os;
     }
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 
 private:
     std::vector<std::unique_ptr<Expression>> exprs_;

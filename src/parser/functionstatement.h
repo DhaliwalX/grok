@@ -16,9 +16,10 @@ public:
         : name_{ name }, args_{ std::move(args) }
     { }
 
-    std::ostream &operator<<(std::ostream &os) const;
+    std::ostream &operator<<(std::ostream &os) const override;
     const std::string &GetName() const;
     const std::vector<std::string> &GetArgs() const;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 private:
     std::string name_;
     std::vector<std::string> args_;
@@ -32,7 +33,8 @@ public:
         : proto_{ std::move(proto) }, body_{ std::move(body) }
     { }
 
-    std::ostream &operator<<(std::ostream &os) const;
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 private:
     std::unique_ptr<FunctionPrototype> proto_;
     std::unique_ptr<Expression> body_;
