@@ -28,17 +28,16 @@
 #ifndef OBJECT_H_
 #define OBJECT_H_
 
-#include "astnode.h"
-#include "jsobject.h"
+#include "object/object.h"
+#include "object/jsobject.h"
 
-#include <string>
 #include <unordered_map>
 
 // A javascript object is a set of name : value pair
 class JSObject : public JSBasicObject {
 public:
   using Name = std::string;
-  using Value = std::shared_ptr<AstNode>;
+  using Value = std::shared_ptr<Object>;
   using iterator = std::unordered_map<Name, Value>::iterator;
   using const_iterator = std::unordered_map<Name, Value>::const_iterator;
 
@@ -91,7 +90,7 @@ public:
     buff += "{ ";
     for (const auto &it : object_) {
       buff += it.first + ": ";
-      buff += it.second->obj_.as<JSBasicObject>()->ToString() += ", ";
+      buff += it.second->as<JSBasicObject>()->ToString() += ", ";
     }
     buff.pop_back(); // ","
     buff.pop_back(); // " "

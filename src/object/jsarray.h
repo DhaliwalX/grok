@@ -28,15 +28,15 @@
 #ifndef JSARRAY_H_
 #define JSARRAY_H_
 
-#include "astnode.h"
-#include "jsobject.h"
+#include "object/object.h"
+#include "object/jsobject.h"
 
 #include <memory>
 #include <vector>
 
 class JSArray : public JSBasicObject {
 public:
-  using ObjectPointer = std::shared_ptr<AstNode>;
+  using ObjectPointer = std::shared_ptr<Object>;
   using size_type = std::vector<ObjectPointer>::size_type;
 
   JSArray(const std::vector<ObjectPointer> &elements) { elements_ = elements; }
@@ -102,7 +102,7 @@ public:
   std::string ToString() const override {
     std::string buff = "[ ";
     for (const auto &element : elements_) {
-      buff += element->obj_.as<JSBasicObject>()->ToString();
+      buff += element->as<JSBasicObject>()->ToString();
       buff += ", ";
     }
     if (elements_.size()) {

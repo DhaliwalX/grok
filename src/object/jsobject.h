@@ -28,33 +28,11 @@
 #ifndef JS_OBJECT_H_
 #define JS_OBJECT_H_
 
-#include "object.h"
+#include "object/object.h"
+#include "common/exceptions.h"
+
 #include <memory>
-#include "exceptions.h"
 #include <string>
-#include <unordered_map>
-#include <vector>
-
-// A javascript variable (name only)
-class JSVariable {
-public:
-  JSVariable(const std::string &name) : name_(name) {}
-
-  JSVariable() : name_("") {}
-
-  JSVariable(const JSVariable &var) : name_(var.name_) {}
-
-  JSVariable &operator=(const JSVariable &var) {
-    name_ = var.name_;
-    return *this;
-  }
-
-  std::string &GetName() { return name_; }
-  std::string GetName() const { return name_; }
-
-private:
-  std::string name_;
-};
 
 extern std::string __type[7];
 
@@ -66,7 +44,6 @@ extern std::string __type[7];
 #define DEFINE_OPERATOR(op, type)       \
     virtual Object operator op(Object ) \
         DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(op, type)
-
 
 class JSArray;
 class JSObject;

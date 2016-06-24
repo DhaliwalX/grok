@@ -1,5 +1,5 @@
-#include "object.h"
-#include "jsobject.h"
+#include "object/object.h"
+#include "object/jsobject.h"
 
 std::string __type[7] = {"null",   "undefined", "number",  "string",
                                 "object", "array",     "function"};
