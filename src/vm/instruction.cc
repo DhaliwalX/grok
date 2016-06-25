@@ -36,14 +36,18 @@ std::string InstrDataToString(const RawInstruction<int> &instr)
 
     case Datatypes::d_str:
         return instr.GetString();
+
+    case Datatypes::d_name:
+        return instr.GetString();
     }
 }
 
 std::string InstructionToString(const RawInstruction<int> &instr)
 {
     std::ostringstream out;
-    out << std::left << std::setw(8) << instr_to_string[instr.kind_];
-    out << std::setw(6) << type_to_string[instr.data_type_];
+    out << std::left << std::setw(10) << instr_to_string[instr.kind_];
+    out << std::setw(10) << type_to_string[instr.data_type_];
+    out << std::setw(5) << instr.jmp_addr_;
     out << InstrDataToString(instr);
     return out.str();
 }
