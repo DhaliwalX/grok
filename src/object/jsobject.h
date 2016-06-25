@@ -1,30 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-//
-//    +-----------------------------------------------------------+
-//    |          Grok : A Naive JavaScript Interpreter            |
-//    +-----------------------------------------------------------+
-//
-// Copyright 2015 Pushpinder Singh
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-//
-//  \file:  jsobject.h
-//  \description:  definition of JSBasicObject and other related classes
-//  \author: Pushpinder Singh
-//
-///////////////////////////////////////////////////////////////////////////////
-
 #ifndef JS_OBJECT_H_
 #define JS_OBJECT_H_
 
@@ -71,32 +44,17 @@ public:
   };
 
   // default constructor
-  JSBasicObject() = default;
+  JSBasicObject() { };
 
-  JSBasicObject(const JSBasicObject &obj) = default;
-  JSBasicObject &operator=(const JSBasicObject &rhs) = default;
-  virtual ~JSBasicObject() = default;
+  virtual ~JSBasicObject() { }
 
   virtual std::string ToString() const { return "undefined"; }
-
-  virtual void print(std::ostream &os) const {
-    // os << "Type: " << __type[static_cast<int>(GetType())];
-  }
-
-  virtual long long &GetNumber() {
-    return k;
-  }
 
   virtual ObjectType
   GetType() const { // returns the type of the javascript object
     return ObjectType::_undefined;
   }
 
-  template <ObjectType T> bool is() { return GetType() == T; }
-
-  virtual void reset(std::shared_ptr<JSBasicObject> ptr) { return; }
-
-  static long long k;
 };
 
 
@@ -142,7 +100,7 @@ public:
 
   JSNumber() : number_(0) {}
 
-  long long &GetNumber() override { return number_; }
+  long long &GetNumber() { return number_; }
 
   ~JSNumber() {}
 

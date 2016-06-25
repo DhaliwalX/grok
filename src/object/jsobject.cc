@@ -6,8 +6,6 @@ namespace grok { namespace obj {
 std::string __type[7] = {"null",   "undefined", "number",  "string",
                                 "object", "array",     "function"};
 
-long long JSBasicObject::k = 0;
-
 inline bool undefined_operation(JSBasicObject::ObjectType type) {
   return type == JSBasicObject::ObjectType::_object
           || type == JSBasicObject::ObjectType::_array
