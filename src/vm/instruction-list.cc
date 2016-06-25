@@ -4,11 +4,13 @@ namespace grok {
 namespace vm {
 
 InstructionBlock::InstructionBlock()
-    : list_ { }
+    : list_ { std::make_unique<InstructionList>() }
 { }
 
 void InstructionBlock::Append(std::shared_ptr<Instruction> instr)
 {
+    if (!list_)
+        throw std::runtime_error("fatal: list_ was nullptr");
     list_->push_back(instr);
 }
 
