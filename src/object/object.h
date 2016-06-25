@@ -20,6 +20,11 @@ public:
         : data_(std::static_pointer_cast<void>(ptr))
     { }
 
+    template <typename T>
+    Object(std::unique_ptr<T> ptr)
+        : data_(std::static_pointer_cast<void>(std::move(ptr)))
+    { }
+
     Object(const Object &reg)
         : data_(reg.data_)
     { }
