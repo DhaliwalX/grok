@@ -1,4 +1,5 @@
 #include "vm/instruction-builder.h"
+#include <iostream>
 
 namespace grok {
 namespace vm {
@@ -16,14 +17,14 @@ void InstructionBuilder::CreateBlock()
     working_block_ = newblock;
 }
 
-void InstructionBuilder::AddInstruction(std::unique_ptr<Instruction> instr)
+void InstructionBuilder::AddInstruction(std::shared_ptr<Instruction> instr)
 {
     if (!working_block_)
         throw std::runtime_error("fatal: working block was nullptr, "
             "was expected to be initialized");
 
     // append the instruction
-    working_block_->Append(std::move(instr));
+    working_block_->Append(instr);
 }
 
 void InstructionBuilder::EndBlock()
@@ -68,8 +69,10 @@ void InstructionBuilder::EndBlockForJump()
 
 void InstructionBuilder::Finalize()
 {
-    if (blockstack_.empty())
+    if (blockstack_.empty()) {
+        good_state_ = true;
         return; // already finalized
+    }
 
     while (!blockstack_.empty()) {
         auto ablock = blockstack_.back();

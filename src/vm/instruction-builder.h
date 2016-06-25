@@ -17,16 +17,16 @@ using BlockStack = std::list<std::shared_ptr<InstructionBlock>>;
 /// and adding the instructions to the instruction list so that they
 /// can be easily interpreted by vm
 class InstructionBuilder {
-    HIDE_CONSTRUCTORS(InstructionBuilder)
+    InstructionBuilder() = default;
 public:
 
     /// Create ::= creates a new instruction on heap and return it
     template <Instructions instr>
-    static std::unique_ptr<Instruction> Create()
+    static std::shared_ptr<Instruction> Create()
     {
-        auto inst = std::make_unique<Instruction>();
+        auto inst = std::make_shared<Instruction>();
         inst->kind_ = instr;
-        return std::move(inst);
+        return inst;
     }
 
     /// CreateBlock ::= creates a new block and from now on all the 
@@ -34,7 +34,7 @@ public:
     void CreateBlock();
 
     /// AddInstruction ::= adds the instruction to the current block
-    void AddInstruction(std::unique_ptr<Instruction> instr);
+    void AddInstruction(std::shared_ptr<Instruction> instr);
 
     /// EndBlock ::= this Instruction block has ended and it will be appended
     /// to the one that is currently in the stack
