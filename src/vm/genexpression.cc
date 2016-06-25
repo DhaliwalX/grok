@@ -140,7 +140,8 @@ void TernaryExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 
     // add jmp instruction at the end of current block
     instr = InstructionBuilder::Create<Instructions::jmp>();
-    
+    builder->AddInstruction(std::move(instr));
+
     // update the jmpz instruction which is currently in stack
     builder->UpdateStackedJump();
 
@@ -195,6 +196,7 @@ void IfElseStatement::emit(std::shared_ptr<InstructionBuilder> builder)
 
     // add jmp instruction at the end of current block used for skipping `else`
     instr = InstructionBuilder::Create<Instructions::jmp>();
+    builder->AddInstruction(std::move(instr));
     
     // update the jmpz instruction which is currently in stack
     builder->UpdateStackedJump();
