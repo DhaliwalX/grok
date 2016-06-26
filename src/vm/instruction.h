@@ -15,6 +15,8 @@ namespace vm {
     op(push),   \
     op(pushim),   \
     op(poprop),   \
+    op(replprop),   \
+    op(index),   \
     op(res),   \
     op(news),   \
     op(cpya),   \
