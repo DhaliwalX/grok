@@ -39,6 +39,9 @@ std::string InstrDataToString(const RawInstruction<int> &instr)
 
     case Datatypes::d_name:
         return instr.GetString();
+
+    case Datatypes::d_bool:
+        return instr.boolean_ ? "true" : "false";
     }
 }
 
