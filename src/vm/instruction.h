@@ -10,14 +10,19 @@ namespace vm {
 
 #define INSTRUCTION_LIST(op)    \
     op(noop),   \
-    op(fetch),  \
-    op(store),  \
+    op(fetch),   \
+    op(store),   \
     op(push),   \
-    op(pushim), \
-    op(lts),     \
-    op(gts),     \
-    op(eqs),     \
-    op(neqs),    \
+    op(pushim),   \
+    op(poprop),   \
+    op(res),   \
+    op(news),   \
+    op(cpya),   \
+    op(maps),   \
+    op(lts),   \
+    op(gts),   \
+    op(eqs),   \
+    op(neqs),   \
     op(adds),   \
     op(subs),   \
     op(muls),   \
@@ -25,8 +30,8 @@ namespace vm {
     op(shls),   \
     op(shrs),   \
     op(rems),   \
-    op(loopz),  \
-    op(jmp),    \
+    op(loopz),   \
+    op(jmp),   \
     op(call),   \
     op(ret),    \
     op(jmpz)
