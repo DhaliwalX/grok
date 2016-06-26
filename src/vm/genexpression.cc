@@ -117,15 +117,12 @@ void AssignExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     // generate code for rhs
     rhs_->emit(builder);
 
-    // I don't know why but I don't like the code below
-    auto lhs = lhs_.get();
-    auto ident = dynamic_cast<Identifier*>(lhs);
-    if (!ident)
+    if (lhs_->ProduceRValue())
         throw std::runtime_error("fatal: can't assign to an rvalue");
 
+    lhs_->emit(builder);
     auto instr = InstructionBuilder::Create<Instructions::store>();
-    instr->data_type_ = d_name;
-    instr->str_ = ident->GetName();
+    instr->data_type_ = d_null;
     builder->AddInstruction(std::move(instr));
 }
 
@@ -263,8 +260,28 @@ void BlockStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     }
 }
 
+void ArgumentList::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    for (auto &arg : args_) {
+        arg->emit(builder);
+    }
+
+    auto size = args_.size();
+    auto call_instr = InstructionBuilder::Create<Instructions::call>();
+    call_instr->data_type_ = d_num;
+
+    // number of args passed
+    call_instr->number_ = static_cast<double>(size);
+
+    builder->AddInstruction(std::move(call_instr));
+}
+
 void FunctionCallExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
+    // args will be on the top of the stack
+    // now store the address of the function
+    func_->emit(builder);
+
     // generate code for args
     for (auto &arg : args_) {
         arg->emit(builder);
@@ -272,15 +289,60 @@ void FunctionCallExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 
     auto size = args_.size();
     auto call_instr = InstructionBuilder::Create<Instructions::call>();
-    call_instr->data_type_ = d_name;
-    
-    // name of the function
-    call_instr->str_ = name_;
+    call_instr->data_type_ = d_num;
 
-    // number of args passed
+    // number of args passed this will help in getting the actual
+    // function from the stack
     call_instr->number_ = static_cast<double>(size);
 
     builder->AddInstruction(std::move(call_instr));
+}
+
+void DotMemberExpression::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    auto Property = mem_->GetName();
+
+    if (Property.length() == 0)
+        throw std::runtime_error("property should be a valid string"
+            "with length > 0");
+
+    // now the base object must lie in the stack, so we will
+    // replace the object with its property Property
+    auto repl = InstructionBuilder::Create<Instructions::replprop>();
+    repl->data_type_ = d_name;
+    repl->str_ = Property;
+    builder->AddInstruction(std::move(repl));
+}
+
+void IndexMemberExpression::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    // now our array or the object lies in stack
+    // evaluating the expression inside bracket will add one more element 
+    // to the stack. That element will be used in index operator
+    expr_->emit(builder);   // result of this expression is on the stack
+
+    auto index = InstructionBuilder::Create<Instructions::index>();
+    index->data_type_ = d_null;
+    builder->AddInstruction(std::move(index));
+}
+
+void CallExpression::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    func_->emit(builder);
+
+    if (members_.size() == 0)
+        return;
+
+    for (auto &member : members_) {
+        member->emit(builder);
+    }
+}
+
+void MemberExpression::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    for (auto &member : members_) {
+        member->emit(builder);
+    }
 }
 
 }
