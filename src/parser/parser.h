@@ -25,7 +25,8 @@ public:
     std::unique_ptr<Expression> ParsePrimary(TokenType &type);
     // std::unique_ptr<Expression> ParseMember();
     std::unique_ptr<Expression> ParseBinary();
-
+    std::unique_ptr<Expression> ParseArrayLiteral();
+    std::unique_ptr<Expression> ParseObjectLiteral();
     std::unique_ptr<Expression>
     ParseBinaryRhs(int prec, std::unique_ptr<Expression> lhs);
 

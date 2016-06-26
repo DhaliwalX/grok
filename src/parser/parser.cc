@@ -32,6 +32,80 @@ bool IsAssign(TokenType type_) {
 
 } // grok
 
+std::unique_ptr<Expression> GrokParser::ParseArrayLiteral()
+{
+    std::vector<std::unique_ptr<Expression>> exprs;
+    // eat '['
+    lex_->advance();
+    auto tok = lex_->peek();
+
+    if (tok == RSQB) {
+        // done
+        return std::make_unique<ArrayLiteral>(std::move(exprs));
+    }
+    while (true) {
+        auto one = ParseAssignExpression();
+        exprs.push_back(std::move(one));
+
+        tok = lex_->peek();
+        
+        if (tok == RSQB)
+            break;
+        if (tok != COMMA)
+            throw std::runtime_error("expected a ',' or ']'");
+        lex_->advance();   
+    }
+
+    return std::make_unique<ArrayLiteral>(std::move(exprs));
+}
+
+std::unique_ptr<Expression> GrokParser::ParseObjectLiteral()
+{
+    std::map<std::string, std::unique_ptr<Expression>> Props;
+
+    // eat the left brace '{'
+    lex_->advance();
+    auto tok = lex_->peek();
+
+    // if next tok is '}' then nothing to be done
+    if (tok == RBRACE) {
+        return std::make_unique<ObjectLiteral>(std::move(Props));
+    }
+
+    std::string name;
+    std::unique_ptr<Expression> prop;
+    while (true) {
+        tok = lex_->peek();
+        if (tok == STRING) {
+            name = lex_->GetStringLiteral();
+        } else if (tok == IDENT) {
+            name = lex_->GetIdentifierName();
+        } else {
+            throw std::runtime_error("expected an Identifier or a string");
+        }
+
+        lex_->advance();
+        tok = lex_->peek();
+
+        if (tok != COLON) {
+            throw std::runtime_error("expected a ':'");
+        }
+        lex_->advance();
+
+        prop = ParseAssignExpression();
+        Props[name] = std::move(prop);
+
+        // next token should be a ',' or '}'
+        tok = lex_->peek();
+        if (tok == RBRACE)
+            break;
+        if (tok != COMMA)
+            throw std::runtime_error("expected a ',' or '}'");
+        lex_->advance();
+    }
+
+    return std::make_unique<ObjectLiteral>(std::move(Props));
+}
 
 std::unique_ptr<Expression> GrokParser::ParsePrimary(TokenType &type)
 {
@@ -39,7 +113,9 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary(TokenType &type)
     std::unique_ptr<Expression> result;
 
     type = tok;
-    if (tok == DIGIT) {
+    if (tok == JSNULL) {
+        result = std::make_unique<NullLiteral>();
+    } else if (tok == DIGIT) {
         result = std::make_unique<IntegralLiteral>(lex_->GetNumber());
     } else if (tok == STRING) {
         result = std::make_unique<StringLiteral>(lex_->GetStringLiteral());
@@ -56,6 +132,10 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary(TokenType &type)
 
         if (tok != RPAR)
             throw std::runtime_error("expected a ')'");
+    } else if (tok == LSQB) {
+        result = ParseArrayLiteral();
+    } else if (tok == LBRACE) {
+        result = ParseObjectLiteral();
     } else {
         throw std::runtime_error("expected a primary expression");
     }
@@ -79,7 +159,6 @@ std::vector<std::unique_ptr<Expression>> GrokParser::ParseParameters()
         return { };
     }
 
-    // loop until we find a ','
     while (true) {
         auto one = ParseAssignExpression();
         exprs.push_back(std::move(one));
