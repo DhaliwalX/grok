@@ -22,7 +22,7 @@ public:
         lex_->advance();
     }
 
-    std::unique_ptr<Expression> ParsePrimary(TokenType &type);
+    std::unique_ptr<Expression> ParsePrimary();
     // std::unique_ptr<Expression> ParseMember();
     std::unique_ptr<Expression> ParseBinary();
     std::unique_ptr<Expression> ParseArrayLiteral();
@@ -37,12 +37,16 @@ public:
     std::unique_ptr<Expression> ParseElseBranch();
     std::unique_ptr<Expression> ParseStatement();
     std::unique_ptr<Expression> ParseForStatement();
-    std::vector<std::string> ParseArgumentList();
+    std::vector<std::string> ParseParameterList();
     std::unique_ptr<FunctionPrototype> ParsePrototype();
     std::unique_ptr<Expression> ParseFunction();
     std::unique_ptr<Expression> ParseBlockStatement();
-    std::vector<std::unique_ptr<Expression>> ParseParameters();
+    std::vector<std::unique_ptr<Expression>> ParseArgumentList();
     std::unique_ptr<Expression> ParseFunctionCall();
+    std::unique_ptr<Expression> ParseCallExpression();
+    std::unique_ptr<Expression> ParseMemberExpression();
+    std::unique_ptr<Expression> ParseIndexExpression();
+    std::unique_ptr<Expression> ParseDotExpression();
     bool ParseExpression();
 
     std::shared_ptr<Expression> ParsedAST()

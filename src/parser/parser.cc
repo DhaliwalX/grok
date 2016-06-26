@@ -107,12 +107,11 @@ std::unique_ptr<Expression> GrokParser::ParseObjectLiteral()
     return std::make_unique<ObjectLiteral>(std::move(Props));
 }
 
-std::unique_ptr<Expression> GrokParser::ParsePrimary(TokenType &type)
+std::unique_ptr<Expression> GrokParser::ParsePrimary()
 {
     TokenType tok = lex_->peek();
     std::unique_ptr<Expression> result;
 
-    type = tok;
     if (tok == JSNULL) {
         result = std::make_unique<NullLiteral>();
     } else if (tok == DIGIT) {
@@ -144,7 +143,67 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary(TokenType &type)
     return std::move(result);
 }
 
-std::vector<std::unique_ptr<Expression>> GrokParser::ParseParameters()
+std::unique_ptr<Expression> GrokParser::ParseDotExpression()
+{
+    // eat the '.'
+    lex_->advance();
+
+    auto tok = lex_->peek();
+
+    // this token should be a valid identifier
+    if (tok != IDENT)
+        throw std::runtime_error("expected a valid identifier");
+    auto name = lex_->GetIdentifierName();
+
+    auto ident = std::make_unique<Identifier>(name);
+    lex_->advance();
+    return std::make_unique<DotMemberExpression>(std::move(ident));
+}
+
+std::unique_ptr<Expression> GrokParser::ParseIndexExpression()
+{
+    // eat the '['
+    lex_->advance();
+    auto expr = ParseAssignExpression();
+    if (lex_->peek() != RSQB)
+        throw std::runtime_error("expected a ']'");
+
+    lex_->advance(); // consumex ']'
+    return std::make_unique<IndexMemberExpression>(std::move(expr));
+}
+
+std::unique_ptr<Expression> GrokParser::ParseMemberExpression()
+{
+    auto primary = ParsePrimary();
+    auto tok = lex_->peek();
+
+    // if next token is neither '[' or '.'
+    if (tok != LSQB && tok != DOT)
+        return std::move(primary);
+
+    std::vector<std::unique_ptr<Expression>> Members;
+    std::unique_ptr<Expression> Member;
+
+    Members.push_back(std::move(primary));
+    while (true) {
+        tok = lex_->peek();
+        if (tok == DOT) {
+            Member = ParseDotExpression();
+        } else if (tok == LSQB) {
+            Member = ParseIndexExpression();
+        } else if (tok == LPAR) {
+            auto args = ParseArgumentList();
+            Member = std::make_unique<ArgumentList>(std::move(args));
+        } else {
+            break;
+        }
+        Members.push_back(std::move(Member));
+    }
+
+    return std::make_unique<MemberExpression>(std::move(Members));
+}
+
+std::vector<std::unique_ptr<Expression>> GrokParser::ParseArgumentList()
 {
     std::vector<std::unique_ptr<Expression>> exprs;
 
@@ -179,20 +238,43 @@ std::vector<std::unique_ptr<Expression>> GrokParser::ParseParameters()
 ///                 call(a, b);
 std::unique_ptr<Expression> GrokParser::ParseFunctionCall()
 {
-    TokenType type;
-    auto maybemember = ParsePrimary(type);
+    auto maybemember = ParseMemberExpression();
     auto tok = lex_->peek();
 
     if (tok != LPAR)
         return std::move(maybemember);
-    if (type != IDENT)
-        throw std::runtime_error("expected an identifier");
+    auto args = ParseArgumentList();
+    return std::make_unique<FunctionCallExpression>(std::move(maybemember),
+        std::move(args));
+}
 
-    // now in this statement lot things are happening
-    auto name = dynamic_cast<Identifier*>(maybemember.get())->GetName();
-    auto args = ParseParameters();
+std::unique_ptr<Expression> GrokParser::ParseCallExpression()
+{
+    auto func = ParseFunctionCall();
+    auto tok = lex_->peek();
 
-    return std::make_unique<FunctionCallExpression>(name, std::move(args));
+    if (tok != DOT && tok != LSQB)
+        return std::move(func);
+    std::vector<std::unique_ptr<Expression>> Members;
+    std::unique_ptr<Expression> Member;
+
+    while (true) {
+        tok = lex_->peek();
+        if (tok == DOT) {
+            Member = ParseDotExpression();
+        } else if (tok == LSQB) {
+            Member = ParseIndexExpression();
+        } else if (tok == LPAR) {
+            auto args = ParseArgumentList();
+            Member = std::make_unique<ArgumentList>(std::move(args));
+        } else {
+            break;
+        }
+        Members.push_back(std::move(Member));
+    }
+
+    return std::make_unique<CallExpression>(std::move(func),
+        std::move(Members));
 }
 
 /// reference for this function ::= llvm/examples/Kaleidoscope/chapter3/toy.cpp
@@ -212,7 +294,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
         auto tok = lex_->peek();
         lex_->advance();
 
-        auto rhs = ParseFunctionCall();
+        auto rhs = ParseCallExpression();
 
         auto nextprec = lex_->GetPrecedance();
         if (tokprec < nextprec) {
@@ -227,7 +309,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
 
 std::unique_ptr<Expression> GrokParser::ParseBinary()
 {
-    auto lhs = ParseFunctionCall();
+    auto lhs = ParseCallExpression();
 
     // parse the rhs, if any
     return ParseBinaryRhs(3, std::move(lhs));
@@ -383,7 +465,7 @@ std::unique_ptr<Expression> GrokParser::ParseForStatement()
         std::move(condition), std::move(update), std::move(body));
 }
 
-std::vector<std::string> GrokParser::ParseArgumentList()
+std::vector<std::string> GrokParser::ParseParameterList()
 {
     auto tok = lex_->peek();
     auto result = std::vector<std::string>();
@@ -435,7 +517,7 @@ std::unique_ptr<FunctionPrototype> GrokParser::ParsePrototype()
     lex_->advance();
 
     // parse the argument list
-    auto args = ParseArgumentList();
+    auto args = ParseParameterList();
     return std::make_unique<FunctionPrototype>(name, std::move(args));
 }
 
