@@ -7,6 +7,7 @@
 #include "vm/instruction-builder.h"
 #include <vector>
 #include <string>
+#include <map>
 
 namespace grok { namespace parser {
 
@@ -15,6 +16,14 @@ public:
     virtual ~Expression() { }
     virtual std::ostream &operator<<(std::ostream &os) const = 0;
     virtual void emit(std::shared_ptr<grok::vm::InstructionBuilder>) = 0;
+};
+
+class NullLiteral : public Expression {
+public:
+    NullLiteral() { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 };
 
 class IntegralLiteral : public Expression {
@@ -35,6 +44,30 @@ public:
     StringLiteral(const std::string &str) : str_(str) { }
     std::ostream &operator<<(std::ostream &os) const override;
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+};
+
+class ArrayLiteral : public Expression {
+public:
+    ArrayLiteral(std::vector<std::unique_ptr<Expression>> exprs)
+        : exprs_{ std::move(exprs) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+private:
+    std::vector<std::unique_ptr<Expression>> exprs_;
+};
+
+class ObjectLiteral : public Expression {
+public:
+    ObjectLiteral(std::map<std::string, std::unique_ptr<Expression>> props)
+        : Props{ std::move(props) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+private:
+    std::map<std::string, std::unique_ptr<Expression>> Props;
 };
 
 class Identifier : public Expression {
@@ -118,7 +151,7 @@ private:
 class CommaExpression : public Expression {
 public:
     CommaExpression(std::vector<std::unique_ptr<Expression>> exprs)
-    : exprs_(std::move(exprs))
+    : exprs_{ std::move(exprs) }
     { }
     std::ostream &operator<<(std::ostream &os) const override {
         return os;

@@ -1,5 +1,12 @@
 #include "parser/expression.h"
 namespace grok { namespace parser {
+
+std::ostream &NullLiteral::operator<<(std::ostream &os) const
+{
+    os << "null" << std::endl;
+    return os;
+}
+
 std::ostream &IntegralLiteral::operator<<(std::ostream &os) const
 {
     os << value_ << std::endl;
@@ -63,6 +70,27 @@ std::ostream &FunctionCallExpression::operator<<(std::ostream &os) const
         *arg << os << ", ";
     }
 
+    return os;
+}
+
+std::ostream &ArrayLiteral::operator<<(std::ostream &os) const
+{
+    os << "Array: [ ";
+    for (auto &i : exprs_) {
+        *i << os << ", ";
+    }
+    os << " ]\n";
+    return os;
+}
+
+std::ostream &ObjectLiteral::operator<<(std::ostream &os) const
+{
+    os << "Object: { ";
+    for (auto &Prop : Props) {
+        os << Prop.first << ": ";
+        *(Prop.second) << os << ", ";
+    }
+    os << " }\n";
     return os;
 }
 
