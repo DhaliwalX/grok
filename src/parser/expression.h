@@ -16,6 +16,7 @@ public:
     virtual ~Expression() { }
     virtual std::ostream &operator<<(std::ostream &os) const = 0;
     virtual void emit(std::shared_ptr<grok::vm::InstructionBuilder>) = 0;
+    virtual bool ProduceRValue() { return true; }
 };
 
 class NullLiteral : public Expression {
@@ -78,6 +79,8 @@ public:
     std::ostream &operator<<(std::ostream &os) const override;
     const std::string &GetName() const { return name_; }
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+
+    bool ProduceRValue() { return false; }
 };
 
 class BooleanLiteral : public Expression {
@@ -88,18 +91,88 @@ public:
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 };
 
-class FunctionCallExpression : public Expression {
+class ArgumentList : public Expression {
 public:
-    FunctionCallExpression(std::string name,
-        std::vector<std::unique_ptr<Expression>> args)
-        : args_{ std::move(args) }, name_{ std::move(name) }
+    ArgumentList(std::vector<std::unique_ptr<Expression>> args)
+        : args_{ std::move(args) }
     { }
 
     std::ostream &operator<<(std::ostream &os) const override;
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+
 private:
     std::vector<std::unique_ptr<Expression>> args_;
-    std::string name_;
+};
+
+class FunctionCallExpression : public Expression {
+public:
+    FunctionCallExpression(std::unique_ptr<Expression> func,
+        std::vector<std::unique_ptr<Expression>> args)
+        : args_{ std::move(args) }, func_{ std::move(func) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+
+    bool ProduceRValue() { return false; }
+private:
+    std::vector<std::unique_ptr<Expression>> args_;
+    std::unique_ptr<Expression> func_;
+};
+
+class CallExpression : public Expression {
+public:
+    CallExpression(std::unique_ptr<Expression> func,
+        std::vector<std::unique_ptr<Expression>> members)
+        : func_(std::move(func)), members_(std::move(members))
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+
+    bool ProduceRValue() { return false; }
+private:
+    std::unique_ptr<Expression> func_;
+    std::vector<std::unique_ptr<Expression>> members_;
+};
+
+class DotMemberExpression : public Expression {
+public:
+    DotMemberExpression(std::unique_ptr<Identifier> mem)
+        : mem_(std::move(mem))
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    bool ProduceRValue() { return false; }
+private:
+    std::unique_ptr<Identifier> mem_;
+};
+
+class IndexMemberExpression : public Expression {
+public:
+    IndexMemberExpression(std::unique_ptr<Expression> expr)
+        : expr_{ std::move(expr) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    bool ProduceRValue() { return false; }
+private:
+    std::unique_ptr<Expression> expr_;
+};
+
+class MemberExpression : public Expression {
+public:
+    MemberExpression(std::vector<std::unique_ptr<Expression>> members)
+        : members_{ std::move(members) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    bool ProduceRValue() { return false; }
+private:
+    std::vector<std::unique_ptr<Expression>> members_;
 };
 
 class BinaryExpression : public Expression {
