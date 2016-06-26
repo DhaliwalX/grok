@@ -11,6 +11,14 @@ namespace parser {
 
 using namespace grok::vm;
 
+void NullLiteral::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    auto instr = InstructionBuilder::Create<Instructions::push>();
+    instr->data_type_ = d_null;
+
+    builder->AddInstruction(std::move(instr));
+}
+
 void IntegralLiteral::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     auto instr = InstructionBuilder::Create<Instructions::push>();
@@ -257,7 +265,22 @@ void BlockStatement::emit(std::shared_ptr<InstructionBuilder> builder)
 
 void FunctionCallExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
-    // TODO
+    // generate code for args
+    for (auto &arg : args_) {
+        arg->emit(builder);
+    }
+
+    auto size = args_.size();
+    auto call_instr = InstructionBuilder::Create<Instructions::call>();
+    call_instr->data_type_ = d_name;
+    
+    // name of the function
+    call_instr->str_ = name_;
+
+    // number of args passed
+    call_instr->number_ = static_cast<double>(size);
+
+    builder->AddInstruction(std::move(call_instr));
 }
 
 }
