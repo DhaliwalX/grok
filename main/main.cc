@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    std::cout << parser << std::endl;
     auto AST = parser.ParsedAST();
     CodeGenerator CG;
     CG.Generate(AST.get());
