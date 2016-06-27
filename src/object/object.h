@@ -57,6 +57,14 @@ public:
     }
 
     template <typename C>
+    bool CanCast()
+    {
+        using pointer = typename std::add_pointer<C>::type;
+        auto maybenull = dynamic_cast<pointer>(data_.get());
+        return !maybenull;
+    }
+
+    template <typename C>
     auto as() -> decltype(std::shared_ptr<C>())
     {
         if (empty()) {
