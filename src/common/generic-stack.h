@@ -25,7 +25,7 @@ public:
         return V;
     }
 
-    T Top()
+    T& Top()
     {
         return base::back();
     }
