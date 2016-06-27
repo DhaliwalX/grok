@@ -81,6 +81,8 @@ void VM::StoreOP()
     auto LHS = Stack.Pop();
     auto RHS = Stack.Pop();
     LHS.O->Reset(*(RHS.O));
+    Stack.Push(LHS);
+    SetFlags();
 }
 
 void VM::PushNumber(double number)
@@ -164,28 +166,36 @@ void VM::ReplpropOP()
     auto Object = GetObjectPointer<JSObject>(MayBeObject);
     auto Name = GetCurrent()->GetString();
 
-    if (!Object->HasProperty(Name)) 
-        throw std::runtime_error(std::string()
-            + "fatal: no property with name '" + Name + "'");
     auto Prop = Object->GetProperty(Name);
     Stack.Push(Prop);
     SetFlags();
 }
 
+void VM::IndexArray(std::shared_ptr<JSArray> arr, std::shared_ptr<Object> obj)
+{
+    auto prop = obj->as<JSObject>()->ToString();
+    auto val = arr->At(prop);
+    Stack.Push(val);
+}
+
+void VM::IndexObject(std::shared_ptr<JSObject> obj, std::shared_ptr<Object> idx)
+{
+    auto prop = idx->as<JSObject>()->ToString();
+    auto val = obj->GetProperty(prop);
+    Stack.Push(val);
+}
+
 void VM::IndexOP()
 {
-    if (GetCurrent()->GetDataType() == d_str) {
-        ReplpropOP();
-    } else if (GetCurrent()->GetDataType() == d_num) {
-        auto MayBeArray = Stack.Pop();
-        auto Array = GetObjectPointer<JSArray>(MayBeArray);
-        auto Idx = static_cast<size_t>(GetCurrent()->GetNumber());
+    auto index = Stack.Pop().O;
+    auto Unknown = Stack.Pop().O;
 
-        if (Array->Size() < Idx) {
-            throw std::runtime_error("fatal: array index out of range");
-        }
-        auto Obj = Array->At(Idx);
-        Stack.Push(Obj);
+    if (IsJSArray(Unknown)) {
+        auto Array = GetObjectPointer<JSArray>(Unknown);
+        IndexArray(Array, index);
+    } else {
+        auto Object = GetObjectPointer<JSObject>(Unknown);
+        IndexObject(Object, index);
     }
     SetFlags();
 }
@@ -199,7 +209,10 @@ void VM::ResOP()
 
 void VM::NewsOP()
 {
-    // not implemented as not required
+    auto name = GetCurrent()->GetString();
+    auto var = CreateUndefinedObject();
+    auto V = GetVStore(Context);
+    V->StoreValue(name, var);
 }
 
 void VM::CpyaOP()
@@ -208,14 +221,15 @@ void VM::CpyaOP()
 
     auto Sz = static_cast<size_t>(GetCurrent()->GetNumber());
 
-    for (decltype(Sz) i = 0; i < Sz; i++) {
-        Array->Push(Stack.Pop().O);
+    for (decltype(Sz) i = Sz; i > 0; i--) {
+        Array->Assign(i - 1, Stack.Pop().O);
     }
 }
 
 void VM::MapsOP()
 {
-    Stack.Top().S = std::make_shared<std::string>(GetCurrent()->GetString());
+    auto S = std::make_shared<std::string>(GetCurrent()->GetString());
+    Stack.Top().S = S;
 }
 
 void VM::SetFlags()

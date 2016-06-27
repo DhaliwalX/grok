@@ -5,6 +5,7 @@
 #include "vm/var-store.h"
 #include "common/generic-stack.h"
 #include "vm/context.h"
+#include "object/array.h"
 
 #include <vector>
 #include <type_traits>
@@ -64,6 +65,10 @@ public:
         return (*Current);
     }
 private:
+    void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
+        std::shared_ptr<grok::obj::Object> obj);
+    void IndexObject(std::shared_ptr<grok::obj::JSObject> obj,
+        std::shared_ptr<grok::obj::Object> idx);
     void PrintCurrentState();
     void SetAC(Value v);
     void NoOP();
