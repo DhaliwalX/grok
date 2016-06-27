@@ -11,7 +11,6 @@ void ArrayLiteral::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     // we generate instructions for the expressions, the result
     // of all those instructions will be stored in stack
-    // TODO: Code generation will be done in reverse
     for (auto &i : exprs_) {
         i->emit(builder);
     }
