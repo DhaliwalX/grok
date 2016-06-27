@@ -16,16 +16,16 @@ namespace obj {
 using NativeFunctionType = void (*)(void);
 
 /// Function ::= class to store the functions 
-class Function : public JSBasicObject {
+class Function : public JSObject {
 public:
     Function()
-        : JSBasicObject{}, AST{}, Proto{ nullptr }, NFT{ nullptr },
+        : JSObject{}, AST{}, Proto{ nullptr }, NFT{ nullptr },
           Native{ false }, CodeGened{ false }, IR{}
     { }
 
     Function(std::shared_ptr<grok::parser::Expression> AST,
         std::shared_ptr<grok::parser::FunctionPrototype> Proto)
-        : JSBasicObject(), AST{ AST }, Proto{ Proto }, NFT{ nullptr },
+        : JSObject(), AST{ AST }, Proto{ Proto }, NFT{ nullptr },
           Native{ false }, CodeGened{ false }, IR{}
     { }
 
@@ -48,7 +48,7 @@ public:
     grok::vm::Counter GetAddress();
 
     /// GetArgs ::= returns the argument vector
-    const std::vector<std::string> &GetArgs() const;
+    const std::vector<std::string> &GetParams() const;
 
     ObjectType GetType() const override
     { return ObjectType::_function; }
@@ -59,7 +59,7 @@ public:
 
         os << "function " << Proto->GetName();
         os << "(";
-        auto Args = GetArgs();
+        auto Args = GetParams();
         for (auto Arg = Args.cbegin(); Arg != Args.cend() - 1; Arg++)
         {
             os << *Arg << ", ";

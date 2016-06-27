@@ -39,7 +39,7 @@ Counter Function::GetAddress()
     return IR->begin();
 }
 
-const std::vector<std::string> &Function::GetArgs() const
+const std::vector<std::string> &Function::GetParams() const
 {
     return Proto->GetArgs();
 }
