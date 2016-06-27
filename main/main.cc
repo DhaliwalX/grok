@@ -3,6 +3,8 @@
 #include "vm/printer.h"
 #include "vm/codegen.h"
 #include "vm/instruction-list.h"
+#include "object/jsbasicobject.h"
+#include "vm/vm.h"
 #include <iostream>
 #include <memory>
 #include <string>
@@ -35,5 +37,15 @@ int main(int argc, char *argv[]) {
     auto IR = CG.GetIR();
     Printer P{ std::cout };
     P.Print(IR);
+    std::cout << std::string(75, '=') << std::endl;
+    
+    // execute the code
+    auto TheVM = CreateVM(GetGlobalVMContext());
+    TheVM->SetCounters(IR->begin(), IR->end());
+    TheVM->Run();
+
+    Value Result = TheVM->GetResult();
+    auto O = GetObjectPointer<grok::obj::JSObject>(Result);
+    std::cout << O->ToString() << std::endl;
     return 0;
 }
