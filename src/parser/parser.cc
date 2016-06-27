@@ -544,6 +544,7 @@ std::unique_ptr<Expression> GrokParser::ParseBlockStatement()
             break;
     }
 
+    lex_->advance(); // eat '}'
     return std::make_unique<BlockStatement>(std::move(stmts));
 }
 
