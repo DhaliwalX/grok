@@ -20,6 +20,8 @@ extern std::string __type[7];
     virtual Object operator op(Object ) \
         DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(op, type)
 
+static inline std::shared_ptr<Object> CreateJSString(std::string str = "");
+
 class JSString : public JSObject {
 public:
   JSString(const std::string &str) : js_string_(str) {}
@@ -33,9 +35,16 @@ public:
   ObjectType GetType() const override { return ObjectType::_string; }
   std::string ToString() const override { return js_string_; }
 
-  std::shared_ptr<JSObject> At(int i) {
-    return std::dynamic_pointer_cast<JSObject, JSString>(
-        std::make_shared<JSString>(std::string() + (js_string_[i])));
+  JSObject::Value GetProperty(const std::string &prop) override
+  {
+      int idx = 0;
+      try {
+          idx = std::stod(prop);
+      } catch (...) {
+          return JSObject::GetProperty(prop);
+      }
+
+      return CreateJSString(std::string() + js_string_[idx]);
   }
 
   bool IsTrue() const override
@@ -83,6 +92,25 @@ public:
 private:
   long long number_;
 };
+
+static inline bool IsJSNumber(std::shared_ptr<Object> obj)
+{
+  auto O = obj->as<JSObject>();
+  return O->GetType() == ObjectType::_number;
+}
+
+static inline bool IsJSString(std::shared_ptr<Object> obj)
+{
+  auto O = obj->as<JSObject>();
+  return O->GetType() == ObjectType::_string;
+}
+
+static std::shared_ptr<Object> CreateJSString(std::string str)
+{
+    auto S = std::make_shared<JSString>(str);
+    auto W = std::make_shared<Object>(S);
+    return W;
+}
 
 extern Object operator+(std::shared_ptr<JSNumber> l, Object r);
 

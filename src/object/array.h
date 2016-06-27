@@ -30,32 +30,43 @@ public:
     return (*this);
   }
 
-  ObjectPointer operator[](int i) const { // no index checking
+  ObjectPointer operator[](int i) { // no index checking
     return elements_[i];
   }
 
-  ObjectPointer &operator[](int i) { // no index checking
+  ObjectPointer At(size_t i) {
+    if (i >= Size()) {
+      return GetProperty(std::to_string(i));
+    }
     return elements_[i];
   }
 
-  ObjectPointer &At(int i) { return elements_[i]; }
-
-  ObjectPointer At(int i) const { // no index checking
-    return elements_[i];
+  ObjectPointer At(const std::string &prop)
+  {
+      int idx = 0;
+      // we still try to convert the string into number
+      try {
+          idx = std::stod(prop);
+      } catch (...) {
+          return this->GetProperty(prop);
+      }
+      return this->At(idx);
   }
 
-  size_type Size() const { // returns the size of the vector
+  size_type Size() const
+  { // returns the size of the vector
     return elements_.size();
   }
 
-  ObjectType GetType() const override { // returns the type of the javascript object
+  ObjectType GetType() const override
+  { // returns the type of the javascript object
     return ObjectType::_array;
   }
 
   bool Erase(size_type idx) { // erases the element
     if (idx < Size())
       elements_[idx];
-    elements_[idx] = nullptr;
+    elements_[idx] = CreateUndefinedObject();
     return true;
   }
 
@@ -65,7 +76,7 @@ public:
 
   void Resize(size_type sz)
   {
-    // elements_.resize(sz, std::make_shared<UndefinedObject>());
+    elements_.resize(sz, CreateUndefinedObject());
   }
 
   void Push(const ObjectPointer &obj) { // pushes the element to the last
@@ -74,6 +85,11 @@ public:
 
   void Pop(const ObjectPointer &obj) { // pops the last element
     elements_.pop_back();
+  }
+
+  void Assign(int idx, const ObjectPointer &obj)
+  {
+    elements_[idx] = obj;
   }
 
   void Clear() { elements_.clear(); }
@@ -115,6 +131,12 @@ public:
 private:
   std::vector<ObjectPointer> elements_;
 };
+
+static inline bool IsJSArray(std::shared_ptr<Object> obj)
+{
+  auto O = obj->as<JSObject>();
+  return O->GetType() == ObjectType::_array;
+}
 
 extern std::shared_ptr<Object> CreateArray(size_t size);
 

@@ -18,6 +18,8 @@ enum class ObjectType {
   _function
 };
 
+static inline std::shared_ptr<Object> CreateUndefinedObject();
+
 // A javascript object is a set of name : value pair
 class JSObject {
 public:
@@ -58,12 +60,14 @@ public:
     return object_.find(name) != object_.end();
   }
 
-  Value GetProperty(const Name &name) {
+  virtual Value GetProperty(const Name &name) {
     auto value = object_.find(name);
     if ((value) != object_.end()) {
       return value->second;
     }
-    return Value();
+    auto def = CreateUndefinedObject();
+    AddProperty(name, def);
+    return def;
   }
 
   iterator begin() { return object_.begin(); }
@@ -132,12 +136,23 @@ static inline bool CanEvaluateToTrue(std::shared_ptr<Object> obj)
           || (type != ObjectType::_null);
 }
 
-static inline decltype(auto) CreateUndefinedObject()
+static std::shared_ptr<Object> CreateUndefinedObject()
 {
   auto Undef = std::make_shared<UndefinedObject>();
   auto UndefWrapper = std::make_shared<Object>(Undef);
-
   return UndefWrapper;
+}
+
+static inline bool IsUndefined(std::shared_ptr<Object> obj)
+{
+  auto O = obj->as<JSObject>();
+  return O->GetType() == ObjectType::_undefined;
+}
+
+static inline bool IsNull(std::shared_ptr<Object> obj)
+{
+  auto O = obj->as<JSObject>();
+  return O->GetType() == ObjectType::_null;
 }
 
 } // obj
