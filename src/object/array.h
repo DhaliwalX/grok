@@ -9,10 +9,13 @@
 
 namespace grok { namespace obj {
 
-class JSArray : public JSBasicObject {
+class JSArray : public JSObject {
 public:
   using ObjectPointer = std::shared_ptr<Object>;
-  using size_type = std::vector<ObjectPointer>::size_type;
+  using size_type = typename std::vector<ObjectPointer>::size_type;
+  using iterator = typename std::vector<ObjectPointer>::iterator;
+  using reverse_iterator 
+        = typename std::vector<ObjectPointer>::reverse_iterator;
 
   JSArray(const std::vector<ObjectPointer> &elements) { elements_ = elements; }
 
@@ -60,6 +63,11 @@ public:
     return elements_.empty();
   }
 
+  void Resize(size_type sz)
+  {
+    // elements_.resize(sz, std::make_shared<UndefinedObject>());
+  }
+
   void Push(const ObjectPointer &obj) { // pushes the element to the last
     elements_.push_back(obj);
   }
@@ -70,14 +78,30 @@ public:
 
   void Clear() { elements_.clear(); }
 
-  void resize(size_t size) {
-    elements_.resize(size, std::make_shared<AstNode>());
+  iterator begin()
+  {
+    return elements_.begin();
+  }
+
+  iterator end()
+  {
+    return elements_.end();
+  }
+
+  reverse_iterator rbegin()
+  {
+    return elements_.rbegin();
+  }
+
+  reverse_iterator rend()
+  {
+    return elements_.rend();
   }
 
   std::string ToString() const override {
     std::string buff = "[ ";
     for (const auto &element : elements_) {
-      buff += element->as<JSBasicObject>()->ToString();
+      buff += element->as<JSObject>()->ToString();
       buff += ", ";
     }
     if (elements_.size()) {
@@ -91,6 +115,8 @@ public:
 private:
   std::vector<ObjectPointer> elements_;
 };
+
+extern std::shared_ptr<Object> CreateArray(size_t size);
 
 } // obj
 } // grok
