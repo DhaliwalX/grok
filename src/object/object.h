@@ -22,7 +22,7 @@ public:
 
     template <typename T>
     Object(std::unique_ptr<T> ptr)
-        : data_(std::static_pointer_cast<void>(std::move(ptr)))
+        : data_(ptr.release())
     { }
 
     Object(const Object &reg)
@@ -37,6 +37,23 @@ public:
     {
         data_ = reg.data_;
         return *this;
+    }
+
+    template <typename T>
+    Object &operator=(std::shared_ptr<T> ptr)
+    {
+        data_ = ptr;
+        return *this;
+    }
+
+    void Reset(const Object &obj)
+    {
+        data_ = obj.data_;
+    }
+
+    void Reset(Object &&obj)
+    {
+        data_ = obj.data_;
     }
 
     template <typename C>
