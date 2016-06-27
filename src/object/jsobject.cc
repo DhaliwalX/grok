@@ -6,22 +6,23 @@ namespace grok { namespace obj {
 std::string __type[7] = {"null",   "undefined", "number",  "string",
                                 "object", "array",     "function"};
 
-inline bool undefined_operation(JSBasicObject::ObjectType type) {
-  return type == JSBasicObject::ObjectType::_object
-          || type == JSBasicObject::ObjectType::_array
-          || type == JSBasicObject::ObjectType::_undefined;
+inline bool undefined_operation(ObjectType type) {
+  return type == ObjectType::_object
+          || type == ObjectType::_array
+          || type == ObjectType::_undefined
+          || type == ObjectType::_null;
 }
 
 Object operator+(std::shared_ptr<JSNumber> l, Object r) 
 {
-  auto type = r.as<JSBasicObject>()->GetType();
+  auto type = r.as<JSObject>()->GetType();
 
-  if (type == JSBasicObject::ObjectType::_number) {
+  if (type == ObjectType::_number) {
     auto rhs = r.as<JSNumber>();
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                         + rhs->GetNumber());
     return Object(result);
-  } else if (type == JSBasicObject::ObjectType::_string) {
+  } else if (type == ObjectType::_string) {
     auto rhs = r.as<JSString>();
     auto result = std::make_shared<JSString>(l->ToString()
                         + rhs->ToString());
@@ -35,9 +36,9 @@ Object operator+(std::shared_ptr<JSNumber> l, Object r)
 #define OPERATOR_FOR_NUMBER(op) \
 Object operator op(std::shared_ptr<JSNumber> l, Object r) \
 { \
-  auto type = r.as<JSBasicObject>()->GetType(); \
+  auto type = r.as<JSObject>()->GetType(); \
   \
-  if (type == JSBasicObject::ObjectType::_number) { \
+  if (type == ObjectType::_number) { \
     auto rhs = r.as<JSNumber>();  \
     auto result = std::make_shared<JSNumber>(l->GetNumber() \
                       op rhs->GetNumber()); \
@@ -51,17 +52,23 @@ OPERATOR_FOR_NUMBER(-)
 OPERATOR_FOR_NUMBER(*)
 OPERATOR_FOR_NUMBER(/)
 OPERATOR_FOR_NUMBER(%)
+OPERATOR_FOR_NUMBER(==)
+OPERATOR_FOR_NUMBER(!=)
+OPERATOR_FOR_NUMBER(<)
+OPERATOR_FOR_NUMBER(>)
+OPERATOR_FOR_NUMBER(>>)
+OPERATOR_FOR_NUMBER(<<)
 
 Object operator +(std::shared_ptr<JSString> l, Object r)
 {
-  auto type = r.as<JSBasicObject>()->GetType();
+  auto type = r.as<JSObject>()->GetType();
 
-  if (type == JSBasicObject::ObjectType::_string) {
+  if (type == ObjectType::_string) {
     auto rhs = r.as<JSString>();
     auto result = std::make_shared<JSString>(l->ToString()
                         + rhs->ToString());
     return Object(result);
-  } else if (type == JSBasicObject::ObjectType::_number) {
+  } else if (type == ObjectType::_number) {
     auto rhs = r.as<JSNumber>();
     return rhs + Object(l);
   } else 
@@ -71,29 +78,29 @@ Object operator +(std::shared_ptr<JSString> l, Object r)
 
 Object operator+(Object l, Object r)
 {
-  auto ltype = l.as<JSBasicObject>()->GetType();
-  auto rtype = r.as<JSBasicObject>()->GetType();
+  auto ltype = l.as<JSObject>()->GetType();
+  auto rtype = r.as<JSObject>()->GetType();
 
   if (undefined_operation(ltype) || undefined_operation(rtype)) {
     DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(+, Object);
   }
 
   switch (ltype) {
-  case JSBasicObject::ObjectType::_string:
+  case ObjectType::_string:
   {
     auto strobject = l.as<JSString>();
     return strobject + r;
   }
 
-  case JSBasicObject::ObjectType::_number:
+  case ObjectType::_number:
   {
     auto numobject = l.as<JSNumber>();
     return numobject + r;
   }
 
-  case JSBasicObject::ObjectType::_object:
-  case JSBasicObject::ObjectType::_array:
-  case JSBasicObject::ObjectType::_undefined:
+  case ObjectType::_object:
+  case ObjectType::_array:
+  case ObjectType::_undefined:
   default:
     throw std::runtime_error("unknown type caught in Object operator+");
   }
@@ -102,11 +109,11 @@ Object operator+(Object l, Object r)
 #define OTHER_OPERATOR(op) \
 Object operator op (Object l, Object r) \
 { \
-  auto ltype = l.as<JSBasicObject>()->GetType(); \
-  auto rtype = r.as<JSBasicObject>()->GetType(); \
+  auto ltype = l.as<JSObject>()->GetType(); \
+  auto rtype = r.as<JSObject>()->GetType(); \
   \
-  if (ltype != JSBasicObject::ObjectType::_number \
-      && rtype != JSBasicObject::ObjectType::_number) \
+  if (ltype != ObjectType::_number \
+      && rtype != ObjectType::_number) \
     throw std::runtime_error("fatal: can't apply operator '" #op "'"); \
   \
   auto numobject = l.as<JSNumber>(); \

@@ -2,14 +2,24 @@
 #define OBJECT_H_
 
 #include "object/object.h"
-#include "object/jsobject.h"
 
 #include <unordered_map>
 
 namespace grok { namespace obj {
 
+// type of javascript objects
+enum class ObjectType {
+  _null,
+  _undefined,
+  _number,
+  _string,
+  _object,
+  _array,
+  _function
+};
+
 // A javascript object is a set of name : value pair
-class JSObject : public JSBasicObject {
+class JSObject {
 public:
   using Name = std::string;
   using Value = std::shared_ptr<Object>;
@@ -27,9 +37,11 @@ public:
     return (*this);
   }
 
-  ~JSObject() { object_.clear(); }
+  virtual ~JSObject() { object_.clear(); }
 
-  ObjectType GetType() const override { // returns the type of the javascript object
+  virtual ObjectType GetType() const
+  {
+  // returns the type of the javascript object
     return ObjectType::_object;
   }
 
@@ -42,7 +54,7 @@ public:
   void RemoveProperty(const Name &name) { object_.erase(name); }
 
   // returns true if a property exists in the object
-  bool HasOwnProperty(const Name &name) {
+  bool HasProperty(const Name &name) {
     return object_.find(name) != object_.end();
   }
 
@@ -60,12 +72,12 @@ public:
 
   void Clear() { object_.clear(); }
 
-  std::string ToString() const override {
+  virtual std::string ToString() const {
     std::string buff = "";
     buff += "{ ";
     for (const auto &it : object_) {
       buff += it.first + ": ";
-      buff += it.second->as<JSBasicObject>()->ToString() += ", ";
+      buff += it.second->as<JSObject>()->ToString() += ", ";
     }
     buff.pop_back(); // ","
     buff.pop_back(); // " "
@@ -73,9 +85,60 @@ public:
     return buff;
   }
 
+  virtual bool IsTrue() const
+  {
+    return true;
+  }
+
 private:
   std::unordered_map<Name, Value> object_;
 };
+
+class JSNull : public JSObject {
+  std::string ToString() const override
+  {
+    return "null";
+  }
+
+  ObjectType GetType() const override
+  {
+    return ObjectType::_null;
+  }
+};
+
+class UndefinedObject : public JSObject {
+public:
+  std::string ToString() const override
+  {
+    return "undefined";
+  }
+
+  ObjectType GetType() const override
+  {
+    return ObjectType::_undefined;
+  }
+
+  bool IsTrue() const override
+  {
+    return false;
+  }
+};
+
+static inline bool CanEvaluateToTrue(std::shared_ptr<Object> obj)
+{
+  auto type = obj->as<JSObject>()->GetType();
+
+  return (type != ObjectType::_undefined)
+          || (type != ObjectType::_null);
+}
+
+static inline decltype(auto) CreateUndefinedObject()
+{
+  auto Undef = std::make_shared<UndefinedObject>();
+  auto UndefWrapper = std::make_shared<Object>(Undef);
+
+  return UndefWrapper;
+}
 
 } // obj
 } // grok

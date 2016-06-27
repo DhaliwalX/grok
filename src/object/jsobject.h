@@ -3,6 +3,7 @@
 
 #include "object/object.h"
 #include "common/exceptions.h"
+#include "object/jsbasicobject.h"
 
 #include <memory>
 #include <string>
@@ -19,46 +20,7 @@ extern std::string __type[7];
     virtual Object operator op(Object ) \
         DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(op, type)
 
-class JSArray;
-class JSObject;
-class JSString;
-// JSBasicObject: super class for every javascript object
-// and javascript functions
-// JSBasicObject
-//    JSNumber
-//    JSString
-//    JSObject
-//    JSArray
-//    JSFunction
-class JSBasicObject {
-public:
-  // type of javascript objects
-  enum class ObjectType {
-    _null,
-    _undefined,
-    _number,
-    _string,
-    _object,
-    _array,
-    _function
-  };
-
-  // default constructor
-  JSBasicObject() { };
-
-  virtual ~JSBasicObject() { }
-
-  virtual std::string ToString() const { return "undefined"; }
-
-  virtual ObjectType
-  GetType() const { // returns the type of the javascript object
-    return ObjectType::_undefined;
-  }
-
-};
-
-
-class JSString : public JSBasicObject {
+class JSString : public JSObject {
 public:
   JSString(const std::string &str) : js_string_(str) {}
 
@@ -71,9 +33,14 @@ public:
   ObjectType GetType() const override { return ObjectType::_string; }
   std::string ToString() const override { return js_string_; }
 
-  std::shared_ptr<JSBasicObject> At(int i) {
-    return std::dynamic_pointer_cast<JSBasicObject, JSString>(
+  std::shared_ptr<JSObject> At(int i) {
+    return std::dynamic_pointer_cast<JSObject, JSString>(
         std::make_shared<JSString>(std::string() + (js_string_[i])));
+  }
+
+  bool IsTrue() const override
+  {
+    return js_string_.size();
   }
 
 private:
@@ -82,10 +49,10 @@ private:
 
 // JSNumber class holding a javascript number
 // currently it supports only int64_t not double's
-class JSNumber : public JSBasicObject {
+class JSNumber : public JSObject {
 public:
   // derive some constructors
-  using JSBasicObject::JSBasicObject;
+  using JSObject::JSObject;
 
   JSNumber(long long num) : number_(num) {}
 
@@ -109,6 +76,10 @@ public:
   ObjectType GetType() const override { return ObjectType::_number; }
   std::string ToString() const override { return std::to_string(number_); }
 
+  bool IsTrue() const override
+  {
+    return number_;
+  }
 private:
   long long number_;
 };
