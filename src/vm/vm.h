@@ -2,12 +2,109 @@
 #define VM_H_
 
 #include "vm/instruction-list.h"
+#include "vm/var-store.h"
+#include "common/generic-stack.h"
+#include "vm/context.h"
+
+#include <vector>
+#include <type_traits>
 
 namespace grok {
 namespace vm {
 
 /// Counter ::= similar to program counter in processor
 using Counter = InstructionList::iterator;
+using VMStack = GenericStack<Value>;
+using CallStack = GenericStack<Counter>;
+using FlagStack = GenericStack<int32_t>;
+using PassedArguments = std::vector<Value>;
+
+class VM;
+extern std::unique_ptr<VM> CreateVM(VMContext *context);
+
+///====---------------------------------------------------------------====
+///                     VM ::= The Virtual Machine
+///====---------------------------------------------------------------====
+class VM {
+#define DEFAULT_VM_FLAG 0
+    friend std::unique_ptr<VM> CreateVM(VMContext *context);
+
+    VM()
+        : Context{ nullptr }, AC{ }, Current{ }, End{ },
+        Flags{ DEFAULT_VM_FLAG }, Stack{ }
+    { }
+
+public:
+    enum {
+        carry_flag = 0x1,
+        zero_flag = 0x2,
+        undefined_flag = 0x4,
+    };
+
+    /// SetContext ::= sets the context
+    void SetContext(VMContext *context);
+
+    /// GetResult ::= returns the result of the last executed
+    /// statement in stack (if any)
+    Value GetResult();
+
+    /// SetCounters ::= Set program counters to start execution
+    void SetCounters(Counter start, Counter end);
+
+    /// Run ::= run the VM
+    void Run();
+
+    /// SaveState ::= saves the state i.e. flags and Counter
+    void SaveState();
+
+    void RestoreState();
+
+    auto GetCurrent()
+    {
+        return (*Current);
+    }
+private:
+    void PrintCurrentState();
+    void SetAC(Value v);
+    void NoOP();
+    void FetchOP();
+    void StoreOP();
+    void PushNumber(double number);
+    void PushString(const std::string &str);
+    void PushNull();
+    void PushBool(bool boolean);
+    void PushOP();
+    void PushimOP();
+    void PoppropOP();
+    void ReplpropOP();
+    void IndexOP();
+    void ResOP();
+    void NewsOP();
+    void CpyaOP();
+    void MapsOP();
+    void SetFlags();
+    void AddsOP();
+    void SubsOP();
+    void MulsOP();
+    void DivsOP();
+    void RemsOP();
+    void JmpOP();
+    void JmpzOP();
+    PassedArguments CreateArgumentList(size_t sz);
+    void CallOP();
+    void RetOP();
+    void LeaveOP();
+
+    VMContext *Context;
+    Value AC;  // accumulator
+    Counter Current;  // current instruction being executed
+    Counter End;  // end of the block
+
+    int32_t Flags;  // flags for storing the VM state
+    VMStack Stack;  // program stack
+    CallStack CStack;
+    FlagStack FStack;
+};
 
 } // vm
 } // grok
