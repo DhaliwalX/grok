@@ -33,11 +33,6 @@ void ObjectLiteral::emit(std::shared_ptr<InstructionBuilder> builder)
     I->data_type_ = d_num;
     I->number_ = Props.size();
     builder->AddInstruction(std::move(I));
-
-    // insert a 'pushim' instruction
-    I = InstructionBuilder::Create<Instructions::pushim>();
-    I->data_type_ = d_null;
-    builder->AddInstruction(std::move(I));
 }
 
 } // parser
