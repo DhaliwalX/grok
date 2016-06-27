@@ -120,7 +120,18 @@ void AssignExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     if (lhs_->ProduceRValue())
         throw std::runtime_error("fatal: can't assign to an rvalue");
 
-    lhs_->emit(builder);
+    // first we check whether the lhs_ is an Identifier
+    auto maybe = dynamic_cast<Identifier*>(lhs_.get());
+
+    if (maybe) {
+        auto ns = InstructionBuilder::Create<Instructions::news>();
+        ns->data_type_ = d_name;
+        ns->str_ = maybe->GetName();
+        builder->AddInstruction(std::move(ns));
+        lhs_->emit(builder);
+    } else {
+        lhs_->emit(builder);
+    }
     auto instr = InstructionBuilder::Create<Instructions::store>();
     instr->data_type_ = d_null;
     builder->AddInstruction(std::move(instr));
