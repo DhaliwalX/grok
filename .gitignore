@@ -1,13 +1,7 @@
-grok/Release
-grok/grok/Release
-grok/grok.sdf
-grok/.vs
-grok/Debug/*
-grok/grok/Debug/*
 *.o
 build
 *.exe
 g
-grok
 a.out
 .ycm*
+
