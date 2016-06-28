@@ -20,6 +20,7 @@ void Function::PrepareFunction()
         throw std::runtime_error("there was no function prototype");
 
     CodeGenerator Generator;
+    Generator.SetInsideFunction();
     Generator.Generate(AST.get());
     IR = Generator.GetIR();
     CodeGened = true;

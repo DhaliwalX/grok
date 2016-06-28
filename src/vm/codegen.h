@@ -21,6 +21,8 @@ public:
 
     /// GetIR ::= returns IR
     std::shared_ptr<InstructionList> GetIR();
+
+    void SetInsideFunction() { Builder->SetInsideFunction(); }
 private:
     std::shared_ptr<InstructionList> IR;
     std::shared_ptr<InstructionBuilder> Builder;

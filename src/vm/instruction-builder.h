@@ -64,8 +64,10 @@ public:
         return std::move(builder);
     }
 
+    void SetInsideFunction() { function_ = true; }
+    bool InsideFunction() { return function_; }
 private:
-
+    bool function_ = false;
     bool good_state_; // 0 for not good, 1 for good
     BlockStack blockstack_;
     std::shared_ptr<InstructionBlock> working_block_;
