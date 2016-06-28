@@ -592,8 +592,12 @@ std::unique_ptr<Expression> GrokParser::ParseStatement()
 
 bool GrokParser::ParseExpression()
 {
+    std::vector<std::unique_ptr<Expression>> exprs;
+    expr_ast_ = std::make_shared<BlockStatement>(std::move(exprs));
     try {
-        expr_ast_ = ParseStatement();
+        while (!(lex_->peek() == EOS)) {
+            expr_ast_->PushExpression(ParseStatement());
+        }
     } catch (std::exception &e) {
         std::cerr << "<" << lex_->GetCurrentPosition().row_
             << ":" << lex_->GetCurrentPosition().col_ << "> ";

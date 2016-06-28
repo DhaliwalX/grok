@@ -3,6 +3,7 @@
 
 #include "parser/common.h"
 #include "parser/expression.h"
+#include "parser/blockstatement.h"
 #include "lexer/lexer.h"
 
 namespace grok { namespace parser {
@@ -54,8 +55,9 @@ public:
     {
         return expr_ast_;
     }
+
 private:
-    std::shared_ptr<Expression> expr_ast_;
+    std::shared_ptr<BlockStatement> expr_ast_;
     std::unique_ptr<Lexer> lex_;
 };
 
