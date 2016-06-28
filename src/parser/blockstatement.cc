@@ -10,3 +10,8 @@ std::ostream &BlockStatement::operator<<(std::ostream &os) const
     }
     return os << "})";
 }
+
+void BlockStatement::PushExpression(std::unique_ptr<Expression> expr)
+{
+    stmts_.push_back(std::move(expr));
+}
