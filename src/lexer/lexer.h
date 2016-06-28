@@ -89,6 +89,7 @@ public:
 
   Position GetCurrentPosition() const { return tok_->position_; }
 
+  bool Eos() { return eos_; }
 private:
   std::string code_; // whole code will stored here
   int seek_;         // current position of the seek
