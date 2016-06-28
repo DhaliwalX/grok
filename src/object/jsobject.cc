@@ -228,6 +228,34 @@ Object operator^(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
+Object operator==(std::shared_ptr<JSNumber> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                      == rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+Object operator!=(std::shared_ptr<JSNumber> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                      != rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
 Object operator +(std::shared_ptr<JSString> l, Object r)
 {
   auto type = r.as<JSObject>()->GetType();
