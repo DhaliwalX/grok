@@ -1,5 +1,5 @@
-#ifndef CONTEXT_H_
-#define CONTEXT_H_
+#ifndef VM_CONTEXT_H_
+#define VM_CONTEXT_H_
 
 #include "vm/var-store.h"
 #include "common/util.h"
