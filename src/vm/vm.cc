@@ -465,7 +465,8 @@ void VM::Run()
 {
     // main loop
     while (Current != End) {
-        PrintCurrentState();
+        if (debug_execution_)
+            PrintCurrentState();
         switch (GetCurrent()->GetKind()) {
         case Instructions::noop:
             NoOP();

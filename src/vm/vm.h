@@ -5,6 +5,7 @@
 #include "vm/var-store.h"
 #include "common/generic-stack.h"
 #include "vm/context.h"
+#include "grok/context.h"
 #include "object/array.h"
 
 #include <vector>
@@ -33,7 +34,9 @@ class VM {
     VM()
         : Context{ nullptr }, AC{ }, Current{ }, End{ },
         Flags{ DEFAULT_VM_FLAG }, Stack{ }
-    { }
+    {
+        debug_execution_ = grok::GetContext()->DebugExecution();
+    }
 
 public:
     enum {
@@ -111,6 +114,7 @@ private:
     void AndsOP();
     void XorsOP();
     
+    bool debug_execution_;
     VMContext *Context;
     Value AC;  // accumulator
     Counter Current;  // current instruction being executed
