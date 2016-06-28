@@ -4,9 +4,9 @@ using namespace grok::parser;
 
 std::ostream &BlockStatement::operator<<(std::ostream &os) const
 {
-    os << "{\n";
+    os << "({";
     for (auto &stmt : stmts_) {
         *stmt << os;
     }
-    return os;
+    return os << "})";
 }

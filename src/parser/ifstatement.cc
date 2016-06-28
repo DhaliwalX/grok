@@ -4,20 +4,20 @@ using namespace grok::parser;
 
 std::ostream &IfStatement::operator<<(std::ostream &os) const
 {
-    os << "if" << std::endl;
-    *condition_ << os;
+    os << "(if (";
+    *condition_ << os << ") {";
     *body_ << os;
-    os << "endif" << std::endl;
+    os << "})";
     return os;
 }
 
 std::ostream &IfElseStatement::operator<<(std::ostream &os) const
 {
-    os << "if" << std::endl;
-    *condition_ << os;
+    os << "(if (";
+    *condition_ << os << ") {";
     *body_ << os;
-    os << "else" << std::endl;
+    os << "} else {";
     *else_ << os;
-    os << "endif";
+    os << "})";
     return os;
 }

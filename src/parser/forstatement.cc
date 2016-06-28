@@ -3,14 +3,14 @@
 using namespace grok::parser;
 std::ostream &ForStatement::operator<<(std::ostream &os) const
 {
-    os << "for (\n";
+    os << "(for (";
     *init_ << os;
-    os << ";\n";
+    os << ";";
     *condition_ << os;
-    os << ";\n";
+    os << ";";
     *update_ << os;
-    os << ") {\n";
+    os << ") {";
     *body_ << os;
-    os << "}\n";
+    os << "})";
     return os;
 }

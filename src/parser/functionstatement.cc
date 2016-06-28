@@ -4,12 +4,12 @@ using namespace grok::parser;
 
 std::ostream &FunctionPrototype::operator<<(std::ostream &os) const
 {
-    os << "function " << name_ << std::endl;
+    os << "function " << name_ << "(";
 
     for (auto &i : args_) {
         os << i << ", ";
     }
-    os << std::endl;
+    os << ")";
 
     return os;
 }
@@ -26,7 +26,8 @@ const std::vector<std::string> &FunctionPrototype::GetArgs() const
 
 std::ostream &FunctionStatement::operator<<(std::ostream &os) const
 {
-    *proto_ << os;
+    os << "(";
+    *proto_ << os << " {";
     *body_ << os;
-    return os;
+    return os << "})";
 }
