@@ -2,6 +2,7 @@
 #include "parser/ifstatement.h"
 #include "parser/forstatement.h"
 #include "parser/blockstatement.h"
+#include "parser/returnstatement.h"
 #include "vm/instruction.h"
 #include "vm/instruction-builder.h"
 #include "lexer/token.h"
@@ -98,6 +99,21 @@ void EmitBinaryOperator(BinaryExpression::Operator op,
         break;
     case NOTEQ:
         instr->kind_ = Instructions::neqs;
+        break;
+    case BAND:
+        instr->kind_ = Instructions::bands;
+        break;
+    case BOR:
+        instr->kind_ = Instructions::bors;
+        break;
+    case OR:
+        instr->kind_ = Instructions::ors;
+        break;
+    case AND:
+        instr->kind_ = Instructions::ands;
+        break;
+    case XOR:
+        instr->kind_ = Instructions::xors;
         break;
     }
     instr->data_type_ = d_null;
@@ -354,6 +370,17 @@ void MemberExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     for (auto &member : members_) {
         member->emit(builder);
     }
+}
+
+void ReturnStatement::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    if (builder->InsideFunction())
+        expr_->emit(builder);
+    else 
+        throw std::runtime_error("return statement was not inside function");
+
+    auto ret = InstructionBuilder::Create<Instructions::ret>();
+    builder->AddInstruction(std::move(ret));
 }
 
 }
