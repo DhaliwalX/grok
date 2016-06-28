@@ -99,7 +99,18 @@ private:
     void CallOP();
     void RetOP();
     void LeaveOP();
-
+    void GtsOP();
+    void LtsOP();
+    void EqsOP();
+    void NeqsOP();
+    void ShlsOP();
+    void ShrsOP();
+    void BorsOP();
+    void BandsOP();
+    void OrsOP();
+    void AndsOP();
+    void XorsOP();
+    
     VMContext *Context;
     Value AC;  // accumulator
     Counter Current;  // current instruction being executed

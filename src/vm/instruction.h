@@ -32,6 +32,11 @@ namespace vm {
     op(shls),   \
     op(shrs),   \
     op(rems),   \
+    op(bors),   \
+    op(bands),   \
+    op(ors),   \
+    op(ands),   \
+    op(xors),   \
     op(loopz),   \
     op(jmp),   \
     op(call),   \

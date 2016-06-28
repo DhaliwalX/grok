@@ -288,6 +288,105 @@ void VM::RemsOP()
     SetFlags();
 }
 
+void VM::GtsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS > RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::LtsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS < RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::EqsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS == RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::NeqsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS != RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::ShlsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS << RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::ShrsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS >> RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::BorsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS | RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::BandsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS & RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::OrsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS || RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::AndsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS && RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::XorsOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS ^ RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
 void VM::JmpOP()
 {
     Current += GetCurrent()->jmp_addr_; 
@@ -405,16 +504,16 @@ void VM::Run()
             MapsOP();
             break;
         case Instructions::lts:
-            
+            LtsOP();
             break;
         case Instructions::gts:
-            
+            GtsOP();
             break;
         case Instructions::eqs:
-            
+            EqsOP();
             break;
         case Instructions::neqs:
-            
+            NeqsOP();
             break;
         case Instructions::adds:
             AddsOP();
@@ -429,13 +528,28 @@ void VM::Run()
             DivsOP();
             break;
         case Instructions::shls:
-            
+            ShlsOP();
             break;
         case Instructions::shrs:
-            
+            ShrsOP();
             break;
         case Instructions::rems:
             RemsOP();
+            break;
+        case Instructions::bors:
+            BorsOP();
+            break;
+        case Instructions::bands:
+            BandsOP();
+            break;
+        case Instructions::ors:
+            OrsOP();
+            break;
+        case Instructions::ands:
+            AndsOP();
+            break;
+        case Instructions::xors:
+            XorsOP();
             break;
         case Instructions::loopz:
             
