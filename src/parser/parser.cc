@@ -3,6 +3,7 @@
 #include "parser/forstatement.h"
 #include "parser/blockstatement.h"
 #include "parser/functionstatement.h"
+#include "parser/returnstatement.h"
 #include "lexer/token.h"
 
 using namespace grok::parser;
@@ -548,6 +549,18 @@ std::unique_ptr<Expression> GrokParser::ParseBlockStatement()
     return std::make_unique<BlockStatement>(std::move(stmts));
 }
 
+std::unique_ptr<Expression> GrokParser::ParseReturnStatement()
+{
+    lex_->advance(); // eat 'return'
+    auto expr = ParseAssignExpression();
+    auto tok = lex_->peek();
+
+    if (tok != SCOLON)
+        throw std::runtime_error("expected a ';'");
+    lex_->advance();
+    return std::make_unique<ReturnStatement>(std::move(expr));
+}
+
 std::unique_ptr<Expression> GrokParser::ParseStatement()
 {
     auto tok = lex_->peek();
@@ -572,6 +585,8 @@ std::unique_ptr<Expression> GrokParser::ParseStatement()
         return ParseFunction();
     case LBRACE:
         return ParseBlockStatement();
+    case RET:
+        return ParseReturnStatement();
     }
 }
 

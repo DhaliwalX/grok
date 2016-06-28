@@ -17,7 +17,7 @@ public:
     GrokParser() = default;
 
     GrokParser(std::unique_ptr<Lexer> lex) :
-        lex_(std::move(lex)) 
+        lex_(std::move(lex))
     {
         lex_->advance();
     }
@@ -47,6 +47,7 @@ public:
     std::unique_ptr<Expression> ParseMemberExpression();
     std::unique_ptr<Expression> ParseIndexExpression();
     std::unique_ptr<Expression> ParseDotExpression();
+    std::unique_ptr<Expression> ParseReturnStatement();
     bool ParseExpression();
 
     std::shared_ptr<Expression> ParsedAST()
