@@ -20,6 +20,19 @@ void NullLiteral::emit(std::shared_ptr<InstructionBuilder> builder)
     builder->AddInstruction(std::move(instr));
 }
 
+void ThisHolder::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    auto instr = InstructionBuilder::Create<Instructions::fetch>();
+    instr->data_type_ = d_name;
+    instr->str_ = "this";
+
+    builder->AddInstruction(std::move(instr));
+    
+    instr = InstructionBuilder::Create<Instructions::pushim>();
+    instr->data_type_ = d_null;
+    builder->AddInstruction(std::move(instr));
+}
+
 void IntegralLiteral::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     auto instr = InstructionBuilder::Create<Instructions::push>();
@@ -315,6 +328,7 @@ void FunctionCallExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     }
 
     auto size = args_.size();
+
     auto call_instr = InstructionBuilder::Create<Instructions::call>();
     call_instr->data_type_ = d_num;
 
@@ -360,15 +374,17 @@ void CallExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     if (members_.size() == 0)
         return;
 
-    for (auto &member : members_) {
-        member->emit(builder);
+    for (auto member = members_.begin();
+                member != members_.end(); ++member) {
+        (*member)->emit(builder);
     }
 }
 
 void MemberExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
-    for (auto &member : members_) {
-        member->emit(builder);
+    for (auto member = members_.begin();
+                member != members_.end(); ++member) {
+        (*member)->emit(builder);
     }
 }
 
@@ -381,6 +397,19 @@ void ReturnStatement::emit(std::shared_ptr<InstructionBuilder> builder)
 
     auto ret = InstructionBuilder::Create<Instructions::ret>();
     builder->AddInstruction(std::move(ret));
+}
+
+void NewExpression::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    auto inst = InstructionBuilder::Create<Instructions::markst>();
+    builder->AddInstruction(std::move(inst));
+    // this function contains many hacks just to make `new` work
+    // TODO: Find a better logic to do this;
+    builder->flags &= 0x1;
+    member_->emit(builder);
+
+    auto instr = InstructionBuilder::Create<Instructions::pushthis>();
+    builder->AddInstruction(std::move(instr));
 }
 
 }
