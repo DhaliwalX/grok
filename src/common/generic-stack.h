@@ -2,6 +2,7 @@
 #define GENERIC_STACK_H_
 
 #include <vector>
+#include <stdexcept>
 
 /// Stack ::= used for running interpreter for storing objects
 template <typename T>
@@ -20,6 +21,9 @@ public:
     
     T Pop()
     {
+        if (Empty()) {
+            throw std::runtime_error("fatal: stack was empty");
+        }
         auto V = base::back();
         base::pop_back();
         return V;
@@ -27,6 +31,9 @@ public:
 
     T& Top()
     {
+        if (Empty()) {
+            throw std::runtime_error("fatal: stack was empty");
+        }
         return base::back();
     }
 
