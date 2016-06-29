@@ -49,6 +49,7 @@ public:
     std::unique_ptr<Expression> ParseIndexExpression();
     std::unique_ptr<Expression> ParseDotExpression();
     std::unique_ptr<Expression> ParseReturnStatement();
+    std::unique_ptr<Expression> ParseNewExpression();
     bool ParseExpression();
 
     std::shared_ptr<Expression> ParsedAST()

@@ -125,6 +125,8 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary()
         result = std::make_unique<BooleanLiteral>(true);
     } else if (tok == FALSE) {
         result = std::make_unique<BooleanLiteral>(false);
+    } else if (tok == THIS) {
+        result = std::make_unique<ThisHolder>();
     } else if (tok == LPAR) {
         lex_->advance();    // eat '('
         result = ParseCommaExpression();
@@ -254,7 +256,7 @@ std::unique_ptr<Expression> GrokParser::ParseCallExpression()
     auto func = ParseFunctionCall();
     auto tok = lex_->peek();
 
-    if (tok != DOT && tok != LSQB)
+    if (tok != DOT && tok != LSQB && tok != LPAR)
         return std::move(func);
     std::vector<std::unique_ptr<Expression>> Members;
     std::unique_ptr<Expression> Member;
@@ -276,6 +278,18 @@ std::unique_ptr<Expression> GrokParser::ParseCallExpression()
 
     return std::make_unique<CallExpression>(std::move(func),
         std::move(Members));
+}
+
+std::unique_ptr<Expression> GrokParser::ParseNewExpression()
+{
+    auto tok = lex_->peek();
+
+    if (tok != NEW) {
+        return ParseCallExpression();
+    }
+    lex_->advance(); // eat new
+    auto member = ParseNewExpression();
+    return std::make_unique<NewExpression>(std::move(member));
 }
 
 /// reference for this function ::= llvm/examples/Kaleidoscope/chapter3/toy.cpp
@@ -310,7 +324,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
 
 std::unique_ptr<Expression> GrokParser::ParseBinary()
 {
-    auto lhs = ParseCallExpression();
+    auto lhs = ParseNewExpression();
 
     // parse the rhs, if any
     return ParseBinaryRhs(3, std::move(lhs));
