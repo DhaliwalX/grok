@@ -420,8 +420,11 @@ void VM::CallOP()
 
     TheFunction->PrepareFunction();
 
-    if (TheFunction->IsNative())
-        return;     // TODO
+    if (TheFunction->IsNative()) {
+        auto ret = TheFunction->CallNative(Args);
+        Stack.Push(ret);
+        return;
+    }
 
     // all the variables for this function will lie in a new scope
     auto V = GetVStore(Context);

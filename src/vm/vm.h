@@ -119,6 +119,7 @@ private:
     Value AC;  // accumulator
     Counter Current;  // current instruction being executed
     Counter End;  // end of the block
+    Value This; // `this` of javascript
 
     int32_t Flags;  // flags for storing the VM state
     VMStack Stack;  // program stack
