@@ -15,6 +15,7 @@ enum class ObjectType {
   _string,
   _object,
   _array,
+  _argument,
   _function
 };
 
