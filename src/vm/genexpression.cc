@@ -403,9 +403,6 @@ void NewExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     auto inst = InstructionBuilder::Create<Instructions::markst>();
     builder->AddInstruction(std::move(inst));
-    // this function contains many hacks just to make `new` work
-    // TODO: Find a better logic to do this;
-    builder->flags &= 0x1;
     member_->emit(builder);
 
     auto instr = InstructionBuilder::Create<Instructions::pushthis>();
