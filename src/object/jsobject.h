@@ -105,9 +105,26 @@ static inline bool IsJSString(std::shared_ptr<Object> obj)
   return O->GetType() == ObjectType::_string;
 }
 
-static std::shared_ptr<Object> CreateJSString(std::string str)
+static inline std::shared_ptr<Object> CreateJSString(std::string str)
 {
     auto S = std::make_shared<JSString>(str);
+    DefineInternalObjectProperties(S.get());
+    auto W = std::make_shared<Object>(S);
+    return W;
+}
+
+static inline std::shared_ptr<Object> CreateJSNumber(std::string str)
+{
+    auto S = std::make_shared<JSNumber>(str);
+    DefineInternalObjectProperties(S.get());
+    auto W = std::make_shared<Object>(S);
+    return W;
+}
+
+static inline std::shared_ptr<Object> CreateJSNumber(long long num)
+{
+    auto S = std::make_shared<JSNumber>(num);
+    DefineInternalObjectProperties(S.get());
     auto W = std::make_shared<Object>(S);
     return W;
 }

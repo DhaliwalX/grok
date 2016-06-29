@@ -31,16 +31,11 @@ public:
 
   JSObject(const std::unordered_map<Name, Value> &map) : object_(map) {}
 
-  JSObject() : object_() {}
+  JSObject() : object_(), enumerable_{ true }, writable_{ true } {}
 
-  JSObject(const JSObject &obj) : object_(obj.object_) {}
+  JSObject(const JSObject &obj) : object_(obj.object_), writable_{ true } {}
 
-  JSObject &operator=(const JSObject &obj) { // assigned from other object
-    object_ = obj.object_;
-    return (*this);
-  }
-
-  virtual ~JSObject() { object_.clear(); }
+  virtual ~JSObject() { }
 
   virtual ObjectType GetType() const
   {
@@ -71,24 +66,21 @@ public:
     return def;
   }
 
+  bool IsEnumerable() const { return enumerable_; }
+
+  void SetNonEnumerable() { enumerable_ = false; }
+
+  bool IsWritable() const { return writable_; }
+
+  void SetNonWritable() { writable_ = false; }
+
   iterator begin() { return object_.begin(); }
 
   iterator end() { return object_.end(); }
 
   void Clear() { object_.clear(); }
 
-  virtual std::string ToString() const {
-    std::string buff = "";
-    buff += "{ ";
-    for (const auto &it : object_) {
-      buff += it.first + ": ";
-      buff += it.second->as<JSObject>()->ToString() += ", ";
-    }
-    buff.pop_back(); // ","
-    buff.pop_back(); // " "
-    buff += " }";
-    return buff;
-  }
+  virtual std::string ToString() const;
 
   virtual bool IsTrue() const
   {
@@ -97,6 +89,8 @@ public:
 
 private:
   std::unordered_map<Name, Value> object_;
+  bool enumerable_;
+  bool writable_;
 };
 
 class JSNull : public JSObject {
@@ -113,6 +107,11 @@ class JSNull : public JSObject {
 
 class UndefinedObject : public JSObject {
 public:
+  UndefinedObject() :
+    JSObject{}
+  {
+  }
+
   std::string ToString() const override
   {
     return "undefined";
@@ -156,6 +155,9 @@ static inline bool IsNull(std::shared_ptr<Object> obj)
   return O->GetType() == ObjectType::_null;
 }
 
+extern void DefineInternalObjectProperties(JSObject *obj);
+
+extern std::shared_ptr<Object> CreateJSObject();
 } // obj
 } // grok
 #endif // OBJECT_H_

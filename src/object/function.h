@@ -9,6 +9,7 @@
 #include "vm/var-store.h"
 
 #include <string>
+#include <vector>
 #include <sstream>
 
 namespace grok {
@@ -83,7 +84,8 @@ public:
         return os.str();
     }
 
-    grok::vm::Value CallNative(std::vector<grok::vm::Value> Args);
+    grok::vm::Value CallNative(std::vector<grok::vm::Value> Args,
+        std::shared_ptr<JSObject> This);
 private:
     std::shared_ptr<grok::parser::Expression> AST;
     std::shared_ptr<grok::parser::FunctionPrototype> Proto;
@@ -100,6 +102,7 @@ CreateFunction(std::shared_ptr<grok::parser::Expression> AST,
     std::shared_ptr<grok::parser::FunctionPrototype> Proto)
 {
     auto F = std::make_shared<Function>(AST, Proto);
+    DefineInternalObjectProperties(F.get());
     return std::make_shared<Object>(F);
 }
 
@@ -107,6 +110,7 @@ static inline std::shared_ptr<Object>
 CreateFunction(NativeFunctionType NFT)
 {
     auto F = std::make_shared<Function>(NFT);
+    DefineInternalObjectProperties(F.get());
     return std::make_shared<Object>(F);
 }
 
