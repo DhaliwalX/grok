@@ -12,8 +12,10 @@ namespace vm {
     op(noop),   \
     op(fetch),   \
     op(store),   \
+    op(markst),   \
     op(push),   \
     op(pushim),   \
+    op(pushthis),   \
     op(poprop),   \
     op(replprop),   \
     op(index),   \
