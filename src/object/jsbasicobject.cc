@@ -30,12 +30,29 @@ std::shared_ptr<Object> toString(std::shared_ptr<Argument> Args)
     return result;
 }
 
+std::shared_ptr<Object> hasOwnProperty(std::shared_ptr<Argument> Args)
+{
+    auto This = Args->GetProperty("this");
+
+    auto Prop = Args->GetProperty("prop");
+    auto Name = Prop->as<JSObject>()->ToString();
+    // not according to ECMAScript standard
+    return CreateJSNumber(This->as<JSObject>()->HasProperty(Name));
+}
+
 void DefineInternalObjectProperties(JSObject *obj)
 {
     auto F = std::make_shared<Function>(toString);
     F->SetNonWritable();
     F->SetNonEnumerable();
     obj->AddProperty(std::string("toString"), std::make_shared<Object>(F));
+
+    F = std::make_shared<Function>(hasOwnProperty);
+    F->SetNonWritable();
+    F->SetNonEnumerable();
+    F->SetParams({ "prop" });
+    obj->AddProperty(std::string("hasOwnProperty"),
+        std::make_shared<Object>(F));
 }
 
 std::shared_ptr<Object> CreateJSObject()
