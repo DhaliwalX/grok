@@ -13,6 +13,8 @@ int LoadLibraries(VMContext *ctx)
     auto V = GetVStore(ctx);
 
     auto C = std::make_shared<Console>();
+    DefineInternalObjectProperties(C.get());
+    C->SetNonWritable();
     auto Wrapped = Value(std::make_shared<Object>(C));
     V->StoreValue("console", Wrapped);
 
