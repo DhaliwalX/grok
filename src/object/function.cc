@@ -1,4 +1,5 @@
 #include "object/function.h"
+#include "object/argument.h"
 #include "vm/codegen.h"
 
 namespace grok {
@@ -42,7 +43,34 @@ Counter Function::GetAddress()
 
 const std::vector<std::string> &Function::GetParams() const
 {
-    return Proto->GetArgs();
+    return Params;
+}
+
+Value Function::CallNative(std::vector<grok::vm::Value> Args)
+{
+    auto Obj = CreateArgumentObject();
+    auto ArgObj = Obj->as<Argument>();
+    size_t idx = 0, max = 0;
+    auto vec = GetParams();
+
+    max = vec.size();
+    for (auto i : Args) {
+        ArgObj->Push(i.O);
+
+        // we don't want to lose extra args
+        if (idx < max)
+            ArgObj->AddProperty(vec[idx++], i.O);
+    }
+
+    while (idx < max) {
+        ArgObj->AddProperty(vec[idx++], CreateUndefinedObject());
+    }
+
+    // call the native function
+    auto ret = NFT(ArgObj);
+
+    auto wrapped = Value(ret);
+    return wrapped;
 }
 
 }

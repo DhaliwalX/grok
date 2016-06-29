@@ -2,9 +2,11 @@
 #define FUNCTION_H_
 
 #include "object/jsobject.h"
+#include "object/argument.h"
 #include "parser/functionstatement.h"
 #include "vm/instruction-list.h"    // I don't like this dependency
 #include "vm/vm.h"
+#include "vm/var-store.h"
 
 #include <string>
 #include <sstream>
@@ -13,20 +15,26 @@ namespace grok {
 namespace obj {
 
 /// NativeFunctionType ::= captures the type of the native function
-using NativeFunctionType = void (*)(void);
+using NativeFunctionType = std::shared_ptr<Object> (*)
+                    (std::shared_ptr<grok::obj::Argument>);
 
 /// Function ::= class to store the functions 
 class Function : public JSObject {
 public:
     Function()
         : JSObject{}, AST{}, Proto{ nullptr }, NFT{ nullptr },
-          Native{ false }, CodeGened{ false }, IR{}
+          Native{ false }, CodeGened{ false }, IR{}, Params{ }
     { }
 
     Function(std::shared_ptr<grok::parser::Expression> AST,
         std::shared_ptr<grok::parser::FunctionPrototype> Proto)
         : JSObject(), AST{ AST }, Proto{ Proto }, NFT{ nullptr },
-          Native{ false }, CodeGened{ false }, IR{}
+          Native{ false }, CodeGened{ false }, IR{}, Params{ Proto->GetArgs() }
+    { }
+
+    Function(NativeFunctionType function)
+        : JSObject{}, AST{}, Proto{ nullptr }, NFT{ function },
+          Native{ true }, CodeGened{ true }, IR{}, Params{}
     { }
 
     ~Function() { };
@@ -56,6 +64,10 @@ public:
     std::string ToString() const override
     {
         std::ostringstream os;
+        if (Native) {
+            os << "function() { [native code] }";
+            return os.str();
+        }
 
         os << "function " << Proto->GetName();
         os << "(";
@@ -71,6 +83,7 @@ public:
         return os.str();
     }
 
+    grok::vm::Value CallNative(std::vector<grok::vm::Value> Args);
 private:
     std::shared_ptr<grok::parser::Expression> AST;
     std::shared_ptr<grok::parser::FunctionPrototype> Proto;
@@ -78,16 +91,24 @@ private:
     bool Native;
     bool CodeGened;     // for delayed code generation
     std::shared_ptr<grok::vm::InstructionList> IR;
+    std::vector<std::string> Params;
 };
 
 // /// CreateFunction() ::= creates a function from args
-// static inline std::shared_ptr<Function>
-// CreateFunction(std::shared_ptr<grok::parser::Expression> AST,
-//     std::shared_ptr<grok::parser::FunctionPrototype> Proto)
-// {
-//     auto F = std::make_shared<Function>(AST, Proto);
-//     return F;
-// }
+static inline std::shared_ptr<Object>
+CreateFunction(std::shared_ptr<grok::parser::Expression> AST,
+    std::shared_ptr<grok::parser::FunctionPrototype> Proto)
+{
+    auto F = std::make_shared<Function>(AST, Proto);
+    return std::make_shared<Object>(F);
+}
+
+static inline std::shared_ptr<Object>
+CreateFunction(NativeFunctionType NFT)
+{
+    auto F = std::make_shared<Function>(NFT);
+    return std::make_shared<Object>(F);
+}
 
 } // obj
 } // grok
