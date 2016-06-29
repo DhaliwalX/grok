@@ -135,5 +135,11 @@ std::ostream &ArgumentList::operator<<(std::ostream &os) const
     return os << ")";
 }
 
+std::ostream &NewExpression::operator<<(std::ostream &os) const
+{
+    os << "( new ";
+    return *member_ << os << ")";
+}
+
 } // namespace parser
 } // namespace grok

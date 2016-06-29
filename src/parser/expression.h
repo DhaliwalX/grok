@@ -27,6 +27,16 @@ public:
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 };
 
+class ThisHolder : public Expression {
+public:
+    ThisHolder() { }
+
+    std::ostream &operator<<(std::ostream &os) const override
+    { return os << "(this)"; }
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    bool ProduceRValue() override { return false; }
+};
+
 class IntegralLiteral : public Expression {
 private:
     double value_;
@@ -114,7 +124,7 @@ public:
     std::ostream &operator<<(std::ostream &os) const override;
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 
-    bool ProduceRValue() { return false; }
+    bool ProduceRValue() override { return false; }
 private:
     std::vector<std::unique_ptr<Expression>> args_;
     std::unique_ptr<Expression> func_;
@@ -130,7 +140,7 @@ public:
     std::ostream &operator<<(std::ostream &os) const override;
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 
-    bool ProduceRValue() { return false; }
+    bool ProduceRValue() override { return false; }
 private:
     std::unique_ptr<Expression> func_;
     std::vector<std::unique_ptr<Expression>> members_;
@@ -144,7 +154,7 @@ public:
 
     std::ostream &operator<<(std::ostream &os) const override;
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
-    bool ProduceRValue() { return false; }
+    bool ProduceRValue() override { return false; }
 private:
     std::unique_ptr<Identifier> mem_;
 };
@@ -157,7 +167,7 @@ public:
 
     std::ostream &operator<<(std::ostream &os) const override;
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
-    bool ProduceRValue() { return false; }
+    bool ProduceRValue() override { return false; }
 private:
     std::unique_ptr<Expression> expr_;
 };
@@ -170,9 +180,22 @@ public:
 
     std::ostream &operator<<(std::ostream &os) const override;
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
-    bool ProduceRValue() { return false; }
+    bool ProduceRValue() override { return false; }
 private:
     std::vector<std::unique_ptr<Expression>> members_;
+};
+
+class NewExpression : public Expression {
+public:
+    NewExpression(std::unique_ptr<Expression> member)
+        : member_{ std::move(member) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    bool ProduceRValue() override { return false; }
+private:
+    std::unique_ptr<Expression> member_; 
 };
 
 class BinaryExpression : public Expression {
