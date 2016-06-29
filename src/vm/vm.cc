@@ -80,23 +80,31 @@ void VM::StoreOP()
 {
     auto LHS = Stack.Pop();
     auto RHS = Stack.Pop();
-    LHS.O->Reset(*(RHS.O));
+    if (LHS.O->as<JSObject>()->IsWritable())
+        LHS.O->Reset(*(RHS.O));
     Stack.Push(LHS);
     SetFlags();
 }
 
+std::shared_ptr<grok::obj::JSObject> VM::GetThis()
+{
+    if (TStack.Empty()) {
+        auto V = GetVStore(Context);
+        return V->This();
+    }
+    return TStack.Top();
+}
+
 void VM::PushNumber(double number)
 {
-    auto N = std::make_shared<JSNumber>(number);
-    auto V_N_ = std::make_shared<Object>(N);
+    auto V_N_ = CreateJSNumber(number);
     Stack.Push(V_N_);
     SetFlags();
 }
 
 void VM::PushString(const std::string &str)
 {
-    auto S = std::make_shared<JSString>(str);
-    auto V_S_ = std::make_shared<Object>(S);
+    auto V_S_ = CreateJSString(str);
     Stack.Push(V_S_);
     SetFlags();
 }
@@ -111,8 +119,7 @@ void VM::PushNull()
 
 void VM::PushBool(bool boolean)
 {
-    auto B = std::make_shared<JSNumber>(boolean);
-    auto V_B_ = std::make_shared<Object>(B);
+    auto V_B_ = CreateJSNumber(boolean);
     Stack.Push(V_B_);
     SetFlags();
 }
@@ -143,10 +150,16 @@ void VM::PushimOP()
     SetFlags();
 }
 
+void VM::PushthisOP()
+{
+    Stack.Push(std::make_shared<grok::obj::Object>(TStack.Pop()));
+}
+
 /// opopopopopop
 void VM::PoppropOP()
 {
-    auto Obj = std::make_shared<JSObject>();
+    auto O = CreateJSObject();
+    auto Obj = O->as<JSObject>();
     auto Sz = static_cast<std::size_t>(GetCurrent()->GetNumber());
     for (decltype(Sz) i = 0; i < Sz; i++) {
         auto Prop = Stack.Pop();
@@ -155,8 +168,7 @@ void VM::PoppropOP()
         Obj->AddProperty(*Prop.S, Prop.O);
     }
 
-    auto Wrapper = std::make_shared<Object>(Obj);
-    Stack.Push(Wrapper);
+    Stack.Push(O);
     SetFlags();
 }
 
@@ -166,6 +178,7 @@ void VM::ReplpropOP()
     auto Object = GetObjectPointer<JSObject>(MayBeObject);
     auto Name = GetCurrent()->GetString();
 
+    TStack.Push(Object);
     auto Prop = Object->GetProperty(Name);
     Stack.Push(Prop);
     SetFlags();
@@ -410,6 +423,11 @@ PassedArguments VM::CreateArgumentList(size_t sz)
     return std::move(Args);
 }
 
+void VM::MarkstOP()
+{
+    Flags |= constructor_call;
+}
+
 void VM::CallOP()
 {
     SaveState();
@@ -421,7 +439,8 @@ void VM::CallOP()
     TheFunction->PrepareFunction();
 
     if (TheFunction->IsNative()) {
-        auto ret = TheFunction->CallNative(Args);
+        auto This = GetThis();
+        auto ret = TheFunction->CallNative(Args, This);
         Stack.Push(ret);
         return;
     }
@@ -448,9 +467,16 @@ void VM::CallOP()
 
 void VM::RetOP()
 {
-    auto V = GetVStore(Context);
-    V->RemoveScope();
     RestoreState();
+    
+    auto V = GetVStore(Context);
+    // we check that whether we called a constructor
+    // if yes then we will save the object created on to stack
+    if (Flags & constructor_call) {
+        auto This = V->This();
+        TStack.Push(This);
+    }
+    V->RemoveScope();
 }
 
 void VM::LeaveOP()
@@ -572,6 +598,12 @@ void VM::Run()
             break;
         case Instructions::leave:
             LeaveOP();
+            break;
+        case Instructions::markst:
+            MarkstOP();
+            break;
+        case Instructions::pushthis:
+            PushthisOP();
             break;
         }
         ++Current;

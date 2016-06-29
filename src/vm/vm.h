@@ -20,6 +20,8 @@ using VMStack = GenericStack<Value>;
 using CallStack = GenericStack<Counter>;
 using FlagStack = GenericStack<int32_t>;
 using PassedArguments = std::vector<Value>;
+using ThisStack = GenericStack<std::shared_ptr<grok::obj::JSObject>>;
+using ThisStackHelper = GenericStack<ThisStack::size_type>;
 
 class VM;
 extern std::unique_ptr<VM> CreateVM(VMContext *context);
@@ -43,6 +45,7 @@ public:
         carry_flag = 0x1,
         zero_flag = 0x2,
         undefined_flag = 0x4,
+        constructor_call = 0x8
     };
 
     /// SetContext ::= sets the context
@@ -67,6 +70,8 @@ public:
     {
         return (*Current);
     }
+
+    std::shared_ptr<grok::obj::JSObject> GetThis();
 private:
     void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
         std::shared_ptr<grok::obj::Object> obj);
@@ -113,13 +118,16 @@ private:
     void OrsOP();
     void AndsOP();
     void XorsOP();
+    void MarkstOP();
+    void PushthisOP();
     
     bool debug_execution_;
     VMContext *Context;
     Value AC;  // accumulator
     Counter Current;  // current instruction being executed
     Counter End;  // end of the block
-    Value This; // `this` of javascript
+    ThisStack TStack; // `this` of javascript
+    ThisStackHelper HelperStack;
 
     int32_t Flags;  // flags for storing the VM state
     VMStack Stack;  // program stack
