@@ -11,18 +11,19 @@ VStore::VStore()
 
 Value VStore::GetValue(const std::string &N)
 {
-    auto Result = MV->find(N);
-
-    if (Result == MV->end()) {
-        return TryForOtherScopes(N);
+    if (N == "this") {
+        auto W = std::make_shared<grok::obj::Object>(This());
+        return Value(W);
     }
+    if (MV->HasProperty(N))
+        return Value(MV->GetProperty(N));
 
-    return Result->second;
+    return TryForOtherScopes(N);
 }
 
 void VStore::StoreValue(const std::string &N, Value V)
 {
-    MV->insert({ N, V });
+    MV->AddProperty(N, V.O);
 }
 
 void VStore::CreateScope()
@@ -39,10 +40,8 @@ void VStore::RemoveScope()
 Value VStore::TryForOtherScopes(const std::string &Name)
 {
     for (auto i = VS.rbegin(); i != VS.rend(); i++) {
-        auto Result = (*i)->find(Name);
-
-        if (Result != (*i)->end())
-            return Result->second;
+        if ((*i)->HasProperty(Name))
+            return Value((*i)->GetProperty(Name));
     }
 
     throw std::runtime_error(std::string() + "no variable named '"

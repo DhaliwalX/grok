@@ -3,8 +3,8 @@
 
 #include "object/object.h"
 #include "common/generic-stack.h"
-#include <map>
-#include <string>
+#include "object/jsbasicobject.h"
+
 #include <vector>
 
 namespace grok {
@@ -32,7 +32,7 @@ static decltype(auto) GetObjectPointer(Value V)
 }
 
 /// MappedValues ::= value mapped to string
-using MappedValues = std::map<std::string, Value>;
+using MappedValues = grok::obj::JSObject;
 using MappedValuesHandle = std::shared_ptr<MappedValues>;
 using VStoreInternalStack = GenericStack<MappedValuesHandle>;
 
@@ -51,10 +51,18 @@ public:
     /// CreateScope ::= start a new scope
     void CreateScope();
 
+    /// CreateScope ::= start a new scope and loads `this`
+    void CreateScope(std::shared_ptr<grok::obj::JSObject> obj);
+
     /// RemoveScope ::= remove the scope and associated variables
     void RemoveScope();
 
     Value TryForOtherScopes(const std::string &N);
+
+    auto This()
+    {
+        return MV;
+    } 
 private:
     MappedValuesHandle MV;
     VStoreInternalStack VS;
