@@ -12,10 +12,10 @@ namespace grok { namespace obj {
 class JSArray : public JSObject {
 public:
   using ObjectPointer = std::shared_ptr<Object>;
-  using size_type = typename std::vector<ObjectPointer>::size_type;
-  using iterator = typename std::vector<ObjectPointer>::iterator;
+  using size_type = std::vector<ObjectPointer>::size_type;
+  using iterator = std::vector<ObjectPointer>::iterator;
   using reverse_iterator 
-        = typename std::vector<ObjectPointer>::reverse_iterator;
+        = std::vector<ObjectPointer>::reverse_iterator;
 
   JSArray(const std::vector<ObjectPointer> &elements) { elements_ = elements; }
 
@@ -34,7 +34,7 @@ public:
     return elements_[i];
   }
 
-  ObjectPointer At(size_t i) {
+  ObjectPointer At(size_type i) {
     if (i >= Size()) {
       return GetProperty(std::to_string(i));
     }
@@ -43,7 +43,7 @@ public:
 
   ObjectPointer At(const std::string &prop)
   {
-      int idx = 0;
+      size_type idx = 0;
       // we still try to convert the string into number
       try {
           idx = std::stod(prop);
@@ -87,8 +87,12 @@ public:
     elements_.pop_back();
   }
 
-  void Assign(int idx, const ObjectPointer &obj)
+  void Assign(size_type idx, const ObjectPointer &obj)
   {
+    if (idx > Size()) {
+      this->AddProperty(std::to_string(idx), obj);
+      return;
+    }
     elements_[idx] = obj;
   }
 
