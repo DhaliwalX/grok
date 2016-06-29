@@ -84,6 +84,11 @@ public:
         return os.str();
     }
 
+    void SetParams(std::vector<std::string> parms)
+    {
+        Params = parms;
+    }
+
     grok::vm::Value CallNative(std::vector<grok::vm::Value> Args,
         std::shared_ptr<JSObject> This);
 private:
