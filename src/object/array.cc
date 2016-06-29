@@ -12,5 +12,13 @@ std::shared_ptr<Object> CreateArray(size_t size)
     return Wrap;
 }
 
+JSObject::Value JSArray::GetProperty(const JSObject::Name &name)
+{
+    if (name == "length") {
+        return CreateJSNumber(Size());
+    }
+    return JSObject::GetProperty(name);
+}
+
 }
 }

@@ -21,6 +21,7 @@ extern std::string __type[7];
         DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(op, type)
 
 static inline std::shared_ptr<Object> CreateJSString(std::string str = "");
+static inline std::shared_ptr<Object> CreateJSNumber(long long num);
 
 class JSString : public JSObject {
 public:
@@ -41,6 +42,9 @@ public:
       try {
           idx = std::stod(prop);
       } catch (...) {
+          if (prop == "length") {
+              return CreateJSNumber(js_string_.size());
+          }
           return JSObject::GetProperty(prop);
       }
 
@@ -121,7 +125,7 @@ static inline std::shared_ptr<Object> CreateJSNumber(std::string str)
     return W;
 }
 
-static inline std::shared_ptr<Object> CreateJSNumber(long long num)
+static std::shared_ptr<Object> CreateJSNumber(long long num)
 {
     auto S = std::make_shared<JSNumber>(num);
     DefineInternalObjectProperties(S.get());

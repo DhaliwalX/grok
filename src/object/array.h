@@ -132,6 +132,8 @@ public:
     return buff;
   }
 
+  JSObject::Value GetProperty(const JSObject::Name &name) override;
+
 private:
   std::vector<ObjectPointer> elements_;
 };
