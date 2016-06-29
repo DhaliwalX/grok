@@ -434,7 +434,10 @@ void VM::CallOP()
 
     auto Args = CreateArgumentList(GetCurrent()->GetNumber());
     auto F = Stack.Pop();
-    auto TheFunction = GetObjectPointer<Function>(F);
+    if (!IsFunction(F.O))
+        throw std::runtime_error("fatal: not a function");
+
+    auto TheFunction = F.O->as<Function>();
 
     TheFunction->PrepareFunction();
 

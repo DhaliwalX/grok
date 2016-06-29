@@ -114,6 +114,12 @@ CreateFunction(NativeFunctionType NFT)
     return std::make_shared<Object>(F);
 }
 
+static inline bool
+IsFunction(std::shared_ptr<Object> obj)
+{
+    return obj->as<JSObject>()->GetType() == ObjectType::_function;
+}
+
 } // obj
 } // grok
 
