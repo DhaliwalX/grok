@@ -4,6 +4,9 @@
 
 #include "libs/array-sort.h" // ArraySort
 #include "libs/array-join.h" // ArrayJoin
+#include "libs/array-push-pop.h"
+#include "libs/array-reverse.h"
+#include "libs/array-concat.h"
 
 namespace grok {
 namespace obj {
@@ -57,7 +60,30 @@ std::shared_ptr<Object> CreateArray(size_t size)
     S->SetNonEnumerable();
     S->SetParams({ "sep" });
     ptr->AddProperty(std::string("join"), std::make_shared<Object>(S));
-    
+
+    // a.push
+    S = std::make_shared<Function>(grok::libs::ArrayPush);
+    S->SetNonWritable();
+    S->SetNonEnumerable();
+    ptr->AddProperty(std::string("push"), std::make_shared<Object>(S));
+
+    // a.pop
+    S = std::make_shared<Function>(grok::libs::ArrayPop);
+    S->SetNonWritable();
+    S->SetNonEnumerable();
+    ptr->AddProperty(std::string("pop"), std::make_shared<Object>(S));
+
+    // a.reverse
+    S = std::make_shared<Function>(grok::libs::ArrayReverse);
+    S->SetNonWritable();
+    S->SetNonEnumerable();
+    ptr->AddProperty(std::string("reverse"), std::make_shared<Object>(S));
+
+    // a.concat
+    S = std::make_shared<Function>(grok::libs::ArrayConcat);
+    S->SetNonWritable();
+    S->SetNonEnumerable();
+    ptr->AddProperty(std::string("concat"), std::make_shared<Object>(S));
 
     auto Wrap = std::make_shared<Object>(ptr);
     return Wrap;

@@ -83,8 +83,10 @@ public:
     elements_.push_back(obj);
   }
 
-  void Pop(const ObjectPointer &obj) { // pops the last element
+  ObjectPointer Pop() { // pops the last element
+    auto ret = elements_.back();
     elements_.pop_back();
+    return ret;
   }
 
   void Assign(size_type idx, const ObjectPointer &obj)
