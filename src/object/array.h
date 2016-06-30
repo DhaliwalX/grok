@@ -36,7 +36,7 @@ public:
 
   ObjectPointer At(size_type i) {
     if (i >= Size()) {
-      return GetProperty(std::to_string(i));
+      return JSObject::GetProperty(std::to_string(i));
     }
     return elements_[i];
   }
@@ -48,7 +48,7 @@ public:
       try {
           idx = std::stod(prop);
       } catch (...) {
-          return this->GetProperty(prop);
+          return JSObject::GetProperty(prop);
       }
       return this->At(idx);
   }
