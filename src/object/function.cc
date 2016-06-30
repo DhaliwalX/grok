@@ -36,7 +36,7 @@ Counter Function::GetAddress()
 {
     // instead of returning only beginning we could have returned end
     // also so to avoid iterator overflow, but during code generation
-    // stores a leave instruction at the end. So we don't have to worry
+    // stores a ret instruction at the end. So we don't have to worry
     // about that.
     return IR->begin();
 }
@@ -76,13 +76,13 @@ Value Function::CallNative(std::vector<grok::vm::Value> Args,
     return wrapped;
 }
 
-std::shared_ptr<Object> Function::Call(std::shared_ptr<Argument> Args,
-                            VM* vm)
+std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
+        std::shared_ptr<Argument> Args, VM* vm)
 {
-    vm->SaveState();
+    func->PrepareFunction();
 
     // save the `this` function to the stack
-    vm->PushArg(std::make_shared<Object>(shared_from_this()));
+    vm->PushArg(std::make_shared<Object>(func));
 
     for (auto Arg : *Args) {
         vm->PushArg(Arg);
@@ -95,7 +95,19 @@ std::shared_ptr<Object> Function::Call(std::shared_ptr<Argument> Args,
 
     // transfer the control
     vm->ExecuteInstruction(instr);
-    
+
+    // now we are handling the VM by our own
+    auto Beg = func->GetAddress();
+    auto End = func->GetEnd();
+
+    while (Beg != End) {
+        vm->ExecuteInstruction(*Beg);
+
+        if ((*Beg)->GetKind() == Instructions::ret)
+            break;
+        Beg++;
+    }
+
     // get the return value
     auto result = vm->GetResult();
     return result.O;

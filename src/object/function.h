@@ -59,6 +59,10 @@ public:
     /// GetArgs ::= returns the argument vector
     const std::vector<std::string> &GetParams() const;
 
+    grok::vm::Counter GetEnd()
+    {
+        return IR->end();
+    }
     ObjectType GetType() const override
     { return ObjectType::_function; }
 
@@ -127,6 +131,9 @@ IsFunction(std::shared_ptr<Object> obj)
 {
     return obj->as<JSObject>()->GetType() == ObjectType::_function;
 }
+
+extern std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
+    std::shared_ptr<Argument> Args, grok::vm::VM* vm);
 
 } // obj
 } // grok
