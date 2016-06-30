@@ -400,6 +400,60 @@ void VM::XorsOP()
     SetFlags();
 }
 
+void VM::IncOP()
+{
+    auto RHS = Stack.Pop().O;
+    auto str = RHS->as<JSObject>()->ToString();
+    auto num = CreateJSNumber(str);
+    if (!IsUndefined(num)) {
+        ++num->as<JSNumber>()->GetNumber();
+    }
+    RHS->Reset(*num);
+    Stack.Push(RHS);
+    SetFlags();
+}
+
+void VM::DecOP()
+{
+    auto RHS = Stack.Pop().O;
+    auto str = RHS->as<JSObject>()->ToString();
+    auto num = CreateJSNumber(str);
+    if (!IsUndefined(num)) {
+        --num->as<JSNumber>()->GetNumber();
+    }
+    RHS->Reset(*num);
+    Stack.Push(RHS);
+    SetFlags();
+}
+
+void VM::PincOP()
+{
+    auto RHS = Stack.Pop().O;
+    auto str = RHS->as<JSObject>()->ToString();
+    auto num = CreateJSNumber(str);
+    auto res = CreateJSNumber(str);
+    if (!IsUndefined(num)) {
+        ++num->as<JSNumber>()->GetNumber();
+    }
+    RHS->Reset(*num);
+    Stack.Push(res);
+    SetFlags();
+}
+
+void VM::PdecOP()
+{
+    auto RHS = Stack.Pop().O;
+    auto str = RHS->as<JSObject>()->ToString();
+    auto num = CreateJSNumber(str);
+    auto res = CreateJSNumber(str);
+    if (!IsUndefined(num)) {
+        --num->as<JSNumber>()->GetNumber();
+    }
+    RHS->Reset(*num);
+    Stack.Push(res);
+    SetFlags();
+}
+
 void VM::JmpOP()
 {
     Current += GetCurrent()->jmp_addr_; 
@@ -603,6 +657,18 @@ void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
         break;
     case Instructions::pushthis:
         PushthisOP();
+        break;
+    case Instructions::inc:
+        IncOP();
+        break;
+    case Instructions::dec:
+        DecOP();
+        break;
+    case Instructions::pinc:
+        PincOP();
+        break;
+    case Instructions::pdec:
+        PdecOP();
         break;
     }
 }

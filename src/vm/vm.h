@@ -130,7 +130,11 @@ private:
     void XorsOP();
     void MarkstOP();
     void PushthisOP();
-    
+    void IncOP();
+    void DecOP();
+    void PincOP();
+    void PdecOP();
+
     bool debug_execution_;
     VMContext *Context;
     Value AC;  // accumulator

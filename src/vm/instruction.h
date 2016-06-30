@@ -23,6 +23,10 @@ namespace vm {
     op(news),   \
     op(cpya),   \
     op(maps),   \
+    op(inc),   \
+    op(dec),   \
+    op(pinc),   \
+    op(pdec),   \
     op(lts),   \
     op(gts),   \
     op(eqs),   \

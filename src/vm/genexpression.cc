@@ -133,6 +133,38 @@ void EmitBinaryOperator(BinaryExpression::Operator op,
     builder->AddInstruction(std::move(instr));
 }
 
+void PrefixExpression::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    if (expr_->ProduceRValue())
+        throw std::runtime_error("fatal: can't apply prefix operator on "
+            "r-value");
+
+    expr_->emit(builder);
+    if (tok_ == INC) {
+        auto instr = InstructionBuilder::Create<Instructions::inc>();
+        builder->AddInstruction(std::move(instr));
+    } else if (tok_ == DEC) {
+        auto instr = InstructionBuilder::Create<Instructions::dec>();
+        builder->AddInstruction(std::move(instr));    
+    }
+}
+
+void PostfixExpression::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    if (expr_->ProduceRValue())
+        throw std::runtime_error("fatal: can't apply postfix operator on "
+            "r-value");
+
+    expr_->emit(builder);
+    if (tok_ == INC) {
+        auto instr = InstructionBuilder::Create<Instructions::pinc>();
+        builder->AddInstruction(std::move(instr));
+    } else if (tok_ == DEC) {
+        auto instr = InstructionBuilder::Create<Instructions::pdec>();
+        builder->AddInstruction(std::move(instr));    
+    }
+}
+
 void BinaryExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     lhs_->emit(builder);
