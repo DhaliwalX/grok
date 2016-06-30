@@ -198,6 +198,32 @@ private:
     std::unique_ptr<Expression> member_; 
 };
 
+class PrefixExpression : public Expression {
+public:
+    PrefixExpression(TokenType tok, std::unique_ptr<Expression> expr)
+        : tok_{ tok }, expr_{ std::move(expr) }
+    { }
+    
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+private:
+    TokenType tok_;
+    std::unique_ptr<Expression> expr_;
+};
+
+class PostfixExpression : public Expression {
+public:
+    PostfixExpression(TokenType tok, std::unique_ptr<Expression> expr)
+        : tok_{ tok }, expr_{ std::move(expr) }
+    { }
+    
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+private:
+    TokenType tok_;
+    std::unique_ptr<Expression> expr_;
+};
+
 class BinaryExpression : public Expression {
 public:
     using Operator = TokenType;

@@ -31,6 +31,27 @@ std::ostream &BooleanLiteral::operator<<(std::ostream &os) const
     return os;
 }
 
+std::ostream &PrefixExpression::operator<<(std::ostream &os) const 
+{
+    os << "(";
+    if (tok_ == INC) 
+        os << "++";
+    else if (tok_ == DEC)
+        os << "--";
+    return *expr_ << os << ")";
+}
+
+std::ostream &PostfixExpression::operator<<(std::ostream &os) const 
+{
+    os << "(";
+    *expr_ << os << ")";
+    if (tok_ == INC) 
+        os << "++";
+    else if (tok_ == DEC)
+        os << "--";
+    return os;
+}
+
 std::ostream &BinaryExpression::operator<<(std::ostream &os) const
 {
     os << "(";
