@@ -1,11 +1,9 @@
 #include "libs/array-join.h"
 #include "object/array.h"
-#include "object/function.h"
 
 namespace grok {
 namespace libs {
 
-using namespace grok::vm;
 using namespace grok::obj;
 
 std::string JoinJSArray(std::shared_ptr<JSArray> Arr, std::string Sep)
