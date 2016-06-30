@@ -17,6 +17,16 @@ void VMContext::SetVStore(VStore* ptr)
     VS.reset(ptr);
 }
 
+VM* VMContext::GetVM()
+{
+    return vm;
+}
+
+void VMContext::SetVM(VM *v)
+{
+    vm = v;
+}
+
 VStore *GetVStore(VMContext *context)
 {
     return context->GetVStore();
