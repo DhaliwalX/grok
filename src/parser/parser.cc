@@ -525,6 +525,61 @@ std::unique_ptr<Expression> GrokParser::ParseForStatement()
         std::move(condition), std::move(update), std::move(body));
 }
 
+std::unique_ptr<Expression> GrokParser::ParseWhileStatement()
+{
+    lex_->advance(); // eat 'while'
+
+    auto tok = lex_->peek();
+
+    if (tok != LPAR) {
+        throw std::runtime_error("expected a '('");
+    }
+    lex_->advance();
+    
+    auto condition = ParseCommaExpression();
+    tok = lex_->peek();
+    if (tok != RPAR)
+        throw std::runtime_error("expected a ')'");
+
+    lex_->advance();
+    auto body = ParseStatement();
+
+    return std::make_unique<WhileStatement>(std::move(condition),
+            std::move(body));
+}
+
+std::unique_ptr<Expression> GrokParser::ParseDoWhileStatement()
+{
+    lex_->advance(); // eat 'do'
+    auto body = ParseStatement();
+
+    auto tok = lex_->peek();
+    if (tok != WHILE)
+        throw std::runtime_error("expected 'while'");
+    lex_->advance();
+
+    tok = lex_->peek();
+    if (tok != LPAR) {
+        throw std::runtime_error("expected a '('");
+    }
+    lex_->advance();
+
+    auto condition = ParseCommaExpression();
+    tok = lex_->peek();
+    if (tok != RPAR) {
+        throw std::runtime_error("expected a ')'");
+    }
+    lex_->advance();
+
+    tok = lex_->peek();
+    if (tok != SCOLON)
+        throw std::runtime_error("expected a ';'");
+    lex_->advance();
+
+    return std::make_unique<DoWhileStatement>(std::move(condition),
+        std::move(body));
+}
+
 std::vector<std::string> GrokParser::ParseParameterList()
 {
     auto tok = lex_->peek();
@@ -561,7 +616,7 @@ std::vector<std::string> GrokParser::ParseParameterList()
 
     // eat the ')'
     lex_->advance();
-    return std::move(result);
+    return result;
 }
 
 std::unique_ptr<FunctionPrototype> GrokParser::ParsePrototype()
@@ -646,6 +701,10 @@ std::unique_ptr<Expression> GrokParser::ParseStatement()
         return ParseBlockStatement();
     case RET:
         return ParseReturnStatement();
+    case WHILE:
+        return ParseWhileStatement();
+    case DO:
+        return ParseDoWhileStatement();
     }
 }
 
