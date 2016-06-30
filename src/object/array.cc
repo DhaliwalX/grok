@@ -2,7 +2,7 @@
 #include "object/argument.h"
 #include "object/function.h"
 
-#include <algorithm>
+#include "libs/array-sort.h" // ArraySort
 
 namespace grok {
 namespace obj {
@@ -29,66 +29,6 @@ std::shared_ptr<Object> ArrayConstructor(std::shared_ptr<Argument> Args)
     return CreateUndefinedObject();
 }
 
-bool MyPred(std::shared_ptr<Object> A, std::shared_ptr<Object> B)
-{
-    auto strA = A->as<JSObject>()->ToString();
-    auto strB = B->as<JSObject>()->ToString();
-
-    return strA < strB;
-}
-
-void SortArrayWithDefaultPredicate(std::shared_ptr<JSArray> arr)
-{
-    std::sort(arr->begin(), arr->end(), MyPred);
-}
-
-void SortStringWithDefaultPredicate(std::shared_ptr<JSString> str)
-{
-    auto &S = str->GetString();
-    std::sort(S.begin(), S.end());
-}
-
-void SortWithDefaultPredicate(std::shared_ptr<Object> A)
-{
-    if (IsJSArray(A)) {
-        SortArrayWithDefaultPredicate(A->as<JSArray>());
-    } else if (IsJSString(A)) {
-        SortStringWithDefaultPredicate(A->as<JSString>());
-    } else {
-        return;
-    }
-}
-
-void SortInternal(std::shared_ptr<Object> A,
-    std::shared_ptr<Object> pred, bool use_default_pred)
-{
-    if (use_default_pred) {
-        SortWithDefaultPredicate(A);
-    }
-    (void)pred;
-}
-
-// this is a very generic sort function and can be applied to strings
-// and arrays or any other object having property length
-std::shared_ptr<Object> Sort(std::shared_ptr<Argument> Args)
-{
-    bool use_default_pred = false;
-
-    // object on which we are applying sort
-    auto Obj = Args->GetProperty("this");
-    auto O = Obj->as<JSObject>();
-
-    // predicate
-    auto Pred = Args->GetProperty("pred");
-
-    if (IsUndefined(Pred)) {
-        use_default_pred = true;
-    }
-
-    SortInternal(Obj, Pred, use_default_pred);
-    return Obj;
-}
-
 JSObject::Value JSArray::GetProperty(const JSObject::Name &name)
 {
     if (name == "length") {
@@ -103,7 +43,7 @@ std::shared_ptr<Object> CreateArray(size_t size)
     ptr->Resize(size);
     DefineInternalObjectProperties(ptr.get());
 
-    auto S = std::make_shared<Function>(Sort);
+    auto S = std::make_shared<Function>(grok::libs::ArraySort);
     S->SetNonWritable();
     S->SetNonEnumerable();
     S->SetParams({ "pred" });
