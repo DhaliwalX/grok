@@ -76,5 +76,16 @@ Value Function::CallNative(std::vector<grok::vm::Value> Args,
     return wrapped;
 }
 
+std::shared_ptr<Object> Function::Call(std::shared_ptr<Argument> Args,
+                            VM* vm)
+{
+    vm->SaveState();
+    for (auto Arg : *Args) {
+
+    }
+
+    return CreateUndefinedObject();
+}
+
 }
 }

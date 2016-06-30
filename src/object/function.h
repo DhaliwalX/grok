@@ -91,6 +91,9 @@ public:
 
     grok::vm::Value CallNative(std::vector<grok::vm::Value> Args,
         std::shared_ptr<JSObject> This);
+
+    std::shared_ptr<Object> Call(std::shared_ptr<Argument> Args,
+            grok::vm::VM* vm);
 private:
     std::shared_ptr<grok::parser::Expression> AST;
     std::shared_ptr<grok::parser::FunctionPrototype> Proto;
