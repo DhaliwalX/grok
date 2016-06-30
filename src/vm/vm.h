@@ -113,6 +113,7 @@ private:
     void RemsOP();
     void JmpOP();
     void JmpzOP();
+    void JmpnzOP();
     PassedArguments CreateArgumentList(size_t sz);
     void CallOP();
     void RetOP();

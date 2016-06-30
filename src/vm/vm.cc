@@ -467,6 +467,12 @@ void VM::JmpzOP()
         JmpOP();
 }
 
+void VM::JmpnzOP()
+{
+    if (!(Flags & zero_flag))
+        JmpOP();
+}
+
 PassedArguments VM::CreateArgumentList(size_t sz)
 {
     PassedArguments Args;
@@ -676,6 +682,9 @@ void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
         break;
     case Instructions::pdec:
         PdecOP();
+        break;
+    case Instructions::jmpnz:
+        JmpnzOP();
         break;
     }
 }

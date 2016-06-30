@@ -48,6 +48,7 @@ namespace vm {
     op(call),   \
     op(ret),    \
     op(jmpz),   \
+    op(jmpnz),   \
     op(leave)
 
 #define DATA_TYPE_LIST(op)  \

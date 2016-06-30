@@ -325,6 +325,62 @@ void ForStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     jmp_back_ptr->jmp_addr_ = -(for_loop_end - cmp_blk_start);
 }
 
+void WhileStatement::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    // start of the condition_ instructions
+    auto cmp_blk_start = builder->CurrentLength();
+    condition_->emit(builder);
+
+    // insert a jmpz instruction at the end of the condition block
+    auto instr = InstructionBuilder::Create<Instructions::jmpz>();
+    instr->data_type_ = d_null;
+    instr->jmp_addr_ = 0; // to be calculate
+    auto instr_ptr = instr.get();
+
+    builder->AddInstruction(std::move(instr));
+
+    // end of the condition instructions
+    auto cmp_blk_end = builder->CurrentLength();
+
+    // generate code for while's body
+    body_->emit(builder);
+
+    // insert a jmp back instruction
+    instr = InstructionBuilder::Create<Instructions::jmp>();
+    instr->data_type_ = d_null;
+    instr->jmp_addr_ = 0;   // to be calculated later
+    auto jmp_back_ptr = instr.get();
+    builder->AddInstruction(std::move(instr));
+
+    // mark the end of the while loop
+    auto loop_end = builder->CurrentLength();
+
+    // update the jump instructions
+    instr_ptr->jmp_addr_ = loop_end - cmp_blk_end;
+    jmp_back_ptr->jmp_addr_ = -(loop_end - cmp_blk_start);
+}
+
+void DoWhileStatement::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    auto cmp_blk_start = builder->CurrentLength();
+
+    // generate code for body
+    body_->emit(builder);
+    condition_->emit(builder);
+
+    // insert a jmp back instruction
+    auto instr = InstructionBuilder::Create<Instructions::jmpnz>();
+    instr->data_type_ = d_num;
+    instr->jmp_addr_ = 0;   // to be calculated later
+    auto jmp_back_ptr = instr.get();
+    builder->AddInstruction(std::move(instr));
+
+    // mark the end of the while loop
+    auto loop_end = builder->CurrentLength();
+
+    jmp_back_ptr->jmp_addr_ = -(loop_end - cmp_blk_start);
+}
+
 void BlockStatement::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     for (auto &stmt : stmts_) {
