@@ -23,6 +23,36 @@ private:
     std::unique_ptr<Expression> body_;
 };
 
+class WhileStatement :public Expression {
+    using ExprPtr = std::unique_ptr<Expression>;
+public:
+    WhileStatement(ExprPtr condition, ExprPtr body)
+        : condition_{ std::move(condition) },
+          body_{ std::move(body) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+private:
+    std::unique_ptr<Expression> condition_;
+    std::unique_ptr<Expression> body_;
+};
+
+class DoWhileStatement :public Expression {
+    using ExprPtr = std::unique_ptr<Expression>;
+public:
+    DoWhileStatement(ExprPtr condition, ExprPtr body)
+        : condition_{ std::move(condition) },
+          body_{ std::move(body) }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+private:
+    std::unique_ptr<Expression> condition_;
+    std::unique_ptr<Expression> body_;
+};
+
 } // parser
 } // grok
 
