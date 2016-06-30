@@ -30,6 +30,8 @@ public:
     std::unique_ptr<Expression> ParseObjectLiteral();
     std::unique_ptr<Expression>
     ParseBinaryRhs(int prec, std::unique_ptr<Expression> lhs);
+    std::unique_ptr<Expression> CreateBinaryExpression(TokenType op,
+        std::unique_ptr<Expression> LHS, std::unique_ptr<Expression> RHS);
 
     std::unique_ptr<Expression> ParseTernary();
     std::unique_ptr<Expression> ParseAssignExpression();
@@ -50,6 +52,7 @@ public:
     std::unique_ptr<Expression> ParseDotExpression();
     std::unique_ptr<Expression> ParseReturnStatement();
     std::unique_ptr<Expression> ParseNewExpression();
+    std::unique_ptr<Expression> ParseUnaryExpression();
     bool ParseExpression();
 
     std::shared_ptr<Expression> ParsedAST()

@@ -292,6 +292,51 @@ std::unique_ptr<Expression> GrokParser::ParseNewExpression()
     return std::make_unique<NewExpression>(std::move(member));
 }
 
+std::unique_ptr<Expression> GrokParser::CreateBinaryExpression(TokenType op,
+        std::unique_ptr<Expression> LHS, std::unique_ptr<Expression> RHS)
+{
+    return std::make_unique<BinaryExpression>(op, std::move(LHS),
+        std::move(RHS));
+}
+
+std::unique_ptr<Expression> GrokParser::ParseUnaryExpression()
+{
+    auto tok = lex_->peek();
+
+    if (tok == PLUS) {
+        lex_->advance();
+        // convert + (Expr) to Expr * 1
+        return CreateBinaryExpression(MUL, 
+            ParseUnaryExpression(), std::make_unique<IntegralLiteral>(1));
+    } else if (tok == MINUS) {
+        lex_->advance();
+
+        // similarly for `-Expr` to `Expr * -1` 
+        return CreateBinaryExpression(MUL, 
+            ParseUnaryExpression(), std::make_unique<IntegralLiteral>(-1));
+    } else if (tok == INC) {
+        lex_->advance();
+
+        return std::make_unique<PrefixExpression>(tok, ParseNewExpression());
+    } else if (tok == DEC) {
+        lex_->advance();
+
+        return std::make_unique<PrefixExpression>(tok, ParseNewExpression());
+    }
+    auto L = ParseNewExpression();
+
+    tok = lex_->peek();
+    if (tok == INC) {
+        lex_->advance();
+        return std::make_unique<PostfixExpression>(tok, std::move(L));
+    } else if (tok == DEC) {
+        lex_->advance();
+        return std::make_unique<PostfixExpression>(tok, std::move(L));
+    } else {
+        return L;
+    }
+}
+
 /// reference for this function ::= llvm/examples/Kaleidoscope/chapter3/toy.cpp
 /// if you are unable to understand the function just imagine you are 
 /// parsing 2 + 3 * 5 - 6 / 7, (I too used that as a reference)
@@ -309,7 +354,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
         auto tok = lex_->peek();
         lex_->advance();
 
-        auto rhs = ParseCallExpression();
+        auto rhs = ParseUnaryExpression();
 
         auto nextprec = lex_->GetPrecedance();
         if (tokprec < nextprec) {
@@ -324,7 +369,7 @@ std::unique_ptr<Expression> GrokParser::ParseBinaryRhs(int prec,
 
 std::unique_ptr<Expression> GrokParser::ParseBinary()
 {
-    auto lhs = ParseNewExpression();
+    auto lhs = ParseUnaryExpression();
 
     // parse the rhs, if any
     return ParseBinaryRhs(3, std::move(lhs));
