@@ -486,10 +486,10 @@ void VM::MarkstOP()
 
 void VM::CallOP()
 {
-    SaveState();
-
     auto Args = CreateArgumentList(GetCurrent()->GetNumber());
     auto F = Stack.Pop();
+    
+    SaveState();
     if (!IsFunction(F.O))
         throw std::runtime_error("fatal: not a function");
 
