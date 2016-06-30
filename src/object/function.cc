@@ -96,18 +96,20 @@ std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
     // transfer the control
     vm->ExecuteInstruction(instr);
 
-    // now we are handling the VM by our own
-    auto Beg = func->GetAddress();
-    auto End = func->GetEnd();
+    if (!func->IsNative()) {        
 
-    while (Beg != End) {
-        vm->ExecuteInstruction(*Beg);
+        // now we are handling the VM by our own
+        auto Beg = func->GetAddress();
+        auto End = func->GetEnd();
 
-        if ((*Beg)->GetKind() == Instructions::ret)
-            break;
-        Beg++;
+        while (Beg != End) {
+            vm->ExecuteInstruction(*Beg);
+
+            if ((*Beg)->GetKind() == Instructions::ret)
+                break;
+            Beg++;
+        }
     }
-
     // get the return value
     auto result = vm->GetResult();
     return result.O;
