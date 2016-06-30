@@ -21,7 +21,7 @@ using CallStack = GenericStack<Counter>;
 using FlagStack = GenericStack<int32_t>;
 using PassedArguments = std::vector<Value>;
 using ThisStack = GenericStack<std::shared_ptr<grok::obj::JSObject>>;
-using ThisStackHelper = GenericStack<ThisStack::size_type>;
+using VMStackHelper = GenericStack<VMStack::size_type>;
 
 class VM;
 extern std::unique_ptr<VM> CreateVM(VMContext *context);
@@ -141,7 +141,7 @@ private:
     Counter Current;  // current instruction being executed
     Counter End;  // end of the block
     ThisStack TStack; // `this` of javascript
-    ThisStackHelper HelperStack;
+    VMStackHelper HelperStack;
 
     int32_t Flags;  // flags for storing the VM state
     VMStack Stack;  // program stack

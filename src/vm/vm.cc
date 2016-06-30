@@ -43,12 +43,14 @@ void VM::SaveState()
 {
     CStack.Push(Current);
     FStack.Push(Flags);
+    HelperStack.Push(Stack.size());
 }
 
 void VM::RestoreState()
 {
     Current = CStack.Pop();
     Flags = FStack.Pop();
+    Stack.resize(HelperStack.Pop());
 }
 
 void VM::SetAC(Value v)
@@ -524,6 +526,8 @@ void VM::CallOP()
 
 void VM::RetOP()
 {
+    // save the returned result
+    auto ReturnedValue = Stack.Pop();
     RestoreState();
     
     auto V = GetVStore(Context);
@@ -533,6 +537,9 @@ void VM::RetOP()
         auto This = V->This();
         TStack.Push(This);
     }
+
+    // Save the return value
+    Stack.Push(ReturnedValue);
     V->RemoveScope();
 }
 
