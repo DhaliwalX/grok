@@ -66,9 +66,9 @@ public:
 
     void RestoreState();
 
-    auto GetCurrent()
+    inline auto GetCurrent()
     {
-        return (*Current);
+        return I;
     }
 
     /// ExecuteInstruction ::= Execute the given instruction
@@ -143,6 +143,7 @@ private:
     Counter End;  // end of the block
     ThisStack TStack; // `this` of javascript
     VMStackHelper HelperStack;
+    std::shared_ptr<Instruction> I; // current instruction
 
     int32_t Flags;  // flags for storing the VM state
     VMStack Stack;  // program stack

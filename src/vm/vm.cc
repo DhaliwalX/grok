@@ -16,6 +16,7 @@ std::unique_ptr<VM> CreateVM(VMContext *context)
 {
     auto ret = std::unique_ptr<VM>{ new VM() };
     ret->SetContext(context);
+    context->SetVM(ret.get());
     return std::move(ret);
 }
 
@@ -27,9 +28,9 @@ void VM::SetContext(VMContext *context)
 Value VM::GetResult()
 {
     if (Stack.empty()) {
-        return Value();
+        return CreateUndefinedObject();
     }
-    auto V = Stack.Top();
+    auto V = Stack.Pop();
     return V;
 }
 
@@ -562,6 +563,7 @@ void VM::PrintCurrentState()
 
 void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
 {
+    I = instr;
     switch (instr->GetKind()) {
     case Instructions::noop:
         NoOP();
@@ -695,7 +697,7 @@ void VM::Run()
     while (Current != End) {
         if (debug_execution_)
             PrintCurrentState();
-        ExecuteInstruction(GetCurrent());
+        ExecuteInstruction(*Current);
         ++Current;
     }
 }
