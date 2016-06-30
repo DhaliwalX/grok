@@ -22,7 +22,7 @@ enum class ObjectType {
 static inline std::shared_ptr<Object> CreateUndefinedObject();
 
 // A javascript object is a set of name : value pair
-class JSObject {
+class JSObject : public std::enable_shared_from_this<JSObject> {
 public:
   using Name = std::string;
   using Value = std::shared_ptr<Object>;
