@@ -3,6 +3,7 @@
 #include "object/function.h"
 
 #include "libs/array-sort.h" // ArraySort
+#include "libs/array-join.h" // ArrayJoin
 
 namespace grok {
 namespace obj {
@@ -43,11 +44,21 @@ std::shared_ptr<Object> CreateArray(size_t size)
     ptr->Resize(size);
     DefineInternalObjectProperties(ptr.get());
 
+    // a.sort()
     auto S = std::make_shared<Function>(grok::libs::ArraySort);
     S->SetNonWritable();
     S->SetNonEnumerable();
     S->SetParams({ "pred" });
     ptr->AddProperty(std::string("sort"), std::make_shared<Object>(S));
+
+    // a.join()
+    S = std::make_shared<Function>(grok::libs::ArrayJoin);
+    S->SetNonWritable();
+    S->SetNonEnumerable();
+    S->SetParams({ "sep" });
+    ptr->AddProperty(std::string("join"), std::make_shared<Object>(S));
+    
+
     auto Wrap = std::make_shared<Object>(ptr);
     return Wrap;
 }
