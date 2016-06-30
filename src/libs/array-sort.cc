@@ -40,13 +40,42 @@ void SortWithDefaultPredicate(std::shared_ptr<Object> A)
     }
 }
 
+void SortWithPredicate(std::shared_ptr<Object> obj,
+        std::shared_ptr<Function> func)
+{
+    if (!IsJSArray(obj))
+        return;
+
+    auto A = obj->as<JSArray>();
+    std::sort(A->begin(), A->end(),
+            [&func](auto a, auto b) {
+                auto Args = CreateArgumentObject()->as<Argument>();
+                Args->Push(a);
+                Args->Push(b);
+                auto vm = GetGlobalVMContext()->GetVM();
+
+                auto R = CallJSFunction(func, Args, vm);
+
+                int n = 0;
+                if (IsJSNumber(R)) {
+                    n = (int)R->as<JSNumber>()->GetNumber();
+                    return n < 0 ? true : false;
+                }
+                return false;
+            });
+}
+
 void SortInternal(std::shared_ptr<Object> A,
     std::shared_ptr<Object> pred, bool use_default_pred)
 {
     if (use_default_pred) {
         SortWithDefaultPredicate(A);
+    } else {
+        if (!IsFunction(pred))
+            SortWithDefaultPredicate(A);
+        else 
+            SortWithPredicate(A, pred->as<Function>());
     }
-    (void)pred;
 }
 
 // this is a very generic sort function and can be applied to strings
