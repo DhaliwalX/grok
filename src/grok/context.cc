@@ -37,7 +37,7 @@ void Context::ParseCommandLineOptions(int argc, char **argv)
     }
     interactive_ = true;
 
-    debug_instruction_ = options.HasOption("instruction");
+    debug_instruction_ = options.HasOption("instructions");
     debug_execution_ = options.HasOption("debug-execution");
 
     ast_ = options.HasOption("debug-ast");
