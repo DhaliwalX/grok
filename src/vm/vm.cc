@@ -493,122 +493,127 @@ void VM::PrintCurrentState()
     std::cout << (Flags & zero_flag ? "Z " : " ") << std::endl;
 }
 
+void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
+{
+    switch (instr->GetKind()) {
+    case Instructions::noop:
+        NoOP();
+        break;
+    case Instructions::fetch:
+        FetchOP();
+        break;
+    case Instructions::store:
+        StoreOP();
+        break;
+    case Instructions::push:
+        PushOP();
+        break;
+    case Instructions::pushim:
+        PushimOP();
+        break;
+    case Instructions::poprop:
+        PoppropOP();
+        break;
+    case Instructions::replprop:
+        ReplpropOP();
+        break;
+    case Instructions::index:
+        IndexOP();
+        break;
+    case Instructions::res:
+        ResOP();
+        break;
+    case Instructions::news:
+        NewsOP();
+        break;
+    case Instructions::cpya:
+        CpyaOP();
+        break;
+    case Instructions::maps:
+        MapsOP();
+        break;
+    case Instructions::lts:
+        LtsOP();
+        break;
+    case Instructions::gts:
+        GtsOP();
+        break;
+    case Instructions::eqs:
+        EqsOP();
+        break;
+    case Instructions::neqs:
+        NeqsOP();
+        break;
+    case Instructions::adds:
+        AddsOP();
+        break;
+    case Instructions::subs:
+        SubsOP();
+        break;
+    case Instructions::muls:
+        MulsOP();
+        break;
+    case Instructions::divs:
+        DivsOP();
+        break;
+    case Instructions::shls:
+        ShlsOP();
+        break;
+    case Instructions::shrs:
+        ShrsOP();
+        break;
+    case Instructions::rems:
+        RemsOP();
+        break;
+    case Instructions::bors:
+        BorsOP();
+        break;
+    case Instructions::bands:
+        BandsOP();
+        break;
+    case Instructions::ors:
+        OrsOP();
+        break;
+    case Instructions::ands:
+        AndsOP();
+        break;
+    case Instructions::xors:
+        XorsOP();
+        break;
+    case Instructions::loopz:
+        
+        break;
+    case Instructions::jmp:
+        JmpOP();
+        break;
+    case Instructions::call:
+        CallOP();
+        break;
+    case Instructions::ret:
+        RetOP();
+        break;
+    case Instructions::jmpz:
+        JmpzOP();
+        break;
+    case Instructions::leave:
+        LeaveOP();
+        break;
+    case Instructions::markst:
+        MarkstOP();
+        break;
+    case Instructions::pushthis:
+        PushthisOP();
+        break;
+    }
+}
+
 void VM::Run()
 {
     // main loop
     while (Current != End) {
         if (debug_execution_)
             PrintCurrentState();
-        switch (GetCurrent()->GetKind()) {
-        case Instructions::noop:
-            NoOP();
-            break;
-        case Instructions::fetch:
-            FetchOP();
-            break;
-        case Instructions::store:
-            StoreOP();
-            break;
-        case Instructions::push:
-            PushOP();
-            break;
-        case Instructions::pushim:
-            PushimOP();
-            break;
-        case Instructions::poprop:
-            PoppropOP();
-            break;
-        case Instructions::replprop:
-            ReplpropOP();
-            break;
-        case Instructions::index:
-            IndexOP();
-            break;
-        case Instructions::res:
-            ResOP();
-            break;
-        case Instructions::news:
-            NewsOP();
-            break;
-        case Instructions::cpya:
-            CpyaOP();
-            break;
-        case Instructions::maps:
-            MapsOP();
-            break;
-        case Instructions::lts:
-            LtsOP();
-            break;
-        case Instructions::gts:
-            GtsOP();
-            break;
-        case Instructions::eqs:
-            EqsOP();
-            break;
-        case Instructions::neqs:
-            NeqsOP();
-            break;
-        case Instructions::adds:
-            AddsOP();
-            break;
-        case Instructions::subs:
-            SubsOP();
-            break;
-        case Instructions::muls:
-            MulsOP();
-            break;
-        case Instructions::divs:
-            DivsOP();
-            break;
-        case Instructions::shls:
-            ShlsOP();
-            break;
-        case Instructions::shrs:
-            ShrsOP();
-            break;
-        case Instructions::rems:
-            RemsOP();
-            break;
-        case Instructions::bors:
-            BorsOP();
-            break;
-        case Instructions::bands:
-            BandsOP();
-            break;
-        case Instructions::ors:
-            OrsOP();
-            break;
-        case Instructions::ands:
-            AndsOP();
-            break;
-        case Instructions::xors:
-            XorsOP();
-            break;
-        case Instructions::loopz:
-            
-            break;
-        case Instructions::jmp:
-            JmpOP();
-            break;
-        case Instructions::call:
-            CallOP();
-            break;
-        case Instructions::ret:
-            RetOP();
-            break;
-        case Instructions::jmpz:
-            JmpzOP();
-            break;
-        case Instructions::leave:
-            LeaveOP();
-            break;
-        case Instructions::markst:
-            MarkstOP();
-            break;
-        case Instructions::pushthis:
-            PushthisOP();
-            break;
-        }
+        ExecuteInstruction(GetCurrent());
         ++Current;
     }
 }

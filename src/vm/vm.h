@@ -71,7 +71,17 @@ public:
         return (*Current);
     }
 
+    /// ExecuteInstruction ::= Execute the given instruction
+    void ExecuteInstruction(std::shared_ptr<Instruction> instr);
+
+    /// GetThis ::= return the value of `this`
     std::shared_ptr<grok::obj::JSObject> GetThis();
+
+    /// PushArg ::= push the argument to the stack
+    void PushArg(std::shared_ptr<grok::obj::Object> Arg)
+    {
+        Stack.Push(Arg);
+    }
 private:
     void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
         std::shared_ptr<grok::obj::Object> obj);
