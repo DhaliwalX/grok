@@ -136,6 +136,7 @@ public:
 
   JSObject::Value GetProperty(const JSObject::Name &name) override;
 
+  auto &Container() { return elements_; }
 private:
   std::vector<ObjectPointer> elements_;
 };

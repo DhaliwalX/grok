@@ -7,6 +7,8 @@
 #include "libs/array-push-pop.h"
 #include "libs/array-reverse.h"
 #include "libs/array-concat.h"
+#include "libs/array-shift-unshift.h"
+#include "libs/array-map.h"
 
 namespace grok {
 namespace obj {
@@ -84,6 +86,25 @@ std::shared_ptr<Object> CreateArray(size_t size)
     S->SetNonWritable();
     S->SetNonEnumerable();
     ptr->AddProperty(std::string("concat"), std::make_shared<Object>(S));
+
+    // a.shift
+    S = std::make_shared<Function>(grok::libs::ArrayShift);
+    S->SetNonWritable();
+    S->SetNonEnumerable();
+    ptr->AddProperty(std::string("shift"), std::make_shared<Object>(S));
+
+    // a.unshift
+    S = std::make_shared<Function>(grok::libs::ArrayUnshift);
+    S->SetNonWritable();
+    S->SetNonEnumerable();
+    ptr->AddProperty(std::string("unshift"), std::make_shared<Object>(S));
+
+    // a.unshift
+    S = std::make_shared<Function>(grok::libs::ArrayMap);
+    S->SetNonWritable();
+    S->SetParams({ "callback" });
+    S->SetNonEnumerable();
+    ptr->AddProperty(std::string("map"), std::make_shared<Object>(S));
 
     auto Wrap = std::make_shared<Object>(ptr);
     return Wrap;
