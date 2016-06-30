@@ -80,11 +80,25 @@ std::shared_ptr<Object> Function::Call(std::shared_ptr<Argument> Args,
                             VM* vm)
 {
     vm->SaveState();
-    for (auto Arg : *Args) {
 
+    // save the `this` function to the stack
+    vm->PushArg(std::make_shared<Object>(shared_from_this()));
+
+    for (auto Arg : *Args) {
+        vm->PushArg(Arg);
     }
 
-    return CreateUndefinedObject();
+    auto instr = std::make_shared<Instruction>();
+    instr->kind_ = Instructions::call;
+    instr->data_type_ = d_num;
+    instr->number_ = Args->Size();
+
+    // transfer the control
+    vm->ExecuteInstruction(instr);
+    
+    // get the return value
+    auto result = vm->GetResult();
+    return result.O;
 }
 
 }
