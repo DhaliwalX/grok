@@ -557,13 +557,16 @@ void VM::LeaveOP()
 
 void VM::PrintCurrentState()
 {
-    std::cout << InstructionToString(**Current) << " ";
+    std::cout << InstructionToString(*GetCurrent()) << " ";
     std::cout << (Flags & zero_flag ? "Z " : " ") << std::endl;
 }
 
 void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
 {
     I = instr;
+
+    if (debug_execution_)
+        PrintCurrentState();
     switch (instr->GetKind()) {
     case Instructions::noop:
         NoOP();
@@ -695,8 +698,6 @@ void VM::Run()
 {
     // main loop
     while (Current != End) {
-        if (debug_execution_)
-            PrintCurrentState();
         ExecuteInstruction(*Current);
         ++Current;
     }
