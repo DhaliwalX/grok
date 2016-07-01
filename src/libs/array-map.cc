@@ -16,7 +16,7 @@ std::shared_ptr<Object> ArrayMap(std::shared_ptr<Argument> Args)
     if (!IsJSArray(This))
         return CreateArray(0);
     auto A = This->as<JSArray>();
-    auto Result = CreateArray(A->Size());
+    auto Result = CreateArray(0);
     auto Func = Args->GetProperty("callback");
 
     if (!IsFunction(Func))
@@ -36,8 +36,7 @@ std::shared_ptr<Object> ArrayMap(std::shared_ptr<Argument> Args)
         auto R = CallJSFunction(F, args_to_pass, vm);
         RA->Push(R);
     }
-
-    return std::make_shared<Object>(Result);
+    return (Result);
 }
 
 }
