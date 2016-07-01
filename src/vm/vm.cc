@@ -250,7 +250,7 @@ void VM::MapsOP()
 
 void VM::SetFlags()
 {
-    auto Obj = GetObjectPointer<JSObject>(Stack.Top());
+    auto Obj = Stack.Top().O->as<JSObject>();
 
     if (!Obj->IsTrue()) 
         Flags |= zero_flag;
@@ -495,7 +495,7 @@ void VM::CallOP()
 {
     auto Args = CreateArgumentList(GetCurrent()->GetNumber());
     auto F = Stack.Pop();
-    
+
     SaveState();
     if (!IsFunction(F.O))
         throw std::runtime_error("fatal: not a function");
@@ -507,7 +507,11 @@ void VM::CallOP()
     if (TheFunction->IsNative()) {
         auto This = GetThis();
         auto ret = TheFunction->CallNative(Args, This);
+        Flags = FStack.Pop();
+        CStack.Pop();
+        HelperStack.Pop();
         Stack.Push(ret);
+        SetFlags();
         return;
     }
 
@@ -526,6 +530,9 @@ void VM::CallOP()
         V->StoreValue(Params[i], Args[i]);
     }
 
+    while (PSz > Sz) {
+        V->StoreValue(Params[Sz++], CreateUndefinedObject());
+    }
     // now we are in position to transfer the control
     // to the function
     Current = TheFunction->GetAddress();
