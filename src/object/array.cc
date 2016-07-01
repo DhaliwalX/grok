@@ -9,6 +9,7 @@
 #include "libs/array-concat.h"
 #include "libs/array-shift-unshift.h"
 #include "libs/array-map.h"
+#include "libs/array-slice.h"
 
 namespace grok {
 namespace obj {
@@ -99,12 +100,19 @@ std::shared_ptr<Object> CreateArray(size_t size)
     S->SetNonEnumerable();
     ptr->AddProperty(std::string("unshift"), std::make_shared<Object>(S));
 
-    // a.unshift
+    // a.map
     S = std::make_shared<Function>(grok::libs::ArrayMap);
     S->SetNonWritable();
     S->SetParams({ "callback" });
     S->SetNonEnumerable();
     ptr->AddProperty(std::string("map"), std::make_shared<Object>(S));
+
+    // a.slice
+    S = std::make_shared<Function>(grok::libs::ArraySlice);
+    S->SetNonWritable();
+    S->SetParams({ "start", "end" });
+    S->SetNonEnumerable();
+    ptr->AddProperty(std::string("slice"), std::make_shared<Object>(S));
 
     auto Wrap = std::make_shared<Object>(ptr);
     return Wrap;
