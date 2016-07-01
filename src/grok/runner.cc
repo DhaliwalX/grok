@@ -115,6 +115,13 @@ void InteractiveRun(Context *ctx)
     // main interpreter loop
     while (true) {
         auto str = RL.Read();
+        if (str == ".debug") {
+            ctx->SetDebugInstruction();
+            continue;
+        } else if (str == ".play") {
+            ctx->SetDebugExecution();
+            continue;
+        }
         if (RL.Eof())
             return;
         auto lex = std::make_unique<Lexer>(str);

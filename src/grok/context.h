@@ -19,13 +19,13 @@ public:
     { }
 
     bool IsInteractive() const { return interactive_; }
-    void SetInteractive() { interactive_ = true; }
+    void SetInteractive() { interactive_ = !interactive_; }
 
     bool DebugInstruction() const { return debug_instruction_; }
     void SetDebugInstruction() { debug_instruction_ = true; }
 
     bool DebugExecution() const { return debug_execution_; }
-    void SetDebugExecution() { debug_execution_ = true; }
+    void SetDebugExecution() { debug_execution_ = !debug_execution_; }
 
     bool ExecuteLineWise() const { return linewise_execute_; }
     void SetExecuteLineWise() { linewise_execute_ = true; }
