@@ -1,27 +1,74 @@
-[This file is out of date]
+## Grok - Another JavaScript interpreter
 
-# Grok
+_Grok_ is a simple and tiny javascript interpreter written in C++. I made it because I wanted to learn how Compiler works.
 
-A simple JavaScript interpreter written in C++.
- Grok interpretes a small subset of JavaScript grammar.
+### Features
 
-## Compiling
+Declare variables:
 
-You can compile the Grok using `make`.
+```js
+a = 10;
 
-## Running
-#### Ubuntu
+// or create strings
+b = 'grok';
 
-You can run simple programs by executing `./grok [program].js`.
-You can also run the Grok in interactive shell. 
-Just type `./grok` into your command line.
+// or create an array
+c = [ 1,2,4,6 ];
 
-#### Windows
+// or create objects
+d = {
+  a : 100,
+  b : {
+    arr : [1,2,4,5]
+  }
+};
 
-Move to the directory where executable file of grok is located.
-Run by executing command `grok [program].js`. 
-Or to use it as a shell just type `grok` into command prompt.
+```
+Write complex expressions like:
 
-## Contributing
+```js
+sum = d.a + c[0] + c.length + d.b.arr[2];
 
-I'd really love to have your help in making the Grok better.
+```
+
+Create functions:
+
+```js
+function fib(n) {
+    if (n == 0 || n == 1)
+        return 0;
+    else if (n == 2)
+        return 1;
+
+    return fib(n - 1) + fib(n - 2);
+}
+
+// call functions
+console.log(fib(10)); // yup console object is supported
+```
+
+## Building
+### Requirements
++ Boost C++ Library
++ GNU Readline Library
++ pthread (optional)
++ cmake
++ C++ compiler with C++14 support
++ Ubuntu 16.04 (not tested for other operating systems)
+
+### Compiling
+One step: `cd grok && mkdir build && cd build && cmake .. && make -j4`
+
+### Contribute
+Grok is currently in development stage. New features will be added slowly.
+It is just a free time project. I work on it whenever I am free. If you want
+to help, feel free to open pull requests or create issues.
+
+### Things that do not work
+
++ function expressions
++ var, let, const declarations
++ switch case statements
++ break, continue statements
++ `this` may not work properly
++ constructors
