@@ -230,6 +230,49 @@ Token *Lexer::ParseStringLiteral(
   return new Token(str, STRING, -1, pos);
 }
 
+char parsehex(char ch) {
+  if (ch >= '0' && ch <= '9')
+    return ch - '0';
+  else if ((ch >= 'a' && ch <= 'f')) {
+    return 10 + ch - 'a';
+  } else if (ch >= 'A' && ch <= 'F') {
+    return 10 + ch - 'A';
+  }
+  throw std::runtime_error("wrong hexadecimal digits");
+}
+
+char parseoct(char ch) {
+  if (ch >= '0' && ch <= '8')
+    return ch - '0';
+  throw std::runtime_error("wrong octal digits");
+}
+
+char escape_code(std::string str) {
+  if (str[0] != '\\')
+    return str[0];
+  if (str[1] == 'x') {
+    char ret = 0;
+    ret |= parsehex(str[2]);
+    ret <<= 4;
+    ret |= parsehex(str[3]);
+    return ret;
+  } else if (str[1] == 'n')
+    return '\n';
+  else if (str[1] == 'b')
+    return '\b';
+  else if (str[1] == 'r')
+    return '\r';
+  else if (str[1] == 'a')
+    return '\a';
+  else if (str[1] == 't')
+    return '\t';
+  else if (str[1] == '"')
+    return '"';
+  else if (str[1] == '\'')
+    return '\'';
+  else throw std::runtime_error("unknown escape code");
+}
+
 // this function should be used instead of above function
 // when we found a token of " or ' that means we are about
 // to parse the string from the current position
@@ -239,6 +282,20 @@ std::string Lexer::GetStringLiteral() { // returns all the string until it finds
   std::string str = "";
   char ch = NextCharacter();
   while (ch != EOF && (ch != '"' && ch != '\'')) {
+    if (ch == '\\') {
+        // a possible escape code
+        std::string tmp = "";
+        tmp += ch;
+        ch = NextCharacter();
+        tmp += ch;
+        if (ch == 'x') {
+          ch = NextCharacter();
+          tmp += ch;
+          ch = NextCharacter();
+          tmp += ch;
+        }
+        ch = escape_code(tmp);
+    }
     str += ch; // fill the buffer
     ch = NextCharacter();
   }
