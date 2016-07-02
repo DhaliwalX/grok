@@ -1,6 +1,6 @@
 #include "library.h"
 
-#include "libs/console.h" // console.log, console.error 
+#include "libs/console/console.h" // console.log, console.error 
 
 namespace grok {
 namespace libs {
