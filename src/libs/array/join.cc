@@ -1,4 +1,4 @@
-#include "libs/array-join.h"
+#include "libs/array/join.h"
 #include "object/array.h"
 
 namespace grok {

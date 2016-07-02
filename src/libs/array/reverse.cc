@@ -1,4 +1,4 @@
-#include "libs/array-reverse.h"
+#include "libs/array/reverse.h"
 #include "object/array.h"
 #include <algorithm>
 

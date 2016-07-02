@@ -1,4 +1,4 @@
-#include "libs/array-slice.h"
+#include "libs/array/slice.h"
 #include "object/array.h"
 
 #include <iostream>

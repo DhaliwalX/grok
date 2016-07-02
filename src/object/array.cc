@@ -2,14 +2,14 @@
 #include "object/argument.h"
 #include "object/function.h"
 
-#include "libs/array-sort.h" // ArraySort
-#include "libs/array-join.h" // ArrayJoin
-#include "libs/array-push-pop.h"
-#include "libs/array-reverse.h"
-#include "libs/array-concat.h"
-#include "libs/array-shift-unshift.h"
-#include "libs/array-map.h"
-#include "libs/array-slice.h"
+#include "libs/array/sort.h" // ArraySort
+#include "libs/array/join.h" // ArrayJoin
+#include "libs/array/push-pop.h"
+#include "libs/array/reverse.h"
+#include "libs/array/concat.h"
+#include "libs/array/shift-unshift.h"
+#include "libs/array/map.h"
+#include "libs/array/slice.h"
 
 namespace grok {
 namespace obj {

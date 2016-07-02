@@ -1,4 +1,4 @@
-#include "libs/array-concat.h"
+#include "libs/array/concat.h"
 
 #include "object/array.h"
 

@@ -1,4 +1,4 @@
-#include "libs/array-map.h"
+#include "libs/array/map.h"
 #include "object/array.h"
 #include "object/function.h"
 #include "vm/context.h"
