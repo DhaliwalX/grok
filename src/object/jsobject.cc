@@ -42,14 +42,11 @@ Object operator<(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                         < rhs->GetNumber());
     return Object(result);
-  } else if (type == ObjectType::_string) {
-    auto rhs = r.as<JSString>();
-    auto result = std::make_shared<JSNumber>(l->ToString()
-                        < rhs->ToString());
-    return Object(result);
   } else {
-    throw std::runtime_error("Code reached a place where it"
-                          " was not supposed to be");
+    auto obj = r.as<JSObject>();
+    auto rstr = obj->ToString();
+    auto lstr = l->ToString();
+    return CreateJSNumber(lstr < rstr);
   }
 }
 
@@ -62,14 +59,45 @@ Object operator>(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                         > rhs->GetNumber());
     return Object(result);
-  } else if (type == ObjectType::_string) {
-    auto rhs = r.as<JSString>();
-    auto result = std::make_shared<JSNumber>(l->ToString()
-                        > rhs->ToString());
+  } else {
+    auto obj = r.as<JSObject>();
+    auto rstr = obj->ToString();
+    auto lstr = l->ToString();
+    return CreateJSNumber(lstr > rstr);
+  }
+}
+
+Object operator<=(std::shared_ptr<JSNumber> l, Object r) 
+{
+  auto type = r.as<JSObject>()->GetType();
+
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        <= rhs->GetNumber());
     return Object(result);
   } else {
-    throw std::runtime_error("Code reached a place where it"
-                          " was not supposed to be");
+    auto obj = r.as<JSObject>();
+    auto rstr = obj->ToString();
+    auto lstr = l->ToString();
+    return CreateJSNumber(lstr <= rstr);
+  }
+}
+
+Object operator>=(std::shared_ptr<JSNumber> l, Object r) 
+{
+  auto type = r.as<JSObject>()->GetType();
+
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        >= rhs->GetNumber());
+    return Object(result);
+  } else {
+    auto obj = r.as<JSObject>();
+    auto rstr = obj->ToString();
+    auto lstr = l->ToString();
+    return CreateJSNumber(lstr >= rstr);
   }
 }
 
@@ -195,8 +223,9 @@ Object operator||(std::shared_ptr<JSNumber> l, Object r)
                       || rhs->GetNumber());
     return Object(result);
   } else  {
-      auto result = std::make_shared<UndefinedObject>();
-      return Object(result);
+      auto obj = r.as<JSObject>();
+      auto result = CreateJSNumber(l->GetNumber() || obj->IsTrue());
+      return *(result);
   }
 }
 
@@ -209,8 +238,9 @@ Object operator&&(std::shared_ptr<JSNumber> l, Object r)
                       && rhs->GetNumber());
     return Object(result);
   } else  {
-      auto result = std::make_shared<UndefinedObject>();
-      return Object(result);
+      auto obj = r.as<JSObject>();
+      auto result = CreateJSNumber(l->GetNumber() && obj->IsTrue());
+      return *(result);
   }
 }
 
@@ -224,7 +254,7 @@ Object operator^(std::shared_ptr<JSNumber> l, Object r)
     return Object(result);
   } else  {
       auto result = std::make_shared<UndefinedObject>();
-      return Object(result);
+      return (result);
   }
 }
 
@@ -237,8 +267,8 @@ Object operator==(std::shared_ptr<JSNumber> l, Object r)
                       == rhs->GetNumber());
     return Object(result);
   } else  {
-      auto result = std::make_shared<UndefinedObject>();
-      return Object(result);
+      auto result = CreateJSNumber(0);
+      return *(result);
   }
 }
 
@@ -251,43 +281,39 @@ Object operator!=(std::shared_ptr<JSNumber> l, Object r)
                       != rhs->GetNumber());
     return Object(result);
   } else  {
-      auto result = std::make_shared<UndefinedObject>();
-      return Object(result);
+      auto result = CreateJSNumber(0);
+      return *result;
   }
 }
 
 Object operator +(std::shared_ptr<JSString> l, Object r)
 {
-  auto type = r.as<JSObject>()->GetType();
-
-  if (type == ObjectType::_string) {
-    auto rhs = r.as<JSString>();
-    auto result = std::make_shared<JSString>(l->ToString()
-                        + rhs->ToString());
-    return Object(result);
-  } else if (type == ObjectType::_number) {
-    auto rhs = r.as<JSNumber>();
-    return rhs + Object(l);
-  } else 
-    throw std::runtime_error("Code reached a place where it"
-                          " was not supposed to be");
+    auto obj = r.as<JSObject>();
+    return *CreateJSString(l->ToString() + obj->ToString());
 }
 
 Object operator>(std::shared_ptr<JSString> l, Object r)
 {
-  auto type = r.as<JSObject>()->GetType();
+    auto obj = r.as<JSObject>();
+    return *CreateJSNumber(l->ToString() > obj->ToString());
+}
 
-  if (type == ObjectType::_string) {
-    auto rhs = r.as<JSString>();
-    auto result = std::make_shared<JSNumber>(l->ToString()
-                        > rhs->ToString());
-    return Object(result);
-  } else if (type == ObjectType::_number) {
-    auto rhs = r.as<JSNumber>();
-    return rhs + Object(l);
-  } else 
-    throw std::runtime_error("Code reached a place where it"
-                          " was not supposed to be");
+Object operator<(std::shared_ptr<JSString> l, Object r)
+{
+    auto obj = r.as<JSObject>();
+    return *CreateJSNumber(l->ToString() > obj->ToString());
+}
+
+Object operator>=(std::shared_ptr<JSString> l, Object r)
+{
+    auto obj = r.as<JSObject>();
+    return *CreateJSNumber(l->ToString() >= obj->ToString());
+}
+
+Object operator<=(std::shared_ptr<JSString> l, Object r)
+{
+    auto obj = r.as<JSObject>();
+    return *CreateJSNumber(l->ToString() <= obj->ToString());
 }
 
 Object operator!=(std::shared_ptr<JSString> l, Object r)
@@ -299,12 +325,9 @@ Object operator!=(std::shared_ptr<JSString> l, Object r)
     auto result = std::make_shared<JSNumber>(l->ToString()
                         != rhs->ToString());
     return Object(result);
-  } else if (type == ObjectType::_number) {
-    auto rhs = r.as<JSNumber>();
-    return rhs + Object(l);
-  } else 
-    throw std::runtime_error("Code reached a place where it"
-                          " was not supposed to be");
+  } else {
+    return *CreateJSNumber(0);
+  }
 }
 
 Object operator==(std::shared_ptr<JSString> l, Object r)
@@ -316,29 +339,8 @@ Object operator==(std::shared_ptr<JSString> l, Object r)
     auto result = std::make_shared<JSNumber>(l->ToString()
                         == rhs->ToString());
     return Object(result);
-  } else if (type == ObjectType::_number) {
-    auto rhs = r.as<JSNumber>();
-    return rhs + Object(l);
   } else 
-    throw std::runtime_error("Code reached a place where it"
-                          " was not supposed to be");
-}
-
-Object operator<(std::shared_ptr<JSString> l, Object r)
-{
-  auto type = r.as<JSObject>()->GetType();
-
-  if (type == ObjectType::_string) {
-    auto rhs = r.as<JSString>();
-    auto result = std::make_shared<JSNumber>(l->ToString()
-                        < rhs->ToString());
-    return Object(result);
-  } else if (type == ObjectType::_number) {
-    auto rhs = r.as<JSNumber>();
-    return rhs + Object(l);
-  } else 
-    throw std::runtime_error("Code reached a place where it"
-                          " was not supposed to be");
+    return *CreateJSNumber(0);  
 }
 
 #define OPERATOR_FOR_STRING_NUMBER(op) \
@@ -369,9 +371,38 @@ Object operator op(Object l, Object r) \
   } \
 }
 
-OPERATOR_FOR_STRING_NUMBER(+)
-OPERATOR_FOR_STRING_NUMBER(<)
-OPERATOR_FOR_STRING_NUMBER(>)
+#define SPECIAL_OPERATORS(op) \
+Object operator op(Object l, Object r) \
+{ \
+  auto ltype = l.as<JSObject>()->GetType(); \
+  switch (ltype) { \
+  case ObjectType::_string: \
+  { \
+    auto strobject = l.as<JSString>(); \
+    return strobject op r; \
+  } \
+ \
+  case ObjectType::_number: \
+  { \
+    auto numobject = l.as<JSNumber>(); \
+    return numobject op r; \
+  } \
+  default: \
+  { \
+    auto obj = l.as<JSObject>();\
+    auto str = CreateJSString(obj->ToString())->as<JSString>();\
+    return str op r;\
+  } \
+  } \
+}
+
+SPECIAL_OPERATORS(+)
+SPECIAL_OPERATORS(<)
+SPECIAL_OPERATORS(>)
+SPECIAL_OPERATORS(||)
+SPECIAL_OPERATORS(&&)
+SPECIAL_OPERATORS(<=)
+SPECIAL_OPERATORS(>=)
 OPERATOR_FOR_STRING_NUMBER(==)
 OPERATOR_FOR_STRING_NUMBER(!=)
 
@@ -399,8 +430,6 @@ OTHER_OPERATOR(>>)
 OTHER_OPERATOR(<<)
 OTHER_OPERATOR(&)
 OTHER_OPERATOR(|)
-OTHER_OPERATOR(||)
-OTHER_OPERATOR(&&)
 OTHER_OPERATOR(^)
 
 } // obj
