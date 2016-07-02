@@ -81,6 +81,7 @@ public:
   void Clear() { object_.clear(); }
 
   virtual std::string ToString() const;
+  virtual std::string AsString() const;
 
   virtual bool IsTrue() const
   {

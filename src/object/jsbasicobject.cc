@@ -6,7 +6,7 @@
 namespace grok {
 namespace obj {
 
-std::string JSObject::ToString() const
+std::string JSObject::AsString() const
 {
     std::string buff = "";
     buff += "{ ";
@@ -20,6 +20,11 @@ std::string JSObject::ToString() const
     buff.pop_back(); // " "
     buff += " }";
     return buff;
+}
+
+std::string JSObject::ToString() const
+{
+    return "[ object Object ]";
 }
 
 std::shared_ptr<Object> toString(std::shared_ptr<Argument> Args)

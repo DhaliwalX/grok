@@ -35,7 +35,7 @@ public:
   inline std::string GetString() const { return js_string_; }
   ObjectType GetType() const override { return ObjectType::_string; }
   std::string ToString() const override { return js_string_; }
-
+  std::string AsString() const override { return js_string_; }
   JSObject::Value GetProperty(const std::string &prop) override
   {
       int idx = 0;
@@ -88,6 +88,7 @@ public:
   inline long long &GetValue() { return number_; }
   ObjectType GetType() const override { return ObjectType::_number; }
   std::string ToString() const override { return std::to_string(number_); }
+  std::string AsString() const override { return std::to_string(number_); }
 
   bool IsTrue() const override
   {
@@ -137,22 +138,10 @@ static std::shared_ptr<Object> CreateJSNumber(long long num)
     return W;
 }
 
-extern Object operator+(std::shared_ptr<JSNumber> l, Object r);
-
-#define DECLARE_OPERATOR(op)  \
-extern Object operator op(std::shared_ptr<JSNumber> l, Object r)
-DECLARE_OPERATOR(-);
-DECLARE_OPERATOR(*);
-DECLARE_OPERATOR(/);
-DECLARE_OPERATOR(%);
-#undef DECLARE_OPERATOR
-
-extern Object operator +(std::shared_ptr<JSString> l, Object r);
-extern Object operator+(Object l, Object r);
-
 #define DECLARE_OTHER_OPERATOR(op) \
 extern Object operator op (Object l, Object r)
 
+DECLARE_OTHER_OPERATOR(+);
 DECLARE_OTHER_OPERATOR(*);
 DECLARE_OTHER_OPERATOR(-);
 DECLARE_OTHER_OPERATOR(/);
@@ -161,6 +150,8 @@ DECLARE_OTHER_OPERATOR(==);
 DECLARE_OTHER_OPERATOR(!=);
 DECLARE_OTHER_OPERATOR(<);
 DECLARE_OTHER_OPERATOR(>);
+DECLARE_OTHER_OPERATOR(<=);
+DECLARE_OTHER_OPERATOR(>=);
 DECLARE_OTHER_OPERATOR(>>);
 DECLARE_OTHER_OPERATOR(<<);
 DECLARE_OTHER_OPERATOR(&);

@@ -66,7 +66,7 @@ public:
     ObjectType GetType() const override
     { return ObjectType::_function; }
 
-    std::string ToString() const override
+    std::string AsString() const override
     {
         std::ostringstream os;
         if (Native) {
@@ -86,6 +86,11 @@ public:
         }
         os << ") { [Code] }";
         return os.str();
+    }
+
+    std::string ToString() const override
+    {
+        return "[ function Function ]";
     }
 
     void SetParams(std::vector<std::string> parms)

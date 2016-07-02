@@ -121,6 +121,18 @@ public:
   }
 
   std::string ToString() const override {
+    std::string buff = "";
+    for (const auto &element : elements_) {
+      buff += element->as<JSObject>()->ToString();
+      buff += ",";
+    }
+    if (elements_.size()) {
+      buff.pop_back();
+    }
+    return buff;
+  }
+
+  std::string AsString() const override {
     std::string buff = "[ ";
     for (const auto &element : elements_) {
       buff += element->as<JSObject>()->ToString();
@@ -130,8 +142,7 @@ public:
       buff.pop_back();
       buff.pop_back();
     }
-    buff += " ]";
-    return buff;
+    return buff + " ]";
   }
 
   JSObject::Value GetProperty(const JSObject::Name &name) override;

@@ -55,7 +55,7 @@ int ExecuteAST(Context *ctx, std::ostream &os, std::shared_ptr<Expression> AST)
         auto O = GetObjectPointer<grok::obj::JSObject>(Result);
 
         if (ctx->IsInteractive() || ctx->ShouldPrintLastInStack()) {
-            os << O->ToString() << std::endl;
+            os << O->AsString() << std::endl;
         } else {
             return O->IsTrue();
         }
