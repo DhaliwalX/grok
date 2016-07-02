@@ -120,6 +120,8 @@ private:
     void LeaveOP();
     void GtsOP();
     void LtsOP();
+    void GtesOP();
+    void LtesOP();
     void EqsOP();
     void NeqsOP();
     void ShlsOP();

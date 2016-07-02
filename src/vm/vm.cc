@@ -321,6 +321,23 @@ void VM::LtsOP()
     Stack.Push(Result);
     SetFlags();
 }
+void VM::GtesOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS >= RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
+
+void VM::LtesOP()
+{
+    auto RHS = *(Stack.Pop().O);
+    auto LHS = *(Stack.Pop().O);
+    auto Result = std::make_shared<Object>(LHS <= RHS);
+    Stack.Push(Result);
+    SetFlags();
+}
 
 void VM::EqsOP()
 {
@@ -616,6 +633,12 @@ void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
         break;
     case Instructions::gts:
         GtsOP();
+        break;
+    case Instructions::ltes:
+        LtesOP();
+        break;
+    case Instructions::gtes:
+        GtesOP();
         break;
     case Instructions::eqs:
         EqsOP();

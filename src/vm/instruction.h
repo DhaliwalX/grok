@@ -28,7 +28,9 @@ namespace vm {
     op(pinc),   \
     op(pdec),   \
     op(lts),   \
+    op(ltes),   \
     op(gts),   \
+    op(gtes),   \
     op(eqs),   \
     op(neqs),   \
     op(adds),   \
