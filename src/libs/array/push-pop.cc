@@ -16,7 +16,7 @@ std::shared_ptr<Object> ArrayPush(std::shared_ptr<Argument> Args)
     auto Arr = This->as<JSArray>();
 
     for (auto &Arg : *Args) {
-        Arr->Push(Arg);
+        Arr->Push(CreateCopy(Arg));
     }
 
     auto Sz = Arr->Size();
