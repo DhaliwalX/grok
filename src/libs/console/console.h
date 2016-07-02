@@ -17,6 +17,12 @@ public:
 
     static std::shared_ptr<grok::obj::Object>
     Error(std::shared_ptr<grok::obj::Argument> Args);
+
+    static std::shared_ptr<grok::obj::Object>
+    Print(std::shared_ptr<grok::obj::Argument> Args);
+    
+    static std::shared_ptr<grok::obj::Object>
+    Flush(std::shared_ptr<grok::obj::Argument> Args);
 };
 
 }
