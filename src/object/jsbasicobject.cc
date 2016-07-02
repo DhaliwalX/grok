@@ -80,5 +80,16 @@ std::shared_ptr<Object> ObjectConstructor(std::shared_ptr<Argument> Args)
     return Args->At(0);
 }
 
+std::shared_ptr<Object> CreateCopy(std::shared_ptr<Object> obj)
+{
+    if (IsJSNumber(obj)) {
+        return CreateJSNumber(obj->as<JSNumber>()->GetNumber());
+    } else if (IsJSString(obj)) {
+        return CreateJSString(obj->as<JSString>()->ToString());
+    }
+    // else return reference
+    return obj;
+}
+
 } // obj
 } // grok

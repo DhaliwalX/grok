@@ -159,6 +159,8 @@ static inline bool IsNull(std::shared_ptr<Object> obj)
 extern void DefineInternalObjectProperties(JSObject *obj);
 
 extern std::shared_ptr<Object> CreateJSObject();
+
+extern std::shared_ptr<Object> CreateCopy(std::shared_ptr<Object> obj);
 } // obj
 } // grok
 #endif // OBJECT_H_
