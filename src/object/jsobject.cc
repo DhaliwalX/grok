@@ -1,6 +1,8 @@
 #include "object/object.h"
 #include "object/jsobject.h"
-
+#include "object/function.h"
+#include "libs/string/properties.h"
+#include "object/jsnumber.h"
 
 namespace grok { namespace obj {
 std::string __type[7] = {"null",   "undefined", "number",  "string",
@@ -20,6 +22,11 @@ Object operator+(std::shared_ptr<JSNumber> l, Object r)
   if (type == ObjectType::_number) {
     auto rhs = r.as<JSNumber>();
     auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        + rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
                         + rhs->GetNumber());
     return Object(result);
   } else if (type == ObjectType::_string) {
@@ -42,11 +49,16 @@ Object operator<(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                         < rhs->GetNumber());
     return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        < rhs->GetNumber());
+    return Object(result);
   } else {
     auto obj = r.as<JSObject>();
     auto rstr = obj->ToString();
     auto lstr = l->ToString();
-    return CreateJSNumber(lstr < rstr);
+    return *CreateJSNumber(lstr < rstr);
   }
 }
 
@@ -59,11 +71,16 @@ Object operator>(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                         > rhs->GetNumber());
     return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        > rhs->GetNumber());
+    return Object(result);
   } else {
     auto obj = r.as<JSObject>();
     auto rstr = obj->ToString();
     auto lstr = l->ToString();
-    return CreateJSNumber(lstr > rstr);
+    return *CreateJSNumber(lstr > rstr);
   }
 }
 
@@ -76,11 +93,16 @@ Object operator<=(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                         <= rhs->GetNumber());
     return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        <= rhs->GetNumber());
+    return Object(result);
   } else {
     auto obj = r.as<JSObject>();
     auto rstr = obj->ToString();
     auto lstr = l->ToString();
-    return CreateJSNumber(lstr <= rstr);
+    return *CreateJSNumber(lstr <= rstr);
   }
 }
 
@@ -93,11 +115,16 @@ Object operator>=(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                         >= rhs->GetNumber());
     return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        >= rhs->GetNumber());
+    return Object(result);
   } else {
     auto obj = r.as<JSObject>();
     auto rstr = obj->ToString();
     auto lstr = l->ToString();
-    return CreateJSNumber(lstr >= rstr);
+    return *CreateJSNumber(lstr >= rstr);
   }
 }
 
@@ -109,7 +136,12 @@ Object operator-(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       - rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                        - rhs->GetNumber());
+    return Object(result);
+  } else {
       auto result = std::make_shared<UndefinedObject>();
       return Object(result);
   }
@@ -123,7 +155,12 @@ Object operator*(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       * rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                        * rhs->GetNumber());
+    return Object(result);
+  } else {
       auto result = std::make_shared<UndefinedObject>();
       return Object(result);
   }
@@ -137,7 +174,12 @@ Object operator/(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       / rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                        / rhs->GetNumber());
+    return Object(result);
+  } else {
       auto result = std::make_shared<UndefinedObject>();
       return Object(result);
   }
@@ -151,12 +193,16 @@ Object operator%(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       % rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        % (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else {
       auto result = std::make_shared<UndefinedObject>();
       return Object(result);
   }
 }
-
 
 Object operator<<(std::shared_ptr<JSNumber> l, Object r) 
 { 
@@ -165,6 +211,11 @@ Object operator<<(std::shared_ptr<JSNumber> l, Object r)
     auto rhs = r.as<JSNumber>();
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       << rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        << (int32_t)rhs->GetNumber());
     return Object(result);
   } else  {
       auto result = std::make_shared<UndefinedObject>();
@@ -178,7 +229,12 @@ Object operator>>(std::shared_ptr<JSNumber> l, Object r)
   if (type == ObjectType::_number) {
     auto rhs = r.as<JSNumber>();
     auto result = std::make_shared<JSNumber>(l->GetNumber()
-                      >> rhs->GetNumber());
+                      >> (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        >> (int32_t)rhs->GetNumber());
     return Object(result);
   } else  {
       auto result = std::make_shared<UndefinedObject>();
@@ -194,7 +250,12 @@ Object operator|(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       | rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        | (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else {
       auto result = std::make_shared<UndefinedObject>();
       return Object(result);
   }
@@ -206,9 +267,14 @@ Object operator&(std::shared_ptr<JSNumber> l, Object r)
   if (type == ObjectType::_number) {
     auto rhs = r.as<JSNumber>();
     auto result = std::make_shared<JSNumber>(l->GetNumber()
-                      & rhs->GetNumber());
+                      & (int32_t)rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        & (int32_t  )rhs->GetNumber());
+    return Object(result);
+  } else {
       auto result = std::make_shared<UndefinedObject>();
       return Object(result);
   }
@@ -222,7 +288,12 @@ Object operator||(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       || rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        || rhs->GetNumber());
+    return Object(result);
+  } else {
       auto obj = r.as<JSObject>();
       auto result = CreateJSNumber(l->GetNumber() || obj->IsTrue());
       return *(result);
@@ -237,7 +308,12 @@ Object operator&&(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       && rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        && rhs->GetNumber());
+    return Object(result);
+  } else {
       auto obj = r.as<JSObject>();
       auto result = CreateJSNumber(l->GetNumber() && obj->IsTrue());
       return *(result);
@@ -250,9 +326,14 @@ Object operator^(std::shared_ptr<JSNumber> l, Object r)
   if (type == ObjectType::_number) {
     auto rhs = r.as<JSNumber>();
     auto result = std::make_shared<JSNumber>(l->GetNumber()
-                      ^ rhs->GetNumber());
+                      ^ (int32_t)rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        ^ (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else {
       auto result = std::make_shared<UndefinedObject>();
       return (result);
   }
@@ -266,7 +347,12 @@ Object operator==(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       == rhs->GetNumber());
     return Object(result);
-  } else  {
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        == rhs->GetNumber());
+    return Object(result);
+  } else {
       auto result = CreateJSNumber(0);
       return *(result);
   }
@@ -280,11 +366,384 @@ Object operator!=(std::shared_ptr<JSNumber> l, Object r)
     auto result = std::make_shared<JSNumber>(l->GetNumber()
                       != rhs->GetNumber());
     return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        != rhs->GetNumber());
+    return Object(result);
+  } else {
+      auto result = CreateJSNumber(0);
+      return *result;
+  }
+}
+
+///=====------------------------------------------------------------------=====
+///             Operators for double's
+///=====------------------------------------------------------------------=====
+
+Object operator+(std::shared_ptr<JSDouble> l, Object r) 
+{
+  auto type = r.as<JSObject>()->GetType();
+
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                        + rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                        + rhs->GetNumber());
+    return Object(result);
+  } else {
+    auto rhs = r.as<JSObject>();
+    auto result = std::make_shared<JSString>(l->ToString()
+                        + rhs->ToString());
+    return Object(result);
+  }
+}
+
+Object operator<(std::shared_ptr<JSDouble> l, Object r) 
+{
+  auto type = r.as<JSObject>()->GetType();
+
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        < rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        < rhs->GetNumber());
+    return Object(result);
+  } else {
+    auto obj = r.as<JSObject>();
+    auto rstr = obj->ToString();
+    auto lstr = l->ToString();
+    return *CreateJSNumber(lstr < rstr);
+  }
+}
+
+Object operator>(std::shared_ptr<JSDouble> l, Object r) 
+{
+  auto type = r.as<JSObject>()->GetType();
+
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        > rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        > rhs->GetNumber());
+    return Object(result);
+  } else {
+    auto obj = r.as<JSObject>();
+    auto rstr = obj->ToString();
+    auto lstr = l->ToString();
+    return *CreateJSNumber(lstr > rstr);
+  }
+}
+
+Object operator<=(std::shared_ptr<JSDouble> l, Object r) 
+{
+  auto type = r.as<JSObject>()->GetType();
+
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        <= rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        <= rhs->GetNumber());
+    return Object(result);
+  } else {
+    auto obj = r.as<JSObject>();
+    auto rstr = obj->ToString();
+    auto lstr = l->ToString();
+    return *CreateJSNumber(lstr <= rstr);
+  }
+}
+
+Object operator>=(std::shared_ptr<JSDouble> l, Object r) 
+{
+  auto type = r.as<JSObject>()->GetType();
+
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        >= rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        >= rhs->GetNumber());
+    return Object(result);
+  } else {
+    auto obj = r.as<JSObject>();
+    auto rstr = obj->ToString();
+    auto lstr = l->ToString();
+    return *CreateJSNumber(lstr >= rstr);
+  }
+}
+
+Object operator-(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                      - rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                        - rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+Object operator*(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                      * rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                        * rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+Object operator/(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                      / rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSDouble>(l->GetNumber()
+                        / rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+Object operator%(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                      % rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                        % (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+
+Object operator<<(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                      << rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                        << (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+Object operator>>(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                      >> rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                        >> (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+Object operator|(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                      | rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                        | (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+Object operator&(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                      & rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                        & (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto result = std::make_shared<UndefinedObject>();
+      return Object(result);
+  }
+}
+
+Object operator||(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                      || rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                        || (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto obj = r.as<JSObject>();
+      auto result = CreateJSNumber(l->GetNumber() || obj->IsTrue());
+      return *(result);
+  }
+}
+
+Object operator&&(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                      && rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                        && (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else  {
+      auto obj = r.as<JSObject>();
+      auto result = CreateJSNumber(l->GetNumber() && obj->IsTrue());
+      return *(result);
+  }
+}
+
+Object operator^(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                      ^ rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>((int32_t)l->GetNumber()
+                        ^ (int32_t)rhs->GetNumber());
+    return Object(result);
+  } else {
+      auto result = std::make_shared<UndefinedObject>();
+      return (result);
+  }
+}
+
+Object operator==(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                      == rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        == rhs->GetNumber());
+    return Object(result);
+  } else {
+      auto result = CreateJSNumber(0);
+      return *(result);
+  }
+}
+
+Object operator!=(std::shared_ptr<JSDouble> l, Object r) 
+{ 
+  auto type = r.as<JSObject>()->GetType();
+  if (type == ObjectType::_number) {
+    auto rhs = r.as<JSNumber>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                      != rhs->GetNumber());
+    return Object(result);
+  } else if (type == ObjectType::_double) {
+    auto rhs = r.as<JSDouble>();
+    auto result = std::make_shared<JSNumber>(l->GetNumber()
+                        != rhs->GetNumber());
+    return Object(result);
   } else  {
       auto result = CreateJSNumber(0);
       return *result;
   }
 }
+
+///=====------------------------------------------------------------------=====
+///             Operators for strings
+///=====------------------------------------------------------------------=====
 
 Object operator +(std::shared_ptr<JSString> l, Object r)
 {
@@ -360,6 +819,11 @@ Object operator op(Object l, Object r) \
     auto numobject = l.as<JSNumber>(); \
     return numobject op r; \
   } \
+  case ObjectType::_double: \
+  { \
+    auto numobject = l.as<JSDouble>(); \
+    return numobject op r; \
+  } \
  \
   case ObjectType::_object: \
   case ObjectType::_array: \
@@ -387,6 +851,11 @@ Object operator op(Object l, Object r) \
     auto numobject = l.as<JSNumber>(); \
     return numobject op r; \
   } \
+  case ObjectType::_double: \
+  { \
+    auto numobject = l.as<JSDouble>(); \
+    return numobject op r; \
+  } \
   default: \
   { \
     auto obj = l.as<JSObject>();\
@@ -410,16 +879,24 @@ OPERATOR_FOR_STRING_NUMBER(!=)
 Object operator op (Object l, Object r) \
 { \
   auto ltype = l.as<JSObject>()->GetType(); \
-  auto rtype = r.as<JSObject>()->GetType(); \
   \
-  if (ltype != ObjectType::_number \
-      && rtype != ObjectType::_number) {\
-      auto result = std::make_shared<UndefinedObject>(); \
-      return Object(result); \
-  }  \
+  switch (ltype) {  \
+  case ObjectType::_number: \
+  { \
+    auto numobject = l.as<JSNumber>(); \
+    return numobject op r; \
+  } \
+  case ObjectType::_double: \
+  { \
+    auto numobject = l.as<JSDouble>(); \
+    return numobject op r; \
+  } \
+  default: \
+    break;\
+  }; \
   \
-  auto numobject = l.as<JSNumber>(); \
-  return numobject op r; \
+  auto object = std::make_shared<UndefinedObject>(); \
+  return Object(object); \
 }
 
 OTHER_OPERATOR(-)
@@ -431,6 +908,15 @@ OTHER_OPERATOR(<<)
 OTHER_OPERATOR(&)
 OTHER_OPERATOR(|)
 OTHER_OPERATOR(^)
+
+std::shared_ptr<Object> CreateJSString(std::string str)
+{
+    auto S = std::make_shared<JSString>(str);
+    DefineInternalObjectProperties(S.get());
+    auto W = std::make_shared<Object>(S);
+    grok::libs::DefineStringProperties(S.get());
+    return W;
+}
 
 } // obj
 } // grok
