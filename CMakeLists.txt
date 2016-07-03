@@ -16,7 +16,6 @@ find_package (Threads)
 set (Boost_USE_MULTITHREAD ON)
 # include directories
 include_directories(./src)
-add_subdirectory(src)
 
 add_executable(grok ${SRC_FILES})
 target_link_libraries(grok ${READLINE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
