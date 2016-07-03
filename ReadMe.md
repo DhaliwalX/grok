@@ -62,12 +62,11 @@ One step: `cd grok && mkdir build && cd build && cmake .. && make -j4`
 ### Contribute
 Grok is currently in development stage. New features will be added slowly.
 It is just a free time project. I work on it whenever I am free. If you want
-to help, feel free to open pull requests or create issues.
+to help, feel free to open pull requests or create issues. Please do __star__
+the project if you like it.
 
 ### Things that do not work
 
-+ function expressions
-+ var, let, const declarations
 + switch case statements
 + break, continue statements
 + `this` may not work properly
