@@ -17,14 +17,23 @@ using namespace grok::obj;
 /// We don't generate the code for the body now but defer it until
 /// it is required i.e. when a call is placed to this function during
 /// execution
-void FunctionStatement::emit(std::shared_ptr<InstructionBuilder>)
+void FunctionStatement::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     std::string Name = proto_->GetName();
     auto F = std::make_shared<Function>(std::move(body_), std::move(proto_));
-    auto VS = GetVStore(GetGlobalVMContext());
-    auto V = Value{};
-    V.O = std::make_shared<Object>(F);
-    VS->StoreValue(Name, V);
+    auto VS = GetVStore(GetGlobalVMContext()); 
+
+    if (Name.length()) {
+        auto V = Value{};
+        V.O = std::make_shared<Object>(F);
+        VS->StoreValue(Name, V);
+    }
+
+    auto instr = InstructionBuilder::Create<Instructions::push>();
+    instr->data_type_ = d_obj;
+    instr->data_ = std::make_shared<Object>(F);
+
+    builder->AddInstruction(std::move(instr));
 }
 
 void FunctionPrototype::emit(std::shared_ptr<InstructionBuilder>)
