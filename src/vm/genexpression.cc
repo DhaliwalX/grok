@@ -497,5 +497,38 @@ void NewExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     builder->AddInstruction(std::move(instr));
 }
 
+void Declaration::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    if (init_) {
+        init_->emit(builder);
+    }
+    auto ns = InstructionBuilder::Create<Instructions::news>();
+    ns->data_type_ = d_name;
+    ns->str_ = name_;
+    builder->AddInstruction(std::move(ns));
+
+    auto instr = InstructionBuilder::Create<Instructions::fetch>();
+    instr->data_type_ = d_name;
+    instr->str_ = name_;
+
+    builder->AddInstruction(std::move(instr));
+
+    instr = InstructionBuilder::Create<Instructions::pushim>();
+    instr->data_type_ = d_null;
+    builder->AddInstruction(std::move(instr));
+
+    instr = InstructionBuilder::Create<Instructions::store>();
+    instr->data_type_ = d_null;
+    builder->AddInstruction(std::move(instr));
+
+}
+
+void DeclarationList::emit(std::shared_ptr<InstructionBuilder> builder)
+{
+    for (auto &expr : exprs_) {
+        expr->emit(builder);
+    }
+}
+
 }
 }
