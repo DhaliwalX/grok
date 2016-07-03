@@ -284,6 +284,36 @@ private:
     std::vector<std::unique_ptr<Expression>> exprs_;
 };
 
+class Declaration : public Expression {
+public:
+    Declaration(std::string name, std::unique_ptr<Expression> init)
+        : name_{ name }, init_{ std::move(init) }
+    { }
+
+    Declaration(std::string name)
+        : name_{ name }, init_{ nullptr }
+    { }
+
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+
+private:
+    std::string name_;
+    std::unique_ptr<Expression> init_;
+};
+
+class DeclarationList : public Expression {
+public:
+    DeclarationList(std::vector<std::unique_ptr<Declaration>> exprs)
+    : exprs_{ std::move(exprs) }
+    { }
+    std::ostream &operator<<(std::ostream &os) const override;
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+
+private:
+    std::vector<std::unique_ptr<Declaration>> exprs_;
+};
+
 } // namespace parser
 } // namespace grok
 

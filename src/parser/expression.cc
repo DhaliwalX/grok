@@ -162,5 +162,25 @@ std::ostream &NewExpression::operator<<(std::ostream &os) const
     return *member_ << os << ")";
 }
 
+std::ostream &Declaration::operator<<(std::ostream &os) const
+{
+    os << "( var " << name_;
+    if (init_) {
+        os << " = ";
+        *init_ << os;
+    }
+    return os << ")";
+}
+
+std::ostream &DeclarationList::operator<<(std::ostream &os) const
+{
+    os << "( ";
+    for (auto &expr : exprs_) {
+        *expr << os;
+        os << ", ";
+    }
+    return os << ")";
+}
+
 } // namespace parser
 } // namespace grok
