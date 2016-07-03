@@ -11,7 +11,9 @@ namespace grok { namespace obj {
 enum class ObjectType {
   _null,
   _undefined,
+  _bool,
   _number,
+  _double,
   _string,
   _object,
   _array,
