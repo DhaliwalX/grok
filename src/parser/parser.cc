@@ -138,12 +138,15 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary()
         result = ParseArrayLiteral();
     } else if (tok == LBRACE) {
         result = ParseObjectLiteral();
+    } else if (tok == FUNC) {
+        result = ParseFunction();
+        return result;
     } else {
         throw std::runtime_error("expected a primary expression");
     }
 
     lex_->advance();
-    return std::move(result);
+    return result;
 }
 
 std::unique_ptr<Expression> GrokParser::ParseDotExpression()
@@ -625,11 +628,12 @@ std::unique_ptr<FunctionPrototype> GrokParser::ParsePrototype()
     lex_->advance();
     auto tok = lex_->peek();
 
-    if (tok != IDENT)
-        throw std::runtime_error("expected an identifier");
-    auto name = lex_->GetIdentifierName();
-    // eat the IDENT
-    lex_->advance();
+    std::string name;
+    if (tok == IDENT) {
+        name = lex_->GetIdentifierName();
+        // eat the IDENT
+        lex_->advance();
+    }
 
     // parse the argument list
     auto args = ParseParameterList();
@@ -675,6 +679,45 @@ std::unique_ptr<Expression> GrokParser::ParseReturnStatement()
     return std::make_unique<ReturnStatement>(std::move(expr));
 }
 
+std::unique_ptr<Declaration> GrokParser::ParseDeclaration()
+{
+    auto tok = lex_->peek();
+    if (tok != IDENT) {
+        throw std::runtime_error("expected an identifier");
+    }
+    std::string name = lex_->GetIdentifierName();
+    lex_->advance();
+
+    tok = lex_->peek();
+    if (tok == SCOLON || tok == COMMA) {
+        return std::make_unique<Declaration>(name);
+    } else if (tok != ASSIGN) {
+        throw std::runtime_error("expected a '='");
+    }
+    lex_->advance();
+    return std::make_unique<Declaration>(name, ParseAssignExpression());
+}
+
+std::unique_ptr<Expression> GrokParser::ParseVariableStatement()
+{
+    lex_->advance();    // eat 'var'
+
+    std::vector<std::unique_ptr<Declaration>> decl_list;
+    while (true) {
+        decl_list.push_back(ParseDeclaration());
+
+        auto tok = lex_->peek();
+        if (tok == SCOLON)
+            break;
+        else if (tok != COMMA)
+            throw std::runtime_error("expected a ',' or ';'");
+        lex_->advance(); // eat ','
+    }
+
+    lex_->advance(); // eat ';'
+    return std::make_unique<DeclarationList>(std::move(decl_list));
+}
+
 std::unique_ptr<Expression> GrokParser::ParseStatement()
 {
     auto tok = lex_->peek();
@@ -705,6 +748,8 @@ std::unique_ptr<Expression> GrokParser::ParseStatement()
         return ParseWhileStatement();
     case DO:
         return ParseDoWhileStatement();
+    case VAR:
+        return ParseVariableStatement();
     }
 }
 

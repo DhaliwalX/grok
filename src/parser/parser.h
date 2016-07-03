@@ -55,6 +55,8 @@ public:
     std::unique_ptr<Expression> ParseUnaryExpression();
     std::unique_ptr<Expression> ParseWhileStatement();
     std::unique_ptr<Expression> ParseDoWhileStatement();
+    std::unique_ptr<Declaration> ParseDeclaration();
+    std::unique_ptr<Expression> ParseVariableStatement();
     bool ParseExpression();
 
     std::shared_ptr<Expression> ParsedAST()
