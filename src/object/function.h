@@ -28,8 +28,8 @@ public:
     { }
 
     Function(std::shared_ptr<grok::parser::Expression> AST,
-        std::shared_ptr<grok::parser::FunctionPrototype> Proto)
-        : JSObject(), AST{ AST }, Proto{ Proto }, NFT{ nullptr },
+        std::shared_ptr<grok::parser::FunctionPrototype> proto)
+        : JSObject(), AST{ AST }, Proto{ proto }, NFT{ nullptr },
           Native{ false }, CodeGened{ false }, IR{}, Params{ Proto->GetArgs() }
     { }
 
@@ -77,9 +77,11 @@ public:
         os << "function " << Proto->GetName();
         os << "(";
         auto Args = GetParams();
-        for (auto Arg = Args.cbegin(); Arg != Args.cend() - 1; Arg++)
-        {
-            os << *Arg << ", ";
+        if (Args.size()) {
+            for (auto Arg = Args.cbegin(); Arg != Args.cend() - 1; Arg++)
+            {
+                os << *Arg << ", ";
+            }
         }
         if (Args.size() > 0) {
             os << Args.back();
