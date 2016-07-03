@@ -11,6 +11,7 @@
 #include "vm/instruction-list.h"
 #include "vm/printer.h"
 #include "vm/vm.h"
+#include "common/colors.h"
 
 #include <iostream>
 #include <cerrno>
@@ -55,7 +56,8 @@ int ExecuteAST(Context *ctx, std::ostream &os, std::shared_ptr<Expression> AST)
         auto O = GetObjectPointer<grok::obj::JSObject>(Result);
 
         if (ctx->IsInteractive() || ctx->ShouldPrintLastInStack()) {
-            os << O->AsString() << std::endl;
+            os << Color::Attr(Color::dim)
+                    << O->AsString() << Color::Reset() << std::endl;
         } else {
             return O->IsTrue();
         }
