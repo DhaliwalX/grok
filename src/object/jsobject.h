@@ -4,6 +4,7 @@
 #include "object/object.h"
 #include "common/exceptions.h"
 #include "object/jsbasicobject.h"
+#include "object/jsnumber.h"
 
 #include <memory>
 #include <string>
@@ -20,11 +21,12 @@ extern std::string __type[7];
     virtual Object operator op(Object ) \
         DEFAULT_RETURN_FOR_UNDEFINED_OPERATOR(op, type)
 
-static inline std::shared_ptr<Object> CreateJSString(std::string str = "");
-static inline std::shared_ptr<Object> CreateJSNumber(long long num);
+extern std::shared_ptr<Object> CreateJSString(std::string str = "");
 
 class JSString : public JSObject {
 public:
+  using size_type = std::string::size_type;
+
   JSString(const std::string &str) : js_string_(str) {}
 
   JSString() : js_string_("") {}
@@ -35,7 +37,12 @@ public:
   inline std::string GetString() const { return js_string_; }
   ObjectType GetType() const override { return ObjectType::_string; }
   std::string ToString() const override { return js_string_; }
-  std::string AsString() const override { return js_string_; }
+  
+  std::string AsString() const override
+  {
+    return std::string("'") + js_string_ + "'";
+  }
+  
   JSObject::Value GetProperty(const std::string &prop) override
   {
       int idx = 0;
@@ -60,82 +67,10 @@ private:
   std::string js_string_;
 };
 
-// JSNumber class holding a javascript number
-// currently it supports only int64_t not double's
-class JSNumber : public JSObject {
-public:
-  // derive some constructors
-  using JSObject::JSObject;
-
-  JSNumber(long long num) : number_(num) {}
-
-  JSNumber(const std::string &str) { number_ = std::stoll(str); }
-
-  JSNumber(const JSNumber &number) : number_(number.number_) {}
-
-  JSNumber &operator=(const JSNumber &rhs) {
-    number_ = (rhs.number_);
-    return *this;
-  }
-
-  JSNumber() : number_(0) {}
-
-  long long &GetNumber() { return number_; }
-
-  ~JSNumber() {}
-
-  inline long long GetValue() const { return number_; }
-  inline long long &GetValue() { return number_; }
-  ObjectType GetType() const override { return ObjectType::_number; }
-  std::string ToString() const override { return std::to_string(number_); }
-  std::string AsString() const override { return std::to_string(number_); }
-
-  bool IsTrue() const override
-  {
-    return number_;
-  }
-private:
-  long long number_;
-};
-
-static inline bool IsJSNumber(std::shared_ptr<Object> obj)
-{
-  auto O = obj->as<JSObject>();
-  return O->GetType() == ObjectType::_number;
-}
-
 static inline bool IsJSString(std::shared_ptr<Object> obj)
 {
   auto O = obj->as<JSObject>();
   return O->GetType() == ObjectType::_string;
-}
-
-static inline std::shared_ptr<Object> CreateJSString(std::string str)
-{
-    auto S = std::make_shared<JSString>(str);
-    DefineInternalObjectProperties(S.get());
-    auto W = std::make_shared<Object>(S);
-    return W;
-}
-
-static inline std::shared_ptr<Object> CreateJSNumber(std::string str)
-{
-    try {
-      auto S = std::make_shared<JSNumber>(str);
-      DefineInternalObjectProperties(S.get());
-      auto W = std::make_shared<Object>(S);
-      return W;
-    } catch (...) {
-      return CreateUndefinedObject();
-    }
-}
-
-static std::shared_ptr<Object> CreateJSNumber(long long num)
-{
-    auto S = std::make_shared<JSNumber>(num);
-    DefineInternalObjectProperties(S.get());
-    auto W = std::make_shared<Object>(S);
-    return W;
 }
 
 #define DECLARE_OTHER_OPERATOR(op) \
