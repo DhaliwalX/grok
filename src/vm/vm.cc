@@ -144,6 +144,11 @@ void VM::PushOP()
         break;
     case d_null:
         PushNull();
+        break;
+    case d_obj: {
+        std::shared_ptr<Object> obj = GetCurrent()->GetData();
+        Stack.Push(Value(obj));
+    }
     }
 }
 
@@ -426,7 +431,7 @@ void VM::IncOP()
     auto str = RHS->as<JSObject>()->ToString();
     auto num = CreateJSNumber(str);
     if (!IsUndefined(num)) {
-        ++num->as<JSNumber>()->GetNumber();
+        ++num->as<JSDouble>()->GetNumber();
     }
     RHS->Reset(*num);
     Stack.Push(RHS);
@@ -439,7 +444,7 @@ void VM::DecOP()
     auto str = RHS->as<JSObject>()->ToString();
     auto num = CreateJSNumber(str);
     if (!IsUndefined(num)) {
-        --num->as<JSNumber>()->GetNumber();
+        --num->as<JSDouble>()->GetNumber();
     }
     RHS->Reset(*num);
     Stack.Push(RHS);
@@ -453,7 +458,7 @@ void VM::PincOP()
     auto num = CreateJSNumber(str);
     auto res = CreateJSNumber(str);
     if (!IsUndefined(num)) {
-        ++num->as<JSNumber>()->GetNumber();
+        ++num->as<JSDouble>()->GetNumber();
     }
     RHS->Reset(*num);
     Stack.Push(res);
@@ -467,7 +472,7 @@ void VM::PdecOP()
     auto num = CreateJSNumber(str);
     auto res = CreateJSNumber(str);
     if (!IsUndefined(num)) {
-        --num->as<JSNumber>()->GetNumber();
+        --num->as<JSDouble>()->GetNumber();
     }
     RHS->Reset(*num);
     Stack.Push(res);

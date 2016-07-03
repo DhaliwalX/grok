@@ -58,7 +58,8 @@ namespace vm {
     op(d_bool), \
     op(d_num),  \
     op(d_str),  \
-    op(d_name)
+    op(d_name), \
+    op(d_obj)
 
 enum Instructions {
 #define INSTRUCTION_OP(instr) instr
@@ -82,7 +83,7 @@ struct RawInstruction {
     double number_;
     std::string str_;
     T jmp_addr_;
-    grok::obj::Object data_;    // will be used in future
+    std::shared_ptr<grok::obj::Object> data_;
 
     auto GetKind() const { return kind_; }
     auto GetDataType() const { return data_type_; }
