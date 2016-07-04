@@ -8,16 +8,16 @@ _Grok_ is a simple and tiny javascript interpreter written in C++. I made it bec
 Declare variables:
 
 ```js
-a = 10;
+var a = 10;
 
 // or create strings
-b = 'grok';
+var b = 'grok';
 
 // or create an array
-c = [ 1,2,4,6 ];
+var c = [ 1,2,4,6 ];
 
 // or create objects
-d = {
+var d = {
   a : 100,
   b : {
     arr : [1,2,4,5]
@@ -28,7 +28,7 @@ d = {
 Write complex expressions like:
 
 ```js
-sum = d.a + c[0] + c.length + d.b.arr[2];
+var sum = d.a + c[0] + c.length + d.b.arr[2];
 
 ```
 
@@ -46,6 +46,15 @@ function fib(n) {
 
 // call functions
 console.log(fib(10)); // yup console object is supported
+```
+
+Call Array methods:
+
+```js
+var arr = [ 1, 2, 3, 4, 5 ];
+var squares = arr.map(function(element) {
+            return element * element;
+}); // squares == [ 1, 4, 9, 16, 25 ]
 ```
 
 ## Building
