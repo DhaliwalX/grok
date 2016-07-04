@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/PrinceDhaliwal/grok.svg?branch=master)](https://travis-ci.org/PrinceDhaliwal/grok)
 ## Grok - Another JavaScript interpreter
 
 _Grok_ is a simple and tiny javascript interpreter written in C++. I made it because I wanted to learn how Compiler works.
