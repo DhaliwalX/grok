@@ -23,6 +23,8 @@ std::unique_ptr<VM> CreateVM(VMContext *context)
 void VM::SetContext(VMContext *context)
 {
     Context = context;
+    auto V = GetVStore(Context);
+    TStack.Push(V->This());
 }
 
 Value VM::GetResult()
@@ -34,24 +36,47 @@ Value VM::GetResult()
     return V;
 }
 
+/// Here we can set the counters i.e. Program Counter (PC)
+/// or instruction register to the first instruction which we want to 
+/// execute and End points to the last instruction in the list so we know
+/// when we want to exit.
 void VM::SetCounters(Counter start, Counter end)
 {
     Current = start;
     End = end;
 }
 
+/// When a function call takes place we have to save the current position
+/// of our instruction register, current instruction we are executing,
+/// flags and a size of stack before the function call because stack grows
+/// in execution of each expression i.e. result is never popped from the 
+/// stack. Consider for example.
+///             a + b;
+/// as usual instruction generated will be
+///             push a
+///             push b
+///             add
+/// Even we don't need to save the result after the statement has been executed
+/// But still the result will remain in stack thus eating up RAM. We can save
+/// bit of RAM by removing the result when function has returned by resizing
+/// the stack to its previous size when it was before function call. That size
+/// is saved in HelperStack
 void VM::SaveState()
 {
     CStack.Push(Current);
     FStack.Push(Flags);
     HelperStack.Push(Stack.size());
+    this_helper.Push(TStack.size());
 }
 
+/// RestoreState restores the state of the stacks & counters after function
+/// call
 void VM::RestoreState()
 {
     Current = CStack.Pop();
     Flags = FStack.Pop();
     Stack.resize(HelperStack.Pop());
+    TStack.resize(this_helper.Pop());
 }
 
 void VM::SetAC(Value v)
@@ -64,21 +89,30 @@ void VM::NoOP()
     // really its noop
 }
 
+/// Though it is a wasteful instruction because fetch and pushim always
+/// work together just after fetch has been executed the pushim is guaranteed
+/// that it will be executed after. See genexpression.cc
 void VM::FetchOP()
 {
-    if (GetCurrent()->GetDataType() != d_name) {
-        throw std::runtime_error("BUG: fetch instruction");
-    }
-
     VStore *V = GetVStore(Context);
     auto name = GetCurrent()->GetString();
 
-    if (name.length() == 0)
-        throw std::runtime_error("fatal: name of a variable can't be \"\"");
+    if (name == "this") {
+        if (TStack.Empty()) {
+            auto V = GetVStore(Context);
+            SetAC(V->This());
+        } else {
+            SetAC(TStack.Top());
+        }
+        return;
+    }
     Value TheValue = V->GetValue(name);
     SetAC(TheValue);
 }
 
+/// Stores the value at the top - 1 position of the stack into the
+/// top position. We also check whether or not the object we are 
+/// wrting is writable or not. Thus supporting const like objects
 void VM::StoreOP()
 {
     auto LHS = Stack.Pop();
@@ -89,7 +123,12 @@ void VM::StoreOP()
     SetFlags();
 }
 
-std::shared_ptr<grok::obj::JSObject> VM::GetThis()
+/// `this` in javascript is a tricky keyword. When code is executed globally
+/// it points to a global object. But inside a function its value may change.
+/// See 
+// https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/this
+/// Nearly every variable declared outside function is bound to global object
+std::shared_ptr<grok::obj::Object> VM::GetThis()
 {
     if (TStack.Empty()) {
         auto V = GetVStore(Context);
@@ -160,7 +199,7 @@ void VM::PushimOP()
 
 void VM::PushthisOP()
 {
-    Stack.Push(std::make_shared<grok::obj::Object>(TStack.Pop()));
+    Stack.Push((TStack.Pop()));
 }
 
 /// opopopopopop
@@ -183,11 +222,11 @@ void VM::PoppropOP()
 void VM::ReplpropOP()
 {
     auto MayBeObject = Stack.Pop();
-    auto Object = GetObjectPointer<JSObject>(MayBeObject);
+    auto Obj = GetObjectPointer<JSObject>(MayBeObject);
     auto Name = GetCurrent()->GetString();
 
-    TStack.Push(Object);
-    auto Prop = Object->GetProperty(Name);
+    TStack.Push(MayBeObject.O);
+    auto Prop = Obj->GetProperty(Name);
     Stack.Push(Prop);
     SetFlags();
 }
@@ -218,6 +257,7 @@ void VM::IndexOP()
         auto Object = GetObjectPointer<JSObject>(Unknown);
         IndexObject(Object, index);
     }
+    TStack.Push(Unknown);
     SetFlags();
 }
 
@@ -523,11 +563,15 @@ void VM::CallOP()
         throw std::runtime_error("fatal: not a function");
 
     auto TheFunction = F.O->as<Function>();
-
     TheFunction->PrepareFunction();
 
+    if (Flags & constructor_call) {
+        auto newthis = CreateJSObject();
+        TStack.Push(newthis);
+    }
+
     if (TheFunction->IsNative()) {
-        auto This = GetThis();
+        auto This = GetThis()->as<JSObject>();
         auto ret = TheFunction->CallNative(Args, This);
         Flags = FStack.Pop();
         CStack.Pop();
@@ -564,16 +608,22 @@ void VM::RetOP()
 {
     // save the returned result
     auto ReturnedValue = Stack.Pop();
-    RestoreState();
     
     auto V = GetVStore(Context);
+    std::shared_ptr<Object> This;
     // we check that whether we called a constructor
     // if yes then we will save the object created on to stack
     if (Flags & constructor_call) {
-        auto This = V->This();
-        TStack.Push(This);
+        This = (GetThis());
+        
     }
+    RestoreState();
 
+    if (This)
+        TStack.Push(This);
+
+    // reset the flags
+    Flags = Flags & ~constructor_call;
     // Save the return value
     Stack.Push(ReturnedValue);
     V->RemoveScope();

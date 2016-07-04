@@ -20,8 +20,9 @@ using VMStack = GenericStack<Value>;
 using CallStack = GenericStack<Counter>;
 using FlagStack = GenericStack<int32_t>;
 using PassedArguments = std::vector<Value>;
-using ThisStack = GenericStack<std::shared_ptr<grok::obj::JSObject>>;
+using ThisStack = GenericStack<std::shared_ptr<grok::obj::Object>>;
 using VMStackHelper = GenericStack<VMStack::size_type>;
+using ThisStackHelper = GenericStack<ThisStack::size_type>;
 
 class VM;
 extern std::unique_ptr<VM> CreateVM(VMContext *context);
@@ -75,7 +76,7 @@ public:
     void ExecuteInstruction(std::shared_ptr<Instruction> instr);
 
     /// GetThis ::= return the value of `this`
-    std::shared_ptr<grok::obj::JSObject> GetThis();
+    std::shared_ptr<grok::obj::Object> GetThis();
 
     /// PushArg ::= push the argument to the stack
     void PushArg(std::shared_ptr<grok::obj::Object> Arg)
@@ -144,6 +145,7 @@ private:
     Counter Current;  // current instruction being executed
     Counter End;  // end of the block
     ThisStack TStack; // `this` of javascript
+    ThisStackHelper this_helper;
     VMStackHelper HelperStack;
     std::shared_ptr<Instruction> I; // current instruction
 
