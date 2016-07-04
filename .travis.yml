@@ -1,0 +1,26 @@
+language: cpp
+
+matrix:
+   include:
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: 
+           - boost-latest
+           - ubuntu-toolchain-r-test
+          packages: ['g++-4.9', 'cmake', 'libboost1.55-all-dev', 'libreadline6-dev']
+        coverity_scan:
+          project:
+            name: "PrinceDhaliwal/asio"
+            description: "Build submitted via Travis CI"
+          notification_email: dhaliwalprince@hotmail.com
+          build_command_prepend: "make clean"
+          build_command: "make"
+      env:
+
+script:
+   - mkdir build && cd build
+   - cmake .. || exit 1
+   - make
+   
