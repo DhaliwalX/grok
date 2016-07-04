@@ -160,6 +160,12 @@ static inline bool IsNull(std::shared_ptr<Object> obj)
 
 extern void DefineInternalObjectProperties(JSObject *obj);
 
+
+/// This is one of 5 other Create**() function. Each of these
+/// function wraps the actual object in the Object. So, Object
+/// is actually a reference to the object. That is in simple words,
+/// these functions return a reference to the newly created object.
+/// Name Object is ambiguous and it should be Reference or Wrapper.
 extern std::shared_ptr<Object> CreateJSObject();
 
 extern std::shared_ptr<Object> CreateCopy(std::shared_ptr<Object> obj);

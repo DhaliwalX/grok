@@ -4,6 +4,11 @@
 #include <memory>
 
 namespace grok { namespace obj {
+
+/// If you have used boost::any, then this class should
+/// be easier to understand, it can point to any object
+/// This class is most important, because actual Javascript
+/// objects are wrapped in this class.
 class Object {
 public:
     Object() :
