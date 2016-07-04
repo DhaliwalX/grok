@@ -226,7 +226,7 @@ static Token TOKENS[TOKEN_NUM] = {
     Token{">=", 33, 10}, Token{"<=", 34, 10}, Token{"==", 35, 9},
     Token{"||", 36, 4}, Token{"&&", 37, 5}, Token{"|=", 38, 2},
     Token{"&=", 39, 2}, Token{"^=", 40, 2}, Token{"<<", 41, 11},
-    Token{">>", 42, 11}, Token{"!=", 43, 2}, Token{"<<=", 44, 2},
+    Token{">>", 42, 11}, Token{"!=", 43, 9}, Token{"<<=", 44, 2},
     Token{">>=", 45, 2},
 
     // keywords
