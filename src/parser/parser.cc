@@ -28,7 +28,7 @@ bool IsBinaryOperator(TokenType type) {
 bool IsAssign(TokenType type_) {
     return (type_ == ASSIGN) || (type_ >= PLUSEQ && type_ <= MULEQ) ||
            (type_ >= BOREQ && type_ <= XOREQ) ||
-           (type_ >= NOTEQ && type_ <= SHREQ);
+           (type_ > NOTEQ && type_ <= SHREQ);
 }
 
 } // grok
