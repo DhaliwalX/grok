@@ -21,6 +21,6 @@ matrix:
 
 script:
    - mkdir build && cd build
-   - cmake -DCMAKE_CXX_COMPILER=g++-4.9 -DCMAKE_C_COMPILER=g++-4.9 .. || exit 1
+   - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc .. || exit 1
    - make
    
