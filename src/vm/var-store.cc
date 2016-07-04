@@ -7,6 +7,7 @@ VStore::VStore()
     : MV{}, VS{}
 {
     MV = std::make_shared<MappedValues>();
+    VS.push_back(MV);
 }
 
 Value VStore::GetValue(const std::string &N)

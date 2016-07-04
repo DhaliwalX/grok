@@ -61,7 +61,7 @@ public:
 
     auto This()
     {
-        return MV;
+        return std::make_shared<grok::obj::Object>(VS[0]);
     } 
 private:
     MappedValuesHandle MV;
