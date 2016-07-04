@@ -22,11 +22,10 @@ set(SRC_FILES ${SRC_FILES};${PROJECT_SOURCE_DIR}/main/main.cc)
 find_package(Readline REQUIRED)
 # find boost
 find_package(Boost COMPONENTS program_options iostreams REQUIRED)
-find_package (Threads)
 
 set (Boost_USE_MULTITHREAD ON)
 # include directories
 include_directories(./src)
 
 add_executable(grok ${SRC_FILES})
-target_link_libraries(grok ${READLINE_LIBRARIES} ${Boost_LIBRARIES} Threads::Threads)
+target_link_libraries(grok ${READLINE_LIBRARIES} ${Boost_LIBRARIES})
