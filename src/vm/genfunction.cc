@@ -20,18 +20,18 @@ using namespace grok::obj;
 void FunctionStatement::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     std::string Name = proto_->GetName();
-    auto F = std::make_shared<Function>(std::move(body_), std::move(proto_));
+    auto F = CreateFunction(std::move(body_), std::move(proto_));
     auto VS = GetVStore(GetGlobalVMContext()); 
 
     if (Name.length()) {
         auto V = Value{};
-        V.O = std::make_shared<Object>(F);
+        V.O = (F);
         VS->StoreValue(Name, V);
     }
 
     auto instr = InstructionBuilder::Create<Instructions::push>();
     instr->data_type_ = d_obj;
-    instr->data_ = std::make_shared<Object>(F);
+    instr->data_ = (F);
 
     builder->AddInstruction(std::move(instr));
 }
