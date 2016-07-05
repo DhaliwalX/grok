@@ -14,28 +14,6 @@
 namespace grok {
 namespace obj {
 
-std::shared_ptr<Object> ArrayConstructor(std::shared_ptr<Argument> Args)
-{
-    auto This = Args->GetProperty("this");
-    if (Args->Size() == 0) {
-        This->Reset(CreateArray(0));
-    } else if (Args->Size() >= 1) {
-        auto sz = Args->At(0);
-
-        if (IsJSNumber(sz)) {
-            auto num = sz->as<JSNumber>()->GetNumber();
-            This->Reset(CreateArray(num));
-        }
-        auto Arr = CreateArray(0);
-        auto A = Arr->as<JSArray>();
-        for (auto Arg : *Args) {
-            A->Push(Arg);
-        }
-        This->Reset(Arr);
-    }
-    return CreateUndefinedObject();
-}
-
 JSObject::Value JSArray::GetProperty(const JSObject::Name &name)
 {
     if (name == "length") {
