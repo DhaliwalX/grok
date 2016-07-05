@@ -1,6 +1,7 @@
 #include "library.h"
 
 #include "libs/console/console.h" // console.log, console.error 
+#include "libs/array/array_constructor.h"
 
 namespace grok {
 namespace libs {
@@ -18,6 +19,8 @@ int LoadLibraries(VMContext *ctx)
     auto Wrapped = Value(std::make_shared<Object>(C));
     V->StoreValue("console", Wrapped);
 
+    auto array_ctor = CreateArrayConstructorObject();
+    V->StoreValue("Array", array_ctor);
     return 0;
 }
 
