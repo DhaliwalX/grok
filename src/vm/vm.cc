@@ -4,6 +4,7 @@
 #include "object/array.h"
 #include "object/object.h"
 #include "object/function.h"
+#include "object/prototype.h"
 
 #include <algorithm>
 
@@ -34,6 +35,16 @@ Value VM::GetResult()
     }
     auto V = Stack.Pop();
     return V;
+}
+
+bool VM::IsConstructorCall()
+{
+    return Flags & constructor_call;
+}
+
+void VM::EndedConstructorCall()
+{
+    Flags &= ~constructor_call;
 }
 
 /// Here we can set the counters i.e. Program Counter (PC)
@@ -197,6 +208,7 @@ void VM::PushimOP()
     SetFlags();
 }
 
+/// `this` always lies in TStack 
 void VM::PushthisOP()
 {
     Stack.Push((TStack.Pop()));
@@ -553,6 +565,23 @@ void VM::MarkstOP()
     Flags |= constructor_call;
 }
 
+void VM::CallNative(std::shared_ptr<Object> function_object,
+    PassedArguments &Args)
+{
+    auto function = function_object->as<Function>();
+
+    auto This = GetThis()->as<JSObject>();
+    auto ret = function->CallNative(Args, This);
+    Flags = FStack.Pop();
+    CStack.Pop();
+    HelperStack.Pop();
+    Stack.Push(ret);
+    if (IsConstructorCall()) {
+        TStack.Push(ret.O);
+    }
+    SetFlags();
+}
+
 void VM::CallOP()
 {
     auto Args = CreateArgumentList(GetCurrent()->GetNumber());
@@ -565,20 +594,19 @@ void VM::CallOP()
     auto TheFunction = F.O->as<Function>();
     TheFunction->PrepareFunction();
 
-    if (Flags & constructor_call) {
-        auto newthis = CreateJSObject();
-        TStack.Push(newthis);
+    if (TheFunction->IsNative()) {
+        CallNative(F.O, Args);
+        return;
     }
 
-    if (TheFunction->IsNative()) {
-        auto This = GetThis()->as<JSObject>();
-        auto ret = TheFunction->CallNative(Args, This);
-        Flags = FStack.Pop();
-        CStack.Pop();
-        HelperStack.Pop();
-        Stack.Push(ret);
-        SetFlags();
-        return;
+    if (Flags & constructor_call) {
+        auto newthis_wrapped = CreateJSObject();
+
+        // we now copy the properties of the constuctor.prototype
+        // native functions have to copy the properies by their own
+        auto newthis = newthis_wrapped->as<JSObject>();
+        AddPropertiesFromPrototype(TheFunction.get(), newthis.get());
+        TStack.Push(newthis_wrapped);
     }
 
     // all the variables for this function will lie in a new scope
@@ -613,20 +641,20 @@ void VM::RetOP()
     std::shared_ptr<Object> This;
     // we check that whether we called a constructor
     // if yes then we will save the object created on to stack
-    if (Flags & constructor_call) {
+    if (IsConstructorCall()) {
         This = (GetThis());
-        
     }
     RestoreState();
 
     if (This)
         TStack.Push(This);
 
-    // reset the flags
-    Flags = Flags & ~constructor_call;
+    if (IsConstructorCall())
+        EndedConstructorCall();
     // Save the return value
     Stack.Push(ReturnedValue);
     V->RemoveScope();
+    SetFlags();
 }
 
 void VM::LeaveOP()
