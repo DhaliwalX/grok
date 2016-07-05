@@ -60,7 +60,7 @@ void DefineInternalObjectProperties(JSObject *obj)
         std::make_shared<Object>(F));
 
     // add the prototype property default is undefined
-    auto P = CreateUndefinedObject();
+    auto P = std::make_shared<JSObject>();
     F->SetNonEnumerable();
     obj->AddProperty(std::string("prototype"), std::make_shared<Object>(P));
 }
