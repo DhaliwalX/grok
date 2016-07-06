@@ -83,6 +83,9 @@ public:
     {
         Stack.Push(Arg);
     }
+
+    bool IsConstructorCall();
+    void EndedConstructorCall();
 private:
     void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
         std::shared_ptr<grok::obj::Object> obj);
@@ -138,6 +141,8 @@ private:
     void DecOP();
     void PincOP();
     void PdecOP();
+    void CallNative(std::shared_ptr<grok::obj::Object> function,
+            PassedArguments &Args);
 
     bool debug_execution_;
     VMContext *Context;
