@@ -2,6 +2,7 @@
 
 #include "libs/console/console.h" // console.log, console.error 
 #include "libs/array/array_constructor.h"
+#include "libs/example/example.h"
 
 namespace grok {
 namespace libs {
@@ -21,6 +22,10 @@ int LoadLibraries(VMContext *ctx)
 
     auto array_ctor = CreateArrayConstructorObject();
     V->StoreValue("Array", array_ctor);
+
+    // create an example object constructor
+    auto ex = example::Example::CreateConstructor();
+    V->StoreValue("Example", ex);
     return 0;
 }
 
