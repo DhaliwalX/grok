@@ -21,13 +21,15 @@ enum class ObjectType {
   _function
 };
 
-static inline std::shared_ptr<Object> CreateUndefinedObject();
+using Handle = Object;
+
+static inline std::shared_ptr<Handle> CreateUndefinedObject();
 
 // A javascript object is a set of name : value pair
 class JSObject : public std::enable_shared_from_this<JSObject> {
 public:
   using Name = std::string;
-  using Value = std::shared_ptr<Object>;
+  using Value = std::shared_ptr<Handle>;
   using iterator = std::unordered_map<Name, Value>::iterator;
   using const_iterator = std::unordered_map<Name, Value>::const_iterator;
 
@@ -46,15 +48,15 @@ public:
   }
 
   // add a new property to the object
-  void AddProperty(const Name &name, const Value &prop) {
+  virtual void AddProperty(const Name &name, const Value &prop) {
     object_.insert({name, prop});
   }
 
   // remove a property currently existing in the object
-  void RemoveProperty(const Name &name) { object_.erase(name); }
+  virtual void RemoveProperty(const Name &name) { object_.erase(name); }
 
   // returns true if a property exists in the object
-  bool HasProperty(const Name &name) {
+  virtual bool HasProperty(const Name &name) {
     return object_.find(name) != object_.end();
   }
 
@@ -131,7 +133,7 @@ public:
   }
 };
 
-static inline bool CanEvaluateToTrue(std::shared_ptr<Object> obj)
+static inline bool CanEvaluateToTrue(std::shared_ptr<Handle> obj)
 {
   auto type = obj->as<JSObject>()->GetType();
 
@@ -139,20 +141,20 @@ static inline bool CanEvaluateToTrue(std::shared_ptr<Object> obj)
           || (type != ObjectType::_null);
 }
 
-static std::shared_ptr<Object> CreateUndefinedObject()
+static std::shared_ptr<Handle> CreateUndefinedObject()
 {
   auto Undef = std::make_shared<UndefinedObject>();
-  auto UndefWrapper = std::make_shared<Object>(Undef);
+  auto UndefWrapper = std::make_shared<Handle>(Undef);
   return UndefWrapper;
 }
 
-static inline bool IsUndefined(std::shared_ptr<Object> obj)
+static inline bool IsUndefined(std::shared_ptr<Handle> obj)
 {
   auto O = obj->as<JSObject>();
   return O->GetType() == ObjectType::_undefined;
 }
 
-static inline bool IsNull(std::shared_ptr<Object> obj)
+static inline bool IsNull(std::shared_ptr<Handle> obj)
 {
   auto O = obj->as<JSObject>();
   return O->GetType() == ObjectType::_null;
@@ -162,13 +164,13 @@ extern void DefineInternalObjectProperties(JSObject *obj);
 
 
 /// This is one of 5 other Create**() function. Each of these
-/// function wraps the actual object in the Object. So, Object
+/// function wraps the actual object in the Handle. So, Handle
 /// is actually a reference to the object. That is in simple words,
 /// these functions return a reference to the newly created object.
-/// Name Object is ambiguous and it should be Reference or Wrapper.
-extern std::shared_ptr<Object> CreateJSObject();
+/// Name Handle is ambiguous and it should be Reference or Wrapper.
+extern std::shared_ptr<Handle> CreateJSObject();
 
-extern std::shared_ptr<Object> CreateCopy(std::shared_ptr<Object> obj);
+extern std::shared_ptr<Handle> CreateCopy(std::shared_ptr<Handle> obj);
 } // obj
 } // grok
 #endif // OBJECT_H_
