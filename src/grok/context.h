@@ -4,6 +4,7 @@
 #include "vm/context.h"
 #include "grok/options.h"
 
+#include <boost/asio.hpp>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -15,7 +16,9 @@ class Context {
 public:
     Context(std::ostream &os) :
         interactive_{ true }, debug_instruction_{ true },
-        debug_execution_{ true }, file_{ false }, ast_{true}, os{ os }
+        debug_execution_{ true }, file_{ false }, ast_{true}, os{ os },
+        io_ { },
+        work_ { std::make_unique<boost::asio::io_service::work>(io_) }
     { }
 
     bool IsInteractive() const { return interactive_; }
@@ -49,6 +52,10 @@ public:
     void ParseCommandLineOptions(int argc, char **argv);
 
     auto GetOptions() { return &options; }
+
+    void SetIOServiceObject();
+    boost::asio::io_service *GetIOService() { return &io_; }
+    void RunIO();
 private:
     bool interactive_; // set the interactive mode
     bool debug_instruction_; // output the instructions generated
@@ -61,6 +68,11 @@ private:
     bool last_in_stack_;
     std::ostream &os; // output stream used for printing and debugging
     Opts options;
+
+    // boost's asio io_service object for asynchronous events
+    boost::asio::io_service io_;
+    // to prevent io_.run() from exiting immediately
+    std::unique_ptr<boost::asio::io_service::work> work_;
 };
 
 extern void InitializeContext();

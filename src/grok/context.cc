@@ -1,5 +1,8 @@
 #include "grok/context.h"
 #include <memory>
+#include <functional>
+#include <thread>
+#include <boost/asio.hpp>
 
 namespace grok {
 
@@ -55,6 +58,18 @@ void ParseCommandLineOptions(int argc, char **argv)
 {
     auto ctx = GetContext();
     ctx->ParseCommandLineOptions(argc, argv);
+}
+
+void Context::RunIO()
+{
+    io_.run();
+    std::cout << "Stopped all IO services" << std::endl;
+}
+
+void Context::SetIOServiceObject()
+{
+    std::thread io_thread{ std::bind(&Context::RunIO, this) };
+    io_thread.detach();
 }
 
 }
