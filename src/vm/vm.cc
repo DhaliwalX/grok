@@ -18,7 +18,7 @@ std::unique_ptr<VM> CreateVM(VMContext *context)
     auto ret = std::unique_ptr<VM>{ new VM() };
     ret->SetContext(context);
     context->SetVM(ret.get());
-    return std::move(ret);
+    return (ret);
 }
 
 void VM::SetContext(VMContext *context)
@@ -557,7 +557,7 @@ PassedArguments VM::CreateArgumentList(size_t sz)
         Args[sz] = Stack.Pop();
     }
 
-    return std::move(Args);
+    return (Args);
 }
 
 void VM::MarkstOP()

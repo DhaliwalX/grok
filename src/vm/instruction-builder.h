@@ -61,7 +61,7 @@ public:
         std::unique_ptr<InstructionBuilder> builder{ new InstructionBuilder() };
         builder->good_state_ = true;
 
-        return std::move(builder);
+        return builder;
     }
 
     void SetInsideFunction() { function_ = true; }

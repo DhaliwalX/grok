@@ -91,7 +91,7 @@ std::unique_ptr<InstructionList> InstructionBuilder::ReleaseInstructionList()
     if (!good_state_)
         throw std::runtime_error("forgot to call Finalize()?");
     auto ret = working_block_->ReleaseBlock();
-    return std::move(ret);
+    return ret;
 }
 
 void InstructionBuilder::UpdateStackedJump()

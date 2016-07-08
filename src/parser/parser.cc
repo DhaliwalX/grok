@@ -185,7 +185,7 @@ std::unique_ptr<Expression> GrokParser::ParseMemberExpression()
 
     // if next token is neither '[' or '.'
     if (tok != LSQB && tok != DOT)
-        return std::move(primary);
+        return primary;
 
     std::vector<std::unique_ptr<Expression>> Members;
     std::unique_ptr<Expression> Member;
@@ -237,7 +237,7 @@ std::vector<std::unique_ptr<Expression>> GrokParser::ParseArgumentList()
     }
 
     lex_->advance(); // eat the last ')'
-    return std::move(exprs);    
+    return exprs;    
 }
 
 /// ParseFunctionCall ::= Parses a Function call expression like
@@ -248,7 +248,7 @@ std::unique_ptr<Expression> GrokParser::ParseFunctionCall()
     auto tok = lex_->peek();
 
     if (tok != LPAR)
-        return std::move(maybemember);
+        return maybemember;
     auto args = ParseArgumentList();
     return std::make_unique<FunctionCallExpression>(std::move(maybemember),
         std::move(args));
@@ -260,7 +260,7 @@ std::unique_ptr<Expression> GrokParser::ParseCallExpression()
     auto tok = lex_->peek();
 
     if (tok != DOT && tok != LSQB && tok != LPAR)
-        return std::move(func);
+        return func;
     std::vector<std::unique_ptr<Expression>> Members;
     std::unique_ptr<Expression> Member;
 
@@ -426,7 +426,7 @@ std::unique_ptr<Expression> GrokParser::ParseCommaExpression()
     // if we have a comma ',', then we definitely have to parse
     // expr of type (expr, expr*)
     if (tok != COMMA)
-        return std::move(one);
+        return one;
 
     std::vector<std::unique_ptr<Expression>> exprs;
 
@@ -485,7 +485,7 @@ std::unique_ptr<Expression> GrokParser::ParseIfStatement()
             std::move(body));
     }
 
-    return std::move(result);
+    return result;
 }
 
 std::unique_ptr<Expression> GrokParser::ParseForStatement()
