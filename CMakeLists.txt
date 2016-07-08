@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-project (grok CXX)
+project (grok)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
