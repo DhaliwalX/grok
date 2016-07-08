@@ -90,8 +90,22 @@ static inline bool IsJSNumber(std::shared_ptr<Object> obj)
             || O->GetType() == ObjectType::_double;
 }
 
+static inline std::shared_ptr<Object>
+ TryForNumber(std::shared_ptr<Object> obj)
+{
+  if (IsJSNumber(obj))
+    return obj;
+  auto str = obj->as<JSObject>()->ToString();
+  auto maybenum = CreateJSNumber(str);
+
+  if (IsUndefined(maybenum)) {
+    return CreateJSNumber(0);
+  } else {
+    return maybenum;
+  }
 }
 
+}
 }
 
 #endif
