@@ -90,7 +90,7 @@ public:
     const std::string &GetName() const { return name_; }
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 
-    bool ProduceRValue() { return false; }
+    bool ProduceRValue() override { return false; }
 };
 
 class BooleanLiteral : public Expression {
