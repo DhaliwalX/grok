@@ -9,7 +9,7 @@ namespace vm {
 
 class VM;
 //====-------------------------------------------------------------------====
-// Defines Global Context for Virtual Machine
+// Defines Context for Virtual Machine
 //====-------------------------------------------------------------------====
 class VMContext {
     DELETE_COPY_AND_MOVE_CONSTRUCTORS(VMContext)
@@ -26,15 +26,17 @@ public:
 
     /// SetVStore ::= sets the VS
     void SetVStore(VStore *ptr);
+
 private:
     std::unique_ptr<VStore> VS;
     VM *vm;
 };
 
-extern VMContext Gcontext;
-
 /// InitializeVMContext ::= initializes the Gcontext
 extern void InitializeVMContext();
+
+/// TearDownVMContext ::= removes the context
+extern void TearDownVMContext();
 
 /// GetGlobalContext ::= returns pointer to Gcontext
 extern VMContext *GetGlobalVMContext();

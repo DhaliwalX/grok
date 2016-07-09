@@ -1,10 +1,11 @@
 #include "vm/context.h"
+#include "grok/context.h"
 #include "libs/library.h"
 
 namespace grok {
 namespace vm {
 VMContext::VMContext()
-    : VS{}
+    : VS{}, vm { nullptr }
 { }
 
 VStore *VMContext::GetVStore()
@@ -34,7 +35,7 @@ VStore *GetVStore(VMContext *context)
 
 VMContext *GetGlobalVMContext()
 {
-    return &Gcontext;
+    return grok::GetContext()->GetVMContext();
 }
 
 void InitializeVMContext()
@@ -43,7 +44,10 @@ void InitializeVMContext()
     grok::libs::LoadLibraries(GetGlobalVMContext());
 }
 
-VMContext Gcontext;
+void TearDownVMContext()
+{
+    GetGlobalVMContext()->SetVStore(nullptr);
+}
 
 } // vm
 } // grok
