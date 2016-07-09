@@ -27,7 +27,7 @@ int tab_completer(int count, int key)
 {
     ReadLineBuffer buffer;
     auto temp = buffer.GetBuffer();
-    temp += ' ';
+    temp += '\t';
     buffer.SetText(temp);
     return 0;
 }
