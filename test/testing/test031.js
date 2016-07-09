@@ -1,4 +1,4 @@
-// Copyright 2010 the V8 project authors. All rights reserved.
+// Copyright 2012 the V8 project authors. All rights reserved.
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
 // met:
@@ -25,69 +25,62 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-function MaxLT(x, y) {
-  if (x < y) return y;
-  return x;
+// Test expressions that can be computed with a multiply-add instruction.
+
+function f(a, b, c) {
+  return a * b + c;
 }
 
-function MaxLE(x, y) {
-  if (x <= y) return y;
-  return x;
+function g(a, b, c) {
+  return a + b * c;
 }
 
-function MaxGE(x, y) {
-  if (x >= y) return x;
-  return y;
+function h(a, b, c, d) {
+  return a * b + c * d;
 }
 
-function MaxGT(x, y) {
-  if (x > y) return x;
-  return y;
+assert_equal(5, f(1, 2, 3));
+assert_equal(5, f(1, 2, 3));
+assert_equal(5, f(1, 2, 3));
+assert_equal("2foo", f(1, 2, "foo"));
+assert_equal(5.41, f(1.1, 2.1, 3.1));
+assert_equal(5.41, f(1.1, 2.1, 3.1));
+assert_equal(5.41, f(1.1, 2.1, 3.1));
+
+assert_equal(7, g(1, 2, 3));
+assert_equal(7, g(1, 2, 3));
+assert_equal(7, g(1, 2, 3));
+assert_equal(8.36, g(1.1, 2.2, 3.3));
+assert_equal(8.36, g(1.1, 2.2, 3.3));
+assert_equal(8.36, g(1.1, 2.2, 3.3));
+
+assert_equal(14, h(1, 2, 3, 4));
+assert_equal(14, h(1, 2, 3, 4));
+assert_equal(14, h(1, 2, 3, 4));
+assert_equal(15.02, h(1.1, 2.1, 3.1, 4.1));
+assert_equal(15.02, h(1.1, 2.1, 3.1, 4.1));
+assert_equal(15.02, h(1.1, 2.1, 3.1, 4.1));
+
+function f(a, b, c) {
+  return a - b * c;
 }
 
-
-// First test primitive values.
-function TestPrimitive(max, x, y) {
-  assert_equal(max, MaxLT(x, y));
-  assert_equal(max, MaxGT(x, y));
+function g(a, b, c) {
+  return a * b - c;
 }
 
-TestPrimitive(1, 0, 1);
-TestPrimitive(1, 1, 0);
-TestPrimitive(4, 3, 4);
-TestPrimitive(4, 4, 3);
-TestPrimitive(0, -1, 0);
-TestPrimitive(0, 0, -1);
-TestPrimitive(-2, -2, -3);
-TestPrimitive(-2, -3, -2);
+function h(a, b, c, d) {
+  return a * b - c * d;
+}
 
-TestPrimitive(1, 0.1, 1);
-TestPrimitive(1, 1, 0.1);
-TestPrimitive(4, 3.1, 4);
-TestPrimitive(4, 4, 3.1);
-TestPrimitive(0, -1.1, 0);
-TestPrimitive(0, 0, -1.1);
-TestPrimitive(-2, -2, -3.1);
-TestPrimitive(-2, -3.1, -2);
+assert_equal(-5.41, f(1.1, 2.1, 3.1));
+assert_equal(-5.41, f(1.1, 2.1, 3.1));
+assert_equal(-5.41, f(1.1, 2.1, 3.1));
 
-// Test compare in case of aliased registers.
-function CmpX(x) { if (x == x) return 42; }
-assert_equal(42, CmpX(0));
+assert_equal(8.36, g(2.2, 3.3, -1.1));
+assert_equal(8.36, g(2.2, 3.3, -1.1));
+assert_equal(8.36, g(2.2, 3.3, -1.1));
 
-function CmpXY(x) { var y = x; if (x == y) return 42; }
-assert_equal(42, CmpXY(0));
-
-
-// Test compare against null.
-function CmpNullValue(x) { return x == null; }
-assert_equal(false, CmpNullValue(42));
-
-function CmpNullTest(x) { if (x == null) return 42; return 0; }
-assert_equal(42, CmpNullTest(null));
-
-var g1 = 0;
-function CmpNullEffect() { (g1 = 42) == null; }
-CmpNullEffect();
-assert_equal(42, g1);
-
-10;
+assert_equal(-1.5, h(1.5, 3.0, 12, 0.5));
+assert_equal(-1.5, h(1.5, 3.0, 12, 0.5));
+assert_equal(-1.5, h(1.5, 3.0, 12, 0.5));
