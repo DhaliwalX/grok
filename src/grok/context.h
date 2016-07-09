@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <thread>
 
 namespace grok {
 
@@ -20,6 +21,8 @@ public:
         io_ { },
         work_ { std::make_unique<boost::asio::io_service::work>(io_) }
     { }
+
+    ~Context() = default;
 
     bool IsInteractive() const { return interactive_; }
     void SetInteractive() { interactive_ = !interactive_; }
@@ -56,6 +59,19 @@ public:
     void SetIOServiceObject();
     boost::asio::io_service *GetIOService() { return &io_; }
     void RunIO();
+
+    void RunPoller();
+
+    void SetVMContext(grok::vm::VMContext* ctx)
+    {
+        vmctx_.reset(ctx);
+    }
+
+    grok::vm::VMContext *GetVMContext()
+    {
+        return vmctx_.get();
+    }
+
 private:
     bool interactive_; // set the interactive mode
     bool debug_instruction_; // output the instructions generated
@@ -69,13 +85,28 @@ private:
     std::ostream &os; // output stream used for printing and debugging
     Opts options;
 
+    std::unique_ptr<std::thread> io_thread_;
+    std::unique_ptr<std::thread> poller_thread_;
     // boost's asio io_service object for asynchronous events
     boost::asio::io_service io_;
     // to prevent io_.run() from exiting immediately
     std::unique_ptr<boost::asio::io_service::work> work_;
+
+    std::unique_ptr<grok::vm::VMContext> vmctx_;
+};
+
+class ContextStatic {
+public:
+    static Context *GetContext();
+
+    static void Init();
+private:
+    static std::unique_ptr<Context> ctx;
 };
 
 extern void InitializeContext();
+
+extern void InitializeContext(std::ostream &os);
 
 extern void ParseCommandLineOptions(int argc, char **argv);
 

@@ -1,18 +1,29 @@
 #include "grok/context.h"
 #include <memory>
 #include <functional>
-#include <thread>
 #include <boost/asio.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace grok {
 
 /// ctx ::= main global context
-std::unique_ptr<Context> ctx;
+std::unique_ptr<Context> ContextStatic::ctx;
+
+Context *ContextStatic::GetContext()
+{
+    return ctx.get();
+}
+
+void ContextStatic::Init()
+{
+    ctx = std::make_unique<Context>(std::cout);
+    ctx->SetVMContext(new grok::vm::VMContext());
+}
 
 void InitializeContext()
 {
-    ctx = std::make_unique<Context>(std::cout);
-    auto O = ctx->GetOptions();
+    ContextStatic::Init();
+    auto O = ContextStatic::GetContext()->GetOptions();
     O->AddOption("help,h", "view help message");
     O->AddOption("interactive,i", "run interactive mode (default if no "
             "other option specified)");
@@ -28,7 +39,7 @@ void InitializeContext()
 
 Context* GetContext()
 {
-    return ctx.get();
+    return ContextStatic::GetContext();
 }
 
 void Context::ParseCommandLineOptions(int argc, char **argv)
@@ -66,10 +77,22 @@ void Context::RunIO()
     std::cout << "Stopped all IO services" << std::endl;
 }
 
+void Context::RunPoller()
+{
+    while (true) {
+        boost::asio::deadline_timer timer(io_,
+                boost::posix_time::microseconds(1));
+        timer.wait();
+        std::cout << "Pollling " << std::endl;
+        io_.poll();
+    }
+}
+
 void Context::SetIOServiceObject()
 {
-    std::thread io_thread{ std::bind(&Context::RunIO, this) };
-    io_thread.detach();
+    io_thread_ = std::make_unique<std::thread>(std::bind(&Context::RunIO, this));
+    poller_thread_ = std::make_unique<std::thread>(
+        std::bind(&Context::RunPoller, this));
 }
 
 }
