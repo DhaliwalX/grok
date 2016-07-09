@@ -3,6 +3,8 @@
 #include "libs/console/console.h" // console.log, console.error 
 #include "libs/array/array_constructor.h"
 #include "libs/example/example.h"
+#include "libs/timer/timer.h"
+#include "libs/math/random.h"
 
 namespace grok {
 namespace libs {
@@ -26,6 +28,13 @@ int LoadLibraries(VMContext *ctx)
     // create an example object constructor
     auto ex = example::Example::CreateConstructor();
     V->StoreValue("Example", ex);
+
+    auto timeout = CreateFunction(&TimeoutHelper::SetTimeout);
+    timeout->as<Function>()->SetParams({ "fn", "time" });
+    V->StoreValue("setTimeout", timeout);
+
+    auto rand = CreateFunction(&MathRandom);
+    V->StoreValue("random", rand);
     return 0;
 }
 

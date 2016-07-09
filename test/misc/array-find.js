@@ -5,7 +5,7 @@ var inventory = [
 ];
 
 function findCherries(fruit) { 
-    return fruit.name === 'cherries';
+    return fruit.name == 'cherries';
 }
 
 console.log(inventory.find(findCherries)); // { name: 'cherries', quantity: 5 }
