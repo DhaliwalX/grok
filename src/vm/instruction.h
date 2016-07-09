@@ -25,6 +25,8 @@ namespace vm {
     op(maps),   \
     op(inc),   \
     op(dec),   \
+    op(snot),   \
+    op(bnot),   \
     op(pinc),   \
     op(pdec),   \
     op(lts),   \

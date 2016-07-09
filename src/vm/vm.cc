@@ -21,6 +21,31 @@ std::unique_ptr<VM> CreateVM(VMContext *context)
     return (ret);
 }
 
+void VM::ShutDown()
+{
+    Context = nullptr;
+    Current = Start;
+
+    Stack.clear();
+    TStack.clear();
+    this_helper.clear();
+    HelperStack.clear();
+    CStack.clear();
+    FStack.clear();
+}
+
+void VM::Reset()
+{
+    Current = Start;
+
+    Stack.clear();
+    TStack.clear();
+    this_helper.clear();
+    HelperStack.clear();
+    CStack.clear();
+    FStack.clear();
+}
+
 void VM::SetContext(VMContext *context)
 {
     Context = context;
@@ -54,6 +79,7 @@ void VM::EndedConstructorCall()
 void VM::SetCounters(Counter start, Counter end)
 {
     Current = start;
+    Start = start;
     End = end;
 }
 
@@ -503,6 +529,30 @@ void VM::DecOP()
     SetFlags();
 }
 
+void VM::SnotOP()
+{
+    auto RHS = Stack.Pop().O;
+    auto str = RHS->as<JSObject>()->ToString();
+    auto num = CreateJSNumber(str);
+    if (!IsUndefined(num)) {
+        num->as<JSDouble>()->GetNumber() = !(int32_t)num->as<JSDouble>()->GetNumber();
+    }
+    Stack.Push(num);
+    SetFlags();
+}
+
+void VM::BnotOP()
+{
+    auto RHS = Stack.Pop().O;
+    auto str = RHS->as<JSObject>()->ToString();
+    auto num = CreateJSNumber(str);
+    if (!IsUndefined(num)) {
+        num->as<JSDouble>()->GetNumber() = ~(int32_t)num->as<JSDouble>()->GetNumber();
+    }
+    Stack.Push(num);
+    SetFlags();
+}
+
 void VM::PincOP()
 {
     auto RHS = Stack.Pop().O;
@@ -794,6 +844,12 @@ void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
         break;
     case Instructions::dec:
         DecOP();
+        break;
+    case Instructions::snot:
+        SnotOP();
+        break;
+    case Instructions::bnot:
+        BnotOP();
         break;
     case Instructions::pinc:
         PincOP();

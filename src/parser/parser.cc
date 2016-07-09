@@ -317,11 +317,7 @@ std::unique_ptr<Expression> GrokParser::ParseUnaryExpression()
         // similarly for `-Expr` to `Expr * -1` 
         return CreateBinaryExpression(MUL, 
             ParseUnaryExpression(), std::make_unique<IntegralLiteral>(-1));
-    } else if (tok == INC) {
-        lex_->advance();
-
-        return std::make_unique<PrefixExpression>(tok, ParseNewExpression());
-    } else if (tok == DEC) {
+    } else if (tok == INC || tok == DEC || tok == NOT || tok == BNOT) {
         lex_->advance();
 
         return std::make_unique<PrefixExpression>(tok, ParseNewExpression());

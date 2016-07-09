@@ -86,6 +86,12 @@ public:
 
     bool IsConstructorCall();
     void EndedConstructorCall();
+
+    // Destroys the stacks explicitly
+    void ShutDown();
+
+    // Reset the counters, stacks etc.
+    void Reset();
 private:
     void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
         std::shared_ptr<grok::obj::Object> obj);
@@ -139,6 +145,8 @@ private:
     void PushthisOP();
     void IncOP();
     void DecOP();
+    void SnotOP();
+    void BnotOP();
     void PincOP();
     void PdecOP();
     void CallNative(std::shared_ptr<grok::obj::Object> function,
@@ -148,6 +156,7 @@ private:
     VMContext *Context;
     Value AC;  // accumulator
     Counter Current;  // current instruction being executed
+    Counter Start;
     Counter End;  // end of the block
     ThisStack TStack; // `this` of javascript
     ThisStackHelper this_helper;

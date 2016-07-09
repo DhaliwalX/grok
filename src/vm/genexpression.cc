@@ -135,7 +135,7 @@ void EmitBinaryOperator(BinaryExpression::Operator op,
 
 void PrefixExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
-    if (expr_->ProduceRValue())
+    if (expr_->ProduceRValue() && (tok_ == INC || tok_ == DEC))
         throw std::runtime_error("fatal: can't apply prefix operator on "
             "r-value");
 
@@ -145,7 +145,13 @@ void PrefixExpression::emit(std::shared_ptr<InstructionBuilder> builder)
         builder->AddInstruction(std::move(instr));
     } else if (tok_ == DEC) {
         auto instr = InstructionBuilder::Create<Instructions::dec>();
-        builder->AddInstruction(std::move(instr));    
+        builder->AddInstruction(std::move(instr));
+    } else if (tok_ == NOT) {
+        auto instr = InstructionBuilder::Create<Instructions::snot>();
+        builder->AddInstruction(std::move(instr));
+    } else if (tok_ == BNOT) {
+        auto instr = InstructionBuilder::Create<Instructions::bnot>();
+        builder->AddInstruction(std::move(instr));
     }
 }
 

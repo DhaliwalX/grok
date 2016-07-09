@@ -38,6 +38,10 @@ std::ostream &PrefixExpression::operator<<(std::ostream &os) const
         os << "++";
     else if (tok_ == DEC)
         os << "--";
+    else if (tok_ == NOT)
+        os << "!";
+    else if (tok_ == BNOT)
+        os << "~";
     return *expr_ << os << ")";
 }
 
