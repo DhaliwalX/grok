@@ -35,6 +35,7 @@ void InitializeContext()
     O->AddOption("file,f", "interprete files",
         BPO::value<std::vector<std::string>>()->composing());
     O->AddPositionalOption("file", -1);
+    GetContext()->SetIOServiceObject();
 }
 
 Context* GetContext()
@@ -79,13 +80,12 @@ void Context::RunIO()
 
 void Context::RunPoller()
 {
-    while (true) {
-        boost::asio::deadline_timer timer(io_,
-                boost::posix_time::microseconds(1));
-        timer.wait();
-        std::cout << "Pollling " << std::endl;
-        io_.poll();
-    }
+    // while (true) {
+    //     boost::asio::deadline_timer timer(io_,
+    //             boost::posix_time::microseconds(100));
+    //     timer.wait();
+    //     io_.poll();
+    // }
 }
 
 void Context::SetIOServiceObject()
@@ -93,6 +93,8 @@ void Context::SetIOServiceObject()
     io_thread_ = std::make_unique<std::thread>(std::bind(&Context::RunIO, this));
     poller_thread_ = std::make_unique<std::thread>(
         std::bind(&Context::RunPoller, this));
+    io_thread_->detach();
+    poller_thread_->detach();
 }
 
 }
