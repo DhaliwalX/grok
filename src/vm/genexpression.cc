@@ -209,7 +209,9 @@ void TernaryExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     // now build the code for conditional expression
     // result will be stored in the flags
     first_->emit(builder);
-    
+
+    auto popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
     // add a jmpz instruction at the end of this block
     auto instr = InstructionBuilder::Create<Instructions::jmpz>();
     instr->data_type_ = d_null;
@@ -249,6 +251,9 @@ void IfStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     // code generation for if statement is almost same as that of ternary
     condition_->emit(builder);
 
+    auto popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
+
     auto instr = InstructionBuilder::Create<Instructions::jmpz>();
     instr->data_type_ = d_null;
     instr->jmp_addr_ = 0;
@@ -265,7 +270,10 @@ void IfElseStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     // same as that of ternary expression
     // result of if condition will be stored in the flags
     condition_->emit(builder);
-    
+
+    auto popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
+
     // add a jmpz instruction at the end of current block
     auto instr = InstructionBuilder::Create<Instructions::jmpz>();
     instr->data_type_ = d_null;
@@ -302,6 +310,9 @@ void ForStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     auto cmp_blk_start = builder->CurrentLength();
     condition_->emit(builder);
 
+    auto popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
+
     // insert a jmpz instruction at the end of the condition block
     auto instr = InstructionBuilder::Create<Instructions::jmpz>();
     instr->data_type_ = d_null;
@@ -314,7 +325,14 @@ void ForStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     auto cmp_blk_end = builder->CurrentLength();
 
     body_->emit(builder);
+
+    popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
+
     update_->emit(builder);
+
+    popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
     
     // insert a jmp back instruction
     instr = InstructionBuilder::Create<Instructions::jmp>();
@@ -337,6 +355,9 @@ void WhileStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     auto cmp_blk_start = builder->CurrentLength();
     condition_->emit(builder);
 
+    auto popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
+
     // insert a jmpz instruction at the end of the condition block
     auto instr = InstructionBuilder::Create<Instructions::jmpz>();
     instr->data_type_ = d_null;
@@ -350,6 +371,9 @@ void WhileStatement::emit(std::shared_ptr<InstructionBuilder> builder)
 
     // generate code for while's body
     body_->emit(builder);
+
+    popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
 
     // insert a jmp back instruction
     instr = InstructionBuilder::Create<Instructions::jmp>();
@@ -372,7 +396,13 @@ void DoWhileStatement::emit(std::shared_ptr<InstructionBuilder> builder)
 
     // generate code for body
     body_->emit(builder);
+
+    auto popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
+
     condition_->emit(builder);
+    popinstr = InstructionBuilder::Create<Instructions::pop>();
+    builder->AddInstruction(std::move(popinstr));
 
     // insert a jmp back instruction
     auto instr = InstructionBuilder::Create<Instructions::jmpnz>();

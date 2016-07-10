@@ -14,6 +14,7 @@ namespace vm {
     op(store),   \
     op(markst),   \
     op(push),   \
+    op(pop),    \
     op(pushim),   \
     op(pushthis),   \
     op(poprop),   \
