@@ -14,6 +14,7 @@
 #include "common/colors.h"
 
 #include <iostream>
+#include <chrono>
 #include <cerrno>
 
 using namespace grok;
@@ -22,6 +23,15 @@ using namespace grok::parser;
 using namespace grok::input;
 
 namespace grok {
+
+template<typename Diff>
+void log_progress(Diff d)
+{
+    std::cout << 
+    (double)std::chrono::duration_cast
+        <std::chrono::microseconds>(d).count() / (double)1000
+              << "ms" << std::flush;
+}
 
 int tab_completer(int count, int key)
 {
@@ -34,10 +44,14 @@ int tab_completer(int count, int key)
 
 int ExecuteAST(Context *ctx, std::ostream &os, std::shared_ptr<Expression> AST)
 {
+    grok::vm::VM *TheVM = nullptr;
     try {
         CodeGenerator CG;
-        CG.Generate(AST.get());
 
+        auto cgs = std::chrono::high_resolution_clock::now();
+        CG.Generate(AST.get());
+        auto cge = std::chrono::high_resolution_clock::now();
+        
         auto IR = CG.GetIR();
         if (!IR || IR->size() == 0) 
             return 0;
@@ -47,21 +61,30 @@ int ExecuteAST(Context *ctx, std::ostream &os, std::shared_ptr<Expression> AST)
         }
         if (ctx->DryRun())
             return 0;
-        auto TheVM = grok::vm::CreateVM(grok::vm::GetGlobalVMContext());
+        TheVM = grok::vm::GetGlobalVMContext()->GetVM();
         TheVM->SetCounters(IR->begin(), IR->end());
-        
+
+        auto vms = std::chrono::high_resolution_clock::now();
         TheVM->Run();
+        auto vme = std::chrono::high_resolution_clock::now();
 
         Value Result = TheVM->GetResult();
         auto O = GetObjectPointer<grok::obj::JSObject>(Result);
 
         if (ctx->IsInteractive() || ctx->ShouldPrintLastInStack()) {
             os << Color::Attr(Color::dim)
-                    << O->AsString() << Color::Reset() << std::endl;
+                    << O->AsString() << " [ Code generating done in "; 
+            log_progress(cge - cgs);
+            os << " ] [ Execution took around ";
+            log_progress(vme - vms);
+            os << " ]" << Color::Reset() << std::endl;
         } else {
             return O->IsTrue();
         }
+        TheVM->Reset();
     } catch (std::exception &e) {
+        if (TheVM)
+            TheVM->Reset();
         std::cerr << e.what() << std::endl;
     }
     return 0;
@@ -86,7 +109,11 @@ int ExecuteFile(Context *ctx, const std::string &filename, std::ostream &os)
     
     // create parser
     grok::parser::GrokParser parser{ std::move(lex) };
+
+    auto pgs = std::chrono::high_resolution_clock::now();
     auto result = parser.ParseExpression();
+    auto pge = std::chrono::high_resolution_clock::now();
+
     if (!result)
         return -1;
     if (ctx->PrintAST()) {
@@ -94,7 +121,11 @@ int ExecuteFile(Context *ctx, const std::string &filename, std::ostream &os)
     }
 
     auto AST = parser.ParsedAST();
-
+    if (ctx->IsInteractive()) {
+        os << Color::Attr(Color::dim) << " [ Parsing done in "; 
+        log_progress(pge - pgs);
+        os << " ]" << Color::Reset() << std::endl;
+    }
     return ExecuteAST(ctx, os, AST);
 }
 
@@ -129,7 +160,11 @@ void InteractiveRun(Context *ctx)
         auto lex = std::make_unique<Lexer>(str);
         GrokParser parser{ std::move(lex) };
 
+
+        auto pgs = std::chrono::high_resolution_clock::now();
         auto result = parser.ParseExpression();
+        auto pge = std::chrono::high_resolution_clock::now();
+
         if (!result)
             continue;
 
@@ -137,6 +172,11 @@ void InteractiveRun(Context *ctx)
             os << parser << std::endl;
         }
         auto AST = parser.ParsedAST();
+        if (ctx->IsInteractive()) {
+            os << Color::Attr(Color::dim) << " [ Parsing done in "; 
+            log_progress(pge - pgs);
+            os << " ]" << Color::Reset() << std::endl;
+        }
         ExecuteAST(ctx, os, AST);
     }
 }
