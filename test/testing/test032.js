@@ -2,9 +2,9 @@ function f1(a,b,c) {
   var x = 0;
   var y = 0;
   var z = 0;
-  while (a > 0) { x += 19; a--; }
-  while (b > 0) { y += 23; b--; }
-  while (c > 0) { z += 29; c--; }
+  while (a > 0) { x = x + 19; a--; }
+  while (b > 0) { y = y + 23; b--; }
+  while (c > 0) { z = z + 29; c--; }
   return x + y + z;
 }
 
@@ -12,9 +12,9 @@ function f2(a,b,c) {
   var x = 0;
   var y = 0;
   var z = 0;
-  while (a > 0) { x += 19; a--; }
-  while (b > 0) { y += 23; b--; }
-  while (c > 0) { z += 29; c--; }
+  while (a > 0) { x = x + 19; a--; }
+  while (b > 0) { y = y + 23; b--; }
+  while (c > 0) { z = z + 29; c--; }
   return x + y + z;
 }
 
@@ -23,9 +23,9 @@ function f3(a,b,c) {
   var x = 0;
   var y = 0;
   var z = 0;
-  while (a > 0) { x += 19; a--; }
-  while (b > 0) { y += 23; b--; }
-  while (c > 0) { z += 29; c--; }
+  while (a > 0) { x = x + 19; a--; }
+  while (b > 0) { y = y + 23; b--; }
+  while (c > 0) { z = z + 29; c--; }
   return x + y + z;
 }
 
