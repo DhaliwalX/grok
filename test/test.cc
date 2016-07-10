@@ -190,6 +190,7 @@ int main()
     grok::GetContext()->SetDebugExecution();
     using namespace boost::filesystem;
     using namespace grok::test;
+    using namespace std;
 
     path p("../test/testing");
 
@@ -208,10 +209,11 @@ int main()
         // we are good
         std::vector<std::string> files;
         size_t count = 0;
-        for (auto &&x : directory_iterator(p)) {
+	directory_iterator e;
+        for (directory_iterator it(p); it != e; ++it) {
             std::cout << "\rCounting test files: " << count++;
             std::cout << std::flush;
-            files.push_back(x.path().string());
+            files.push_back(it->path().string());
         }
         std::cout << std::endl;
 
