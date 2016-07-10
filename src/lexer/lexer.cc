@@ -1,4 +1,5 @@
 #include "lexer/lexer.h"
+#include <stdexcept>
 
 Lexer::Lexer(const char *file, bool f) {
     file_ = true;
