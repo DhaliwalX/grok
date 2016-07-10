@@ -60,27 +60,3 @@ assert_equal(14, h(1, 2, 3, 4));
 assert_equal(15.02, h(1.1, 2.1, 3.1, 4.1));
 assert_equal(15.02, h(1.1, 2.1, 3.1, 4.1));
 assert_equal(15.02, h(1.1, 2.1, 3.1, 4.1));
-
-function f(a, b, c) {
-  return a - b * c;
-}
-
-function g(a, b, c) {
-  return a * b - c;
-}
-
-function h(a, b, c, d) {
-  return a * b - c * d;
-}
-
-assert_equal(-5.41, f(1.1, 2.1, 3.1));
-assert_equal(-5.41, f(1.1, 2.1, 3.1));
-assert_equal(-5.41, f(1.1, 2.1, 3.1));
-
-assert_equal(8.36, g(2.2, 3.3, -1.1));
-assert_equal(8.36, g(2.2, 3.3, -1.1));
-assert_equal(8.36, g(2.2, 3.3, -1.1));
-
-assert_equal(-1.5, h(1.5, 3.0, 12, 0.5));
-assert_equal(-1.5, h(1.5, 3.0, 12, 0.5));
-assert_equal(-1.5, h(1.5, 3.0, 12, 0.5));

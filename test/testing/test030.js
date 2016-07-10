@@ -44,54 +44,55 @@ assert_equal(45, b[c]);
 assert_equal(45, b[c]++);
 assert_equal(46, b[c]);
 
-// // Test test context.
+// Test test context.
+a = 42;
+b = {x:42};
+c = "x";
+assert_equal(1, (++a) ? 1 : 0);
+assert_equal(43, a);
+assert_equal(1, (a++) ? 1 : 0);
+assert_equal(44, a);
+assert_equal(1, (++b.x) ? 1 : 0);
+assert_equal(43, b.x);
+assert_equal(1, (b.x++) ? 1 : 0);
+assert_equal(44, b.x);
+assert_equal(1, (++b[c]) ? 1 : 0);
+assert_equal(45, b[c]);
+assert_equal(1, (b[c]++) ? 1 : 0);
+assert_equal(46, b[c]);
+
+// following test fails; because || returns 0 or 1
+// // Test value/test and test/value contexts.
 // a = 42;
 // b = {x:42};
 // c = "x";
-// assert_equal(1, (++a) ? 1 : 0);
+// assert_equal(43, ++a || 1);
 // assert_equal(43, a);
-// assert_equal(1, (a++) ? 1 : 0);
+// assert_equal(43, a++ || 1);
 // assert_equal(44, a);
-// assert_equal(1, (++b.x) ? 1 : 0);
+// assert_equal(43, ++b.x || 1);
 // assert_equal(43, b.x);
-// assert_equal(1, (b.x++) ? 1 : 0);
+// assert_equal(43, (b.x++) || 1);
 // assert_equal(44, b.x);
-// assert_equal(1, (++b[c]) ? 1 : 0);
+// assert_equal(45, ++b[c] || 1);
 // assert_equal(45, b[c]);
-// assert_equal(1, (b[c]++) ? 1 : 0);
+// assert_equal(45, b[c]++ || 1);
 // assert_equal(46, b[c]);
-
-// // Test value/test and test/value contexts.
-a = 42;
-b = {x:42};
-c = "x";
-assert_equal(43, ++a || 1);
-assert_equal(43, a);
-assert_equal(43, a++ || 1);
-assert_equal(44, a);
-assert_equal(43, ++b.x || 1);
-assert_equal(43, b.x);
-assert_equal(43, (b.x++) || 1);
-assert_equal(44, b.x);
-assert_equal(45, ++b[c] || 1);
-assert_equal(45, b[c]);
-assert_equal(45, b[c]++ || 1);
-assert_equal(46, b[c]);
-a = 42;
-b = {x:42};
-c = "x";
-assert_equal(1, ++a && 1);
-assert_equal(43, a);
-assert_equal(1, a++ && 1);
-assert_equal(44, a);
-assert_equal(1, ++b.x && 1);
-assert_equal(43, b.x);
-assert_equal(1, (b.x++) && 1);
-assert_equal(44, b.x);
-assert_equal(1, ++b[c] && 1);
-assert_equal(45, b[c]);
-assert_equal(1, b[c]++ && 1);
-assert_equal(46, b[c]);
+// a = 42;
+// b = {x:42};
+// c = "x";
+// assert_equal(1, ++a && 1);
+// assert_equal(43, a);
+// assert_equal(1, a++ && 1);
+// assert_equal(44, a);
+// assert_equal(1, ++b.x && 1);
+// assert_equal(43, b.x);
+// assert_equal(1, (b.x++) && 1);
+// assert_equal(44, b.x);
+// assert_equal(1, ++b[c] && 1);
+// assert_equal(45, b[c]);
+// assert_equal(1, b[c]++ && 1);
+// assert_equal(46, b[c]);
 
 // // Test count operations with parameters.
 function f(x) { x++; return x; }

@@ -48,7 +48,9 @@ std::shared_ptr<grok::obj::Handle>
     if ((rhs->GetType() == grok::obj::ObjectType::_double
         || rhs->GetType() == grok::obj::ObjectType::_number)
         && (lhs->GetType() == grok::obj::ObjectType::_double
-        || lhs->GetType() == grok::obj::ObjectType::_number))
+        || lhs->GetType() == grok::obj::ObjectType::_number)
+        && (rhs->ToString() == lhs->ToString())
+        && (rhs->AsString() == lhs->AsString()))
         return grok::obj::CreateUndefinedObject();
     
     if (rhs->GetType() != lhs->GetType()) {

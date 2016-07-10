@@ -52,7 +52,7 @@ assert_equal(--q, 10);
 assert_equal(q, 10);
 
 var r = 1;
-assert_equal(~r, -1);
+assert_equal(~r, -2);
 assert_equal(!r, 0);
 assert_equal(r, 1);
 
