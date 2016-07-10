@@ -2,6 +2,7 @@
 #define VM_H_
 
 #include "vm/instruction-list.h"
+#include "vm/counter.h"
 #include "vm/var-store.h"
 #include "common/generic-stack.h"
 #include "vm/context.h"
@@ -14,8 +15,6 @@
 namespace grok {
 namespace vm {
 
-/// Counter ::= similar to program counter in processor
-using Counter = InstructionList::iterator;
 using VMStack = GenericStack<Value>;
 using CallStack = GenericStack<Counter>;
 using FlagStack = GenericStack<int32_t>;
