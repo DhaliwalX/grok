@@ -107,6 +107,7 @@ private:
     void PushNull();
     void PushBool(bool boolean);
     void PushOP();
+    void PopOP();
     void PushimOP();
     void PoppropOP();
     void ReplpropOP();

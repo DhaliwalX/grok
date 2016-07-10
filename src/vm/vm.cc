@@ -17,7 +17,6 @@ std::unique_ptr<VM> CreateVM(VMContext *context)
 {
     auto ret = std::unique_ptr<VM>{ new VM() };
     ret->SetContext(context);
-    context->SetVM(ret.get());
     return (ret);
 }
 
@@ -226,6 +225,12 @@ void VM::PushOP()
         Stack.Push(Value(obj));
     }
     }
+}
+
+void VM::PopOP()
+{
+    Stack.Pop();
+    // pop instruction doesn't affect flags
 }
 
 void VM::PushimOP()
@@ -736,6 +741,9 @@ void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
         break;
     case Instructions::push:
         PushOP();
+        break;
+    case Instructions::pop:
+        PopOP();
         break;
     case Instructions::pushim:
         PushimOP();

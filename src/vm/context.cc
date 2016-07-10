@@ -1,6 +1,7 @@
 #include "vm/context.h"
 #include "grok/context.h"
 #include "libs/library.h"
+#include "vm/vm.h"
 
 namespace grok {
 namespace vm {
@@ -42,6 +43,8 @@ void InitializeVMContext()
 {
     GetGlobalVMContext()->SetVStore(new VStore{});
     grok::libs::LoadLibraries(GetGlobalVMContext());
+    auto vm = CreateVM(GetGlobalVMContext());
+    GetGlobalVMContext()->SetVM(vm.release());
 }
 
 void TearDownVMContext()
