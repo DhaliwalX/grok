@@ -28,11 +28,12 @@ endif()
 
 
 file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cc)
-set(SRC_FILES ${SRC_FILES};${PROJECT_SOURCE_DIR}/main/main.cc)
+set(GROK_SRC_FILES ${SRC_FILES};${PROJECT_SOURCE_DIR}/main/main.cc)
 # find readline library
 find_package(Readline REQUIRED)
 # find boost
-find_package(Boost COMPONENTS system program_options iostreams REQUIRED)
+find_package(Boost COMPONENTS system program_options iostreams
+    filesystem REQUIRED)
 
 find_package(Threads REQUIRED)
 
@@ -40,5 +41,8 @@ set (Boost_USE_MULTITHREAD ON)
 # include directories
 include_directories(./src)
 
-add_executable(grok ${SRC_FILES})
+add_executable(grok ${GROK_SRC_FILES})
 target_link_libraries(grok ${LIBS} ${READLINE_LIBRARIES} ${Boost_LIBRARIES} pthread)
+
+add_executable(runtest "${SRC_FILES};test/test.cc")
+target_link_libraries(runtest ${LIBS} ${READLINE_LIBRARIES} ${Boost_LIBRARIES} pthread)
