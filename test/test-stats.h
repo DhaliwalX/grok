@@ -43,13 +43,15 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const TestStats &stats)
     {
         os << "Test Stats: " << std::endl;
-        if (stats.GetFailed()) {
+        {
             os << "Failed: " <<  Color::Color(Color::Colors::fred);
-            os << stats.GetFailed() << Color::Reset() << std::endl;
+            os << stats.GetFailed() << " out of " << stats.GetTotal()
+            << Color::Reset() << std::endl;
         }
-        if (stats.GetPassed()) {
+        {
             os << "Passed: " <<  Color::Color(Color::Colors::fgreen);
-            os << stats.GetPassed() << Color::Reset() << std::endl;
+            os << stats.GetPassed() << " out of " << stats.GetTotal()
+            << Color::Reset();
         }
         return os;
     }
