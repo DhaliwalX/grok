@@ -6,6 +6,7 @@
 
 #include "object/jsbasicobject.h"   // grok::obj::JSObject
 #include "object/function.h"    // grok::obj::Function
+#include "object/function-template.h"  // grok::obj::FunctionTemplate
 
 namespace example {
 

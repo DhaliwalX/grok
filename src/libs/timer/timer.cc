@@ -1,6 +1,7 @@
 #include "libs/timer/timer.h"
 #include "object/function.h"
 #include "vm/context.h"
+#include "vm/vm.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <sys/types.h>
