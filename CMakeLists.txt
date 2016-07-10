@@ -44,5 +44,5 @@ include_directories(./src)
 add_executable(grok ${GROK_SRC_FILES})
 target_link_libraries(grok ${LIBS} ${READLINE_LIBRARIES} ${Boost_LIBRARIES} pthread)
 
-add_executable(runtest "${SRC_FILES};test/test.cc")
+add_executable(runtest "${SRC_FILES};${PROJECT_SOURCE_DIR}/test/test.cc")
 target_link_libraries(runtest ${LIBS} ${READLINE_LIBRARIES} ${Boost_LIBRARIES} pthread)
