@@ -1,4 +1,5 @@
 #include "lexer/lexer.h"
+#include <stdexcept>
 
 Lexer::Lexer(const char *file, bool f) {
     file_ = true;
@@ -49,7 +50,8 @@ Token *Lexer::NextToken() {
     // a valid(may be) token from this position
     pos = position_;
 
-    if (ch != EOF) {
+    if (ch == EOF || ch == 255)
+	return new Token(std::string("EOS"), EOS, -1, pos);
 
       // handle keywords, identifiers and numbers
       while (isalnum(ch) || ch == '_')
@@ -92,7 +94,7 @@ Token *Lexer::NextToken() {
         return new Token(std::string({ch}), tok, TOKENS[tok].precedance_, pos);
       } else // oops! something went wrong, token is invalid!
         return new Token(std::string({ch}), INVALID, 0, pos);
-    }
+
 
     // finally reached at the end of the given string
     return new Token(std::string({ch}), EOS, -1, pos);
