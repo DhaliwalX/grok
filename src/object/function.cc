@@ -1,6 +1,7 @@
 #include "object/function.h"
 #include "object/argument.h"
 #include "vm/codegen.h"
+#include "vm/vm.h"
 
 namespace grok {
 namespace obj {
