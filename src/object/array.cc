@@ -26,6 +26,9 @@ std::shared_ptr<Object> CreateArray(size_t size)
 {
     auto ptr = std::make_shared<JSArray>();
     ptr->Resize(size);
+    for (size_t i = 0; i < size; i++) {
+        ptr->Assign(i, CreateUndefinedObject());
+    }
     DefineInternalObjectProperties(ptr.get());
 
     // a.sort()
