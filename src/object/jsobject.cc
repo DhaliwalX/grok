@@ -15,7 +15,7 @@ inline bool undefined_operation(ObjectType type) {
           || type == ObjectType::_null;
 }
 
-Object operator+(std::shared_ptr<JSNumber> l, Object r) 
+Object operator+(std::shared_ptr<JSNumber> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -40,7 +40,7 @@ Object operator+(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator<(std::shared_ptr<JSNumber> l, Object r) 
+Object operator<(std::shared_ptr<JSNumber> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -62,7 +62,7 @@ Object operator<(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator>(std::shared_ptr<JSNumber> l, Object r) 
+Object operator>(std::shared_ptr<JSNumber> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -84,7 +84,7 @@ Object operator>(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator<=(std::shared_ptr<JSNumber> l, Object r) 
+Object operator<=(std::shared_ptr<JSNumber> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -106,7 +106,7 @@ Object operator<=(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator>=(std::shared_ptr<JSNumber> l, Object r) 
+Object operator>=(std::shared_ptr<JSNumber> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -128,7 +128,7 @@ Object operator>=(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator-(std::shared_ptr<JSNumber> l, Object r) 
+Object operator-(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -147,7 +147,7 @@ Object operator-(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator*(std::shared_ptr<JSNumber> l, Object r) 
+Object operator*(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -166,7 +166,7 @@ Object operator*(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator/(std::shared_ptr<JSNumber> l, Object r) 
+Object operator/(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -185,7 +185,7 @@ Object operator/(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator%(std::shared_ptr<JSNumber> l, Object r) 
+Object operator%(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -204,7 +204,7 @@ Object operator%(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator<<(std::shared_ptr<JSNumber> l, Object r) 
+Object operator<<(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -223,7 +223,7 @@ Object operator<<(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator>>(std::shared_ptr<JSNumber> l, Object r) 
+Object operator>>(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -242,7 +242,7 @@ Object operator>>(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator|(std::shared_ptr<JSNumber> l, Object r) 
+Object operator|(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -261,7 +261,7 @@ Object operator|(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator&(std::shared_ptr<JSNumber> l, Object r) 
+Object operator&(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -280,7 +280,7 @@ Object operator&(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator||(std::shared_ptr<JSNumber> l, Object r) 
+Object operator||(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -300,7 +300,7 @@ Object operator||(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator&&(std::shared_ptr<JSNumber> l, Object r) 
+Object operator&&(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -320,7 +320,7 @@ Object operator&&(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator^(std::shared_ptr<JSNumber> l, Object r) 
+Object operator^(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -339,7 +339,7 @@ Object operator^(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator==(std::shared_ptr<JSNumber> l, Object r) 
+Object operator==(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -358,7 +358,7 @@ Object operator==(std::shared_ptr<JSNumber> l, Object r)
   }
 }
 
-Object operator!=(std::shared_ptr<JSNumber> l, Object r) 
+Object operator!=(std::shared_ptr<JSNumber> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -381,7 +381,7 @@ Object operator!=(std::shared_ptr<JSNumber> l, Object r)
 ///             Operators for double's
 ///=====------------------------------------------------------------------=====
 
-Object operator+(std::shared_ptr<JSDouble> l, Object r) 
+Object operator+(std::shared_ptr<JSDouble> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -403,7 +403,7 @@ Object operator+(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator<(std::shared_ptr<JSDouble> l, Object r) 
+Object operator<(std::shared_ptr<JSDouble> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -425,7 +425,7 @@ Object operator<(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator>(std::shared_ptr<JSDouble> l, Object r) 
+Object operator>(std::shared_ptr<JSDouble> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -447,7 +447,7 @@ Object operator>(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator<=(std::shared_ptr<JSDouble> l, Object r) 
+Object operator<=(std::shared_ptr<JSDouble> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -469,7 +469,7 @@ Object operator<=(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator>=(std::shared_ptr<JSDouble> l, Object r) 
+Object operator>=(std::shared_ptr<JSDouble> &l, Object r) 
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -491,7 +491,7 @@ Object operator>=(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator-(std::shared_ptr<JSDouble> l, Object r) 
+Object operator-(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -510,7 +510,7 @@ Object operator-(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator*(std::shared_ptr<JSDouble> l, Object r) 
+Object operator*(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -529,7 +529,7 @@ Object operator*(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator/(std::shared_ptr<JSDouble> l, Object r) 
+Object operator/(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -548,7 +548,7 @@ Object operator/(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator%(std::shared_ptr<JSDouble> l, Object r) 
+Object operator%(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -568,7 +568,7 @@ Object operator%(std::shared_ptr<JSDouble> l, Object r)
 }
 
 
-Object operator<<(std::shared_ptr<JSDouble> l, Object r) 
+Object operator<<(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -587,7 +587,7 @@ Object operator<<(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator>>(std::shared_ptr<JSDouble> l, Object r) 
+Object operator>>(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -606,7 +606,7 @@ Object operator>>(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator|(std::shared_ptr<JSDouble> l, Object r) 
+Object operator|(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -625,7 +625,7 @@ Object operator|(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator&(std::shared_ptr<JSDouble> l, Object r) 
+Object operator&(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -644,7 +644,7 @@ Object operator&(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator||(std::shared_ptr<JSDouble> l, Object r) 
+Object operator||(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -664,7 +664,7 @@ Object operator||(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator&&(std::shared_ptr<JSDouble> l, Object r) 
+Object operator&&(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -684,7 +684,7 @@ Object operator&&(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator^(std::shared_ptr<JSDouble> l, Object r) 
+Object operator^(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -703,7 +703,7 @@ Object operator^(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator==(std::shared_ptr<JSDouble> l, Object r) 
+Object operator==(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -722,7 +722,7 @@ Object operator==(std::shared_ptr<JSDouble> l, Object r)
   }
 }
 
-Object operator!=(std::shared_ptr<JSDouble> l, Object r) 
+Object operator!=(std::shared_ptr<JSDouble> &l, Object r) 
 { 
   auto type = r.as<JSObject>()->GetType();
   if (type == ObjectType::_number) {
@@ -745,37 +745,37 @@ Object operator!=(std::shared_ptr<JSDouble> l, Object r)
 ///             Operators for strings
 ///=====------------------------------------------------------------------=====
 
-Object operator +(std::shared_ptr<JSString> l, Object r)
+Object operator +(std::shared_ptr<JSString> &l, Object r)
 {
     auto obj = r.as<JSObject>();
     return *CreateJSString(l->ToString() + obj->ToString());
 }
 
-Object operator>(std::shared_ptr<JSString> l, Object r)
+Object operator>(std::shared_ptr<JSString> &l, Object r)
 {
     auto obj = r.as<JSObject>();
     return *CreateJSNumber(l->ToString() > obj->ToString());
 }
 
-Object operator<(std::shared_ptr<JSString> l, Object r)
+Object operator<(std::shared_ptr<JSString> &l, Object r)
 {
     auto obj = r.as<JSObject>();
     return *CreateJSNumber(l->ToString() > obj->ToString());
 }
 
-Object operator>=(std::shared_ptr<JSString> l, Object r)
+Object operator>=(std::shared_ptr<JSString> &l, Object r)
 {
     auto obj = r.as<JSObject>();
     return *CreateJSNumber(l->ToString() >= obj->ToString());
 }
 
-Object operator<=(std::shared_ptr<JSString> l, Object r)
+Object operator<=(std::shared_ptr<JSString> &l, Object r)
 {
     auto obj = r.as<JSObject>();
     return *CreateJSNumber(l->ToString() <= obj->ToString());
 }
 
-Object operator!=(std::shared_ptr<JSString> l, Object r)
+Object operator!=(std::shared_ptr<JSString> &l, Object r)
 {
   auto type = r.as<JSObject>()->GetType();
 
@@ -789,7 +789,7 @@ Object operator!=(std::shared_ptr<JSString> l, Object r)
   }
 }
 
-Object operator==(std::shared_ptr<JSString> l, Object r)
+Object operator==(std::shared_ptr<JSString> &l, Object r)
 {
   auto type = r.as<JSObject>()->GetType();
 
