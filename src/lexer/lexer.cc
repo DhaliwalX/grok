@@ -1,40 +1,12 @@
 #include "lexer/lexer.h"
 #include <stdexcept>
+#include <fstream>
+#include <iostream>
 
-Lexer::Lexer(const char *file, bool f) {
-    file_ = true;
-    std::ifstream infile(file);
-    file_name_ = file;
-    int length = 0;
-    if (infile.fail()) {
-      ERROR(std::string, "cannot open file");
-      f = false;
-      err_msg_ = file + std::string(": file doesn't exist\n");
-      return;
-    }
-    infile.seekg(0, infile.end);
-    length = (size_t)infile.tellg();
-    infile.seekg(0, infile.beg);
-    code_.resize(length + 2, ' ');
-    infile.read(&*(code_.begin()), length);
-    infile.close();
-    size_ = length;
-    end_ = length;
-    seek_ = 0;
-    tok_ = nullptr;
-    eos_ = false;
-}
-
-Token *Lexer::NextToken() {
+Token Lexer::NextToken() {
     char ch, ch2, ch3;
     TokenType tok;
     Position pos;
-
-    if (!buffer_.empty()) {
-      Token *tok = buffer_.back();
-      buffer_.pop_back();
-      return tok;
-    }
 
     ch = NextCharacter();
     // skip whitespaces
@@ -51,7 +23,7 @@ Token *Lexer::NextToken() {
     pos = position_;
 
     if (ch == EOF || ch == 255)
-	return new Token(std::string("EOS"), EOS, -1, pos);
+    	return Token(std::string("EOS"), EOS, -1, pos);
 
       // handle keywords, identifiers and numbers
       while (isalnum(ch) || ch == '_')
@@ -71,7 +43,7 @@ Token *Lexer::NextToken() {
       // check if there is a three character symbol
       tok = ThreeCharacterSymbol(ch, ch2, ch3);
       if (tok != INVALID) {
-        return new Token(std::string({ch, ch2, ch3}), tok,
+        return Token(std::string({ch, ch2, ch3}), tok,
                          TOKENS[tok].precedance_, pos);
       }
       // as we have gone ahead one character so time to go back
@@ -80,7 +52,7 @@ Token *Lexer::NextToken() {
       // so now check whether we are at position of two character symbol
       tok = TwoCharacterSymbol(ch, ch2);
       if (tok != INVALID) {
-        return new Token(std::string({ch, ch2}), tok, TOKENS[tok].precedance_,
+        return Token(std::string({ch, ch2}), tok, TOKENS[tok].precedance_,
                          pos);
       }
 
@@ -91,13 +63,13 @@ Token *Lexer::NextToken() {
       // Only possibility left
       tok = OneCharacterSymbol(ch);
       if (tok != INVALID) {
-        return new Token(std::string({ch}), tok, TOKENS[tok].precedance_, pos);
+        return Token(std::string({ch}), tok, TOKENS[tok].precedance_, pos);
       } else // oops! something went wrong, token is invalid!
-        return new Token(std::string({ch}), INVALID, 0, pos);
+        return Token(std::string({ch}), INVALID, 0, pos);
 
 
     // finally reached at the end of the given string
-    return new Token(std::string({ch}), EOS, -1, pos);
+    return Token(std::string({ch}), EOS, -1, pos);
 }
 
 void Lexer::StripComments(char &ch) { // skips all the comments from the string
@@ -154,7 +126,7 @@ char Lexer::NextCharacter() { // returns the next character from the string
   return EOF;
 }
 
-Token *Lexer::Characterize(char ch,
+Token Lexer::Characterize(char ch,
              Position &pos)
 {
   std::string buffer;
@@ -165,10 +137,10 @@ Token *Lexer::Characterize(char ch,
     return ParseIdentifierOrKeyWord(ch, pos);
 
   // if none of both then we have to return a invalid token
-  return new Token(std::string(""), INVALID, -1, pos);
+  return Token(std::string(""), INVALID, -1, pos);
 }
 
-Token *
+Token
 Lexer::ParseNumber(char ch,
             Position &pos) { // parses the number from the current position
   std::string buffer;        // buffer to store the parsed number
@@ -188,10 +160,10 @@ Lexer::ParseNumber(char ch,
   // we've gone one character ahead, so go back
   GoBack();
 
-  return new Token(buffer, DIGIT, -1, pos);
+  return Token(buffer, DIGIT, -1, pos);
 }
 
-Token *Lexer::ParseIdentifierOrKeyWord(
+Token Lexer::ParseIdentifierOrKeyWord(
     char ch,
     Position &
         pos) { // parses the identifier or a keyword from the current position
@@ -207,13 +179,13 @@ Token *Lexer::ParseIdentifierOrKeyWord(
   if (buffer[0] != '_' || buffer[0] != '$') {
     for (int i = LET; i <= RET; i++)
       if (buffer[0] == TOKENS[i].value_[0] && buffer == TOKENS[i].value_)
-        return new Token(buffer, i, 0, pos);
+        return Token(buffer, i, 0, pos);
   }
-  return new Token(buffer, IDENT, -1, pos);
+  return Token(buffer, IDENT, -1, pos);
 }
 
 // although not required because of no use
-Token *Lexer::ParseStringLiteral(
+Token Lexer::ParseStringLiteral(
     char ch, Position &pos) { // parses the string literal from the string
   std::string str = "";
   if (ch == '"') { // string surrounded by "
@@ -229,7 +201,7 @@ Token *Lexer::ParseStringLiteral(
       ch = NextCharacter();
     }
   }
-  return new Token(str, STRING, -1, pos);
+  return Token(str, STRING, -1, pos);
 }
 
 char parsehex(char ch) {
@@ -423,9 +395,6 @@ Lexer::TwoCharacterSymbol(char ch1,
   }
 }
 
-bool Lexer::IsFile() const { return file_; }
-std::string Lexer::GetFileName() { return file_name_; }
-
 TokenType Lexer::ThreeCharacterSymbol(
     char ch1, char ch2,
     char ch3) { // returns the type of symbol of three characters
@@ -440,11 +409,6 @@ TokenType Lexer::ThreeCharacterSymbol(
   }
 }
 
-void Lexer::PutBack(Token *tok) { // put in the buffer for one token lookahead
-                           // required by parser
-  buffer_.push_back(tok);
-}
-
 // move to next token
 void Lexer::advance()
 {
@@ -455,7 +419,7 @@ double Lexer::GetNumber()
 {
   double result = 0.0;
   try {
-    result = std::stod(tok_->GetValue());
+    result = std::stod(tok_.GetValue());
   } catch (std::exception &e) {
     std::cerr << e.what() << std::endl;
   }
