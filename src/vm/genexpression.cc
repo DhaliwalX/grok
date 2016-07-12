@@ -107,6 +107,12 @@ void EmitBinaryOperator(BinaryExpression::Operator op,
     case GT:
         instr->kind_ = Instructions::gts;
         break;
+    case LTE:
+        instr->kind_ = Instructions::ltes;
+        break;
+    case GTE:
+        instr->kind_ = Instructions::gtes;
+        break;
     case EQUAL:
         instr->kind_ = Instructions::eqs;
         break;
