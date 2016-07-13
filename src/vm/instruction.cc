@@ -51,7 +51,6 @@ std::string InstructionToString(const RawInstruction<int> &instr)
 {
     std::ostringstream out;
     out << std::left << std::setw(10) << instr_to_string[instr.kind_];
-    out << std::setw(10) << type_to_string[instr.data_type_];
     out << std::setw(5) << instr.jmp_addr_;
     out << InstrDataToString(instr);
     return out.str();
