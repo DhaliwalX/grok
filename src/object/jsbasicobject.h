@@ -3,7 +3,7 @@
 
 #include "object/object.h"
 
-#include <unordered_map>
+#include <map>
 
 namespace grok { namespace obj {
 
@@ -23,6 +23,8 @@ enum class ObjectType {
 
 using Handle = Object;
 
+template <class Key, class Value>
+using PropertyContainer = std::map<Key, Value>;
 static inline std::shared_ptr<Handle> CreateUndefinedObject();
 
 // A javascript object is a set of name : value pair
@@ -30,10 +32,10 @@ class JSObject : public std::enable_shared_from_this<JSObject> {
 public:
   using Name = std::string;
   using Value = std::shared_ptr<Handle>;
-  using iterator = std::unordered_map<Name, Value>::iterator;
-  using const_iterator = std::unordered_map<Name, Value>::const_iterator;
+  using iterator = PropertyContainer<Name, Value>::iterator;
+  using const_iterator = PropertyContainer<Name, Value>::const_iterator;
 
-  JSObject(const std::unordered_map<Name, Value> &map) : object_(map) {}
+  JSObject(const PropertyContainer<Name, Value> &map) : object_(map) {}
 
   JSObject() : object_(), enumerable_{ true }, writable_{ true } {}
 
@@ -93,13 +95,18 @@ public:
   }
 
 private:
-  std::unordered_map<Name, Value> object_;
+  PropertyContainer<Name, Value> object_;
   bool enumerable_;
   bool writable_;
 };
 
 class JSNull : public JSObject {
   std::string ToString() const override
+  {
+    return "null";
+  }
+
+  std::string AsString() const override
   {
     return "null";
   }
@@ -118,6 +125,11 @@ public:
   }
 
   std::string ToString() const override
+  {
+    return "undefined";
+  }
+
+  std::string AsString() const override
   {
     return "undefined";
   }

@@ -3,10 +3,57 @@
 #include "vm/codegen.h"
 #include "vm/vm.h"
 
+#include <sstream>
+
 namespace grok {
 namespace obj {
 using namespace grok::vm;
 using namespace grok::parser;
+
+Function::Function()
+    : JSObject{}, AST{}, Proto{ nullptr }, NFT{ nullptr },
+      Native{ false }, CodeGened{ false }, IR{}, Params{ }
+{ }
+
+Function::Function(std::shared_ptr<grok::parser::Expression> AST,
+    std::shared_ptr<grok::parser::FunctionPrototype> proto)
+    : JSObject(), AST{ AST }, Proto{ proto }, NFT{ nullptr },
+      Native{ false }, CodeGened{ false }, IR{}, Params{ Proto->GetArgs() }
+{ }
+
+Function::Function(NativeFunctionType function)
+    : JSObject{}, AST{}, Proto{ nullptr }, NFT{ function },
+      Native{ true }, CodeGened{ true }, IR{}, Params{}
+{ }
+
+std::string Function::AsString() const
+{
+    std::ostringstream os;
+    if (Native) {
+        os << "function() { [native code] }";
+        return os.str();
+    }
+
+    os << "function " << Proto->GetName();
+    os << "(";
+    auto Args = GetParams();
+    if (Args.size()) {
+        for (auto Arg = Args.cbegin(); Arg != Args.cend() - 1; Arg++)
+        {
+            os << *Arg << ", ";
+        }
+    }
+    if (Args.size() > 0) {
+        os << Args.back();
+    }
+    os << ") { [Code] }";
+    return os.str();
+}
+
+std::string Function::ToString() const
+{
+    return "[ function Function ]";
+}
 
 bool Function::HasCodeGened() const 
 {

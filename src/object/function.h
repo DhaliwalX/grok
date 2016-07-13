@@ -10,7 +10,6 @@
 
 #include <string>
 #include <vector>
-#include <sstream>
 
 namespace grok {
 namespace vm {
@@ -28,22 +27,10 @@ using NativeFunctionType = std::shared_ptr<Object> (*)
 /// Function ::= class to store the functions 
 class Function : public JSObject {
 public:
-    Function()
-        : JSObject{}, AST{}, Proto{ nullptr }, NFT{ nullptr },
-          Native{ false }, CodeGened{ false }, IR{}, Params{ }
-    { }
-
+    Function();
     Function(std::shared_ptr<grok::parser::Expression> AST,
-        std::shared_ptr<grok::parser::FunctionPrototype> proto)
-        : JSObject(), AST{ AST }, Proto{ proto }, NFT{ nullptr },
-          Native{ false }, CodeGened{ false }, IR{}, Params{ Proto->GetArgs() }
-    { }
-
-    Function(NativeFunctionType function)
-        : JSObject{}, AST{}, Proto{ nullptr }, NFT{ function },
-          Native{ true }, CodeGened{ true }, IR{}, Params{}
-    { }
-
+        std::shared_ptr<grok::parser::FunctionPrototype> proto);
+    Function(NativeFunctionType function);
     ~Function() { };
 
     /// HasCodeGened ::= returns true if code for the function
@@ -72,34 +59,9 @@ public:
     ObjectType GetType() const override
     { return ObjectType::_function; }
 
-    std::string AsString() const override
-    {
-        std::ostringstream os;
-        if (Native) {
-            os << "function() { [native code] }";
-            return os.str();
-        }
+    std::string AsString() const override;
 
-        os << "function " << Proto->GetName();
-        os << "(";
-        auto Args = GetParams();
-        if (Args.size()) {
-            for (auto Arg = Args.cbegin(); Arg != Args.cend() - 1; Arg++)
-            {
-                os << *Arg << ", ";
-            }
-        }
-        if (Args.size() > 0) {
-            os << Args.back();
-        }
-        os << ") { [Code] }";
-        return os.str();
-    }
-
-    std::string ToString() const override
-    {
-        return "[ function Function ]";
-    }
+    std::string ToString() const override;
 
     void SetParams(std::vector<std::string> parms)
     {

@@ -15,7 +15,7 @@ std::string JSObject::AsString() const
         if (!prop->IsEnumerable())
             continue;
         buff += it.first + ": ";
-        buff += it.second->as<JSObject>()->ToString() += ", ";
+        buff += it.second->as<JSObject>()->AsString() += ", ";
     }
     buff.pop_back(); // " "
     buff += " }";
