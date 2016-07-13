@@ -441,6 +441,17 @@ std::unique_ptr<Expression> GrokParser::ParseCommaExpression()
     return std::make_unique<CommaExpression>(std::move(exprs));
 }
 
+std::unique_ptr<Expression> GrokParser::ParseExpressionOptional()
+{
+    auto tok = lex_->peek();
+
+    if (tok == SCOLON) {
+        return std::make_unique<NullLiteral>();
+    } else {
+        return ParseCommaExpression();
+    }
+}
+
 std::unique_ptr<Expression> GrokParser::ParseElseBranch()
 {
     // eat 'else'
@@ -495,23 +506,33 @@ std::unique_ptr<Expression> GrokParser::ParseForStatement()
     lex_->advance();
 
     // parse 'for ( >>this<< ;...' part
-    auto init = ParseCommaExpression();
+    auto init = ParseExpressionOptional();
 
     tok = lex_->peek();
     if (tok != SCOLON)
         throw std::runtime_error("expected a ';'");
     lex_->advance();
 
-    // parse 'for (x = 10; >>this<< ...' part
-    auto condition = ParseCommaExpression();
+    std::unique_ptr<Expression> condition;
+    if (lex_->peek() == SCOLON) {
+        condition = std::make_unique<BooleanLiteral>(true);
+    } else {
+        // parse 'for (x = 10; >>this<< ...' part
+        condition = ParseCommaExpression();
+    }
 
     tok = lex_->peek();
     if (tok != SCOLON)
         throw std::runtime_error("expected a ';'");
     lex_->advance();
 
-    // parse 'for (x = 10; x < 100; >>this<<...' part
-    auto update = ParseCommaExpression();
+    std::unique_ptr<Expression> update;
+    if (lex_->peek() != RPAR) {
+        // parse 'for (x = 10; x < 100; >>this<<...' part
+        update = ParseCommaExpression();
+    } else {
+        update = std::make_unique<NullLiteral>();
+    }
 
     tok = lex_->peek();
     if (tok != RPAR)
@@ -721,7 +742,7 @@ std::unique_ptr<Expression> GrokParser::ParseStatement()
     switch (tok) {
     default:
     {
-        auto result = ParseCommaExpression();
+        auto result = ParseExpressionOptional();
         tok = lex_->peek();
 
         if (tok != SCOLON)

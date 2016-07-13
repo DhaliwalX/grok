@@ -331,10 +331,6 @@ void ForStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     auto cmp_blk_end = builder->CurrentLength();
 
     body_->emit(builder);
-
-    popinstr = InstructionBuilder::Create<Instructions::pop>();
-    builder->AddInstruction(std::move(popinstr));
-
     update_->emit(builder);
 
     popinstr = InstructionBuilder::Create<Instructions::pop>();
