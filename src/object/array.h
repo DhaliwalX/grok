@@ -4,20 +4,19 @@
 #include "object/object.h"
 #include "object/jsobject.h"
 
-#include <memory>
 #include <vector>
 
 namespace grok { namespace obj {
 
 class JSArray : public JSObject {
 public:
-  using ObjectPointer = std::shared_ptr<Object>;
-  using size_type = std::vector<ObjectPointer>::size_type;
-  using iterator = std::vector<ObjectPointer>::iterator;
+  using HandlePointer = std::shared_ptr<Handle>;
+  using size_type = std::vector<HandlePointer>::size_type;
+  using iterator = std::vector<HandlePointer>::iterator;
   using reverse_iterator 
-        = std::vector<ObjectPointer>::reverse_iterator;
+        = std::vector<HandlePointer>::reverse_iterator;
 
-  JSArray(const std::vector<ObjectPointer> &elements) { elements_ = elements; }
+  JSArray(const std::vector<HandlePointer> &elements) { elements_ = elements; }
 
   JSArray() {}
 
@@ -30,18 +29,18 @@ public:
     return (*this);
   }
 
-  ObjectPointer operator[](int i) { // no index checking
+  HandlePointer operator[](int i) { // no index checking
     return elements_[i];
   }
 
-  ObjectPointer At(size_type i) {
+  HandlePointer At(size_type i) {
     if (i >= Size()) {
       return JSObject::GetProperty(std::to_string(i));
     }
     return elements_[i];
   }
 
-  ObjectPointer At(const std::string &prop)
+  HandlePointer At(const std::string &prop)
   {
       size_type idx = 0;
       // we still try to convert the string into number
@@ -79,17 +78,17 @@ public:
     elements_.resize(sz, CreateUndefinedObject());
   }
 
-  void Push(const ObjectPointer &obj) { // pushes the element to the last
+  void Push(const HandlePointer &obj) { // pushes the element to the last
     elements_.push_back(obj);
   }
 
-  ObjectPointer Pop() { // pops the last element
+  HandlePointer Pop() { // pops the last element
     auto ret = elements_.back();
     elements_.pop_back();
     return ret;
   }
 
-  void Assign(size_type idx, const ObjectPointer &obj)
+  void Assign(size_type idx, const HandlePointer &obj)
   {
     if (idx > Size()) {
       this->AddProperty(std::to_string(idx), obj);
@@ -120,36 +119,15 @@ public:
     return elements_.rend();
   }
 
-  std::string ToString() const override {
-    std::string buff = "";
-    for (const auto &element : elements_) {
-      buff += element->as<JSObject>()->ToString();
-      buff += ",";
-    }
-    if (elements_.size()) {
-      buff.pop_back();
-    }
-    return buff;
-  }
+  std::string ToString() const override;
 
-  std::string AsString() const override {
-    std::string buff = "[ ";
-    for (const auto &element : elements_) {
-      buff += element->as<JSObject>()->ToString();
-      buff += ", ";
-    }
-    if (elements_.size()) {
-      buff.pop_back();
-      buff.pop_back();
-    }
-    return buff + " ]";
-  }
+  std::string AsString() const override;
 
   JSObject::Value GetProperty(const JSObject::Name &name) override;
 
   auto &Container() { return elements_; }
 private:
-  std::vector<ObjectPointer> elements_;
+  std::vector<HandlePointer> elements_;
 };
 
 static inline bool IsJSArray(std::shared_ptr<Object> obj)

@@ -14,6 +14,33 @@
 namespace grok {
 namespace obj {
 
+std::string JSArray::AsString() const
+{
+    std::string buff = "[ ";
+    for (const auto &element : elements_) {
+        buff += element->as<JSObject>()->AsString();
+        buff += ", ";
+    }
+    if (elements_.size()) {
+        buff.pop_back();
+        buff.pop_back();
+    }
+    return buff + " ]";
+}
+
+std::string JSArray::ToString() const
+{
+    std::string buff = "";
+    for (const auto &element : elements_) {
+        buff += element->as<JSObject>()->ToString();
+        buff += ",";
+    }
+    if (elements_.size()) {
+        buff.pop_back();
+    }
+    return buff;
+}
+
 JSObject::Value JSArray::GetProperty(const JSObject::Name &name)
 {
     if (name == "length") {
