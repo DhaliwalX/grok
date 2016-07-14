@@ -163,5 +163,47 @@ std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
     return result.O;
 }
 
+void CreatePushInstruction(InstructionBuilder *b,
+    std::shared_ptr<Handle> object)
+{
+    auto instr = InstructionBuilder::Create<Instructions::push>();
+    instr->data_type_ = d_obj;
+    instr->data_ = object;
+
+    b->AddInstruction(std::move(instr));
+}
+
+std::vector<std::shared_ptr<InstructionList>> st;
+
+void CreateInterruptRequest(std::shared_ptr<Function> func,
+        std::shared_ptr<Argument> Args, VM* vm)
+{
+    auto ib = InstructionBuilder::CreateBuilder();
+    ib->CreateBlock();
+
+    CreatePushInstruction(ib.get(), std::make_shared<Handle>(func));
+
+    for (auto Arg : *Args) {
+        CreatePushInstruction(ib.get(), Arg);
+    }
+
+    auto instr = std::make_shared<Instruction>();
+    instr->kind_ = Instructions::call;
+    instr->data_type_ = d_num;
+    instr->number_ = Args->Size();
+    ib->AddInstruction(std::move(instr));
+    
+    ib->Finalize();
+    std::shared_ptr<InstructionList> ir = ib->ReleaseInstructionList();
+    st.push_back(ir);
+    // transfer the control
+    // TODO: The result of this interrupt must be stored somewhere
+    vm->RequestInterrupt(ir->begin(), ir->end());
+
+    if (!vm->IsRunning()) {
+        vm->HandleInterrupt();
+    }
+}
+
 }
 }

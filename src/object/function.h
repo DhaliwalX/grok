@@ -108,6 +108,8 @@ IsFunction(std::shared_ptr<Object> obj)
 extern std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
     std::shared_ptr<Argument> Args, grok::vm::VM* vm);
 
+extern void CreateInterruptRequest(std::shared_ptr<Function> func,
+        std::shared_ptr<Argument> Args, grok::vm::VM* vm);
 } // obj
 } // grok
 
