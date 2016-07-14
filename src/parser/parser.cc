@@ -6,6 +6,8 @@
 #include "parser/returnstatement.h"
 #include "lexer/token.h"
 
+#include "common/exceptions.h"
+
 using namespace grok::parser;
 
 namespace myunique {
@@ -53,7 +55,7 @@ std::unique_ptr<Expression> GrokParser::ParseArrayLiteral()
         if (tok == RSQB)
             break;
         if (tok != COMMA)
-            throw std::runtime_error("expected a ',' or ']'");
+            throw SyntaxError("expected a ',' or ']'");
         lex_->advance();   
     }
 
@@ -82,14 +84,14 @@ std::unique_ptr<Expression> GrokParser::ParseObjectLiteral()
         } else if (tok == IDENT) {
             name = lex_->GetIdentifierName();
         } else {
-            throw std::runtime_error("expected an Identifier or a string");
+            throw SyntaxError("expected an Identifier or a string");
         }
 
         lex_->advance();
         tok = lex_->peek();
 
         if (tok != COLON) {
-            throw std::runtime_error("expected a ':'");
+            throw SyntaxError("expected a ':'");
         }
         lex_->advance();
 
@@ -101,7 +103,7 @@ std::unique_ptr<Expression> GrokParser::ParseObjectLiteral()
         if (tok == RBRACE)
             break;
         if (tok != COMMA)
-            throw std::runtime_error("expected a ',' or '}'");
+            throw SyntaxError("expected a ',' or '}'");
         lex_->advance();
     }
 
@@ -133,7 +135,7 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary()
         tok = lex_->peek();
 
         if (tok != RPAR)
-            throw std::runtime_error("expected a ')'");
+            throw SyntaxError("expected a ')'");
     } else if (tok == LSQB) {
         result = ParseArrayLiteral();
     } else if (tok == LBRACE) {
@@ -142,7 +144,7 @@ std::unique_ptr<Expression> GrokParser::ParsePrimary()
         result = ParseFunction();
         return result;
     } else {
-        throw std::runtime_error("expected a primary expression");
+        throw SyntaxError("expected a primary expression");
     }
 
     lex_->advance();
@@ -158,7 +160,7 @@ std::unique_ptr<Expression> GrokParser::ParseDotExpression()
 
     // this token should be a valid identifier
     if (tok != IDENT)
-        throw std::runtime_error("expected a valid identifier");
+        throw SyntaxError("expected a valid identifier");
     auto name = lex_->GetIdentifierName();
 
     auto ident = std::make_unique<Identifier>(name);
@@ -172,7 +174,7 @@ std::unique_ptr<Expression> GrokParser::ParseIndexExpression()
     lex_->advance();
     auto expr = ParseAssignExpression();
     if (lex_->peek() != RSQB)
-        throw std::runtime_error("expected a ']'");
+        throw SyntaxError("expected a ']'");
 
     lex_->advance(); // consumex ']'
     return std::make_unique<IndexMemberExpression>(std::move(expr));
@@ -215,7 +217,7 @@ std::vector<std::unique_ptr<Expression>> GrokParser::ParseArgumentList()
 
     auto tok = lex_->peek();
     if (tok != LPAR)
-        throw std::runtime_error("expected a '('");
+        throw SyntaxError("expected a '('");
     lex_->advance();
 
     tok = lex_->peek();
@@ -232,7 +234,7 @@ std::vector<std::unique_ptr<Expression>> GrokParser::ParseArgumentList()
         if (tok == RPAR)
             break;
         if (tok != COMMA)
-            throw std::runtime_error("expected a ',' or ')'");
+            throw SyntaxError("expected a ',' or ')'");
         lex_->advance();
     }
 
@@ -403,7 +405,7 @@ std::unique_ptr<Expression> GrokParser::ParseTernary()
     
     tok = lex_->peek();
     if (tok != COLON) {
-        throw std::runtime_error("expected a ':'");
+        throw SyntaxError("expected a ':'");
     }
 
     // eat ':'
@@ -469,7 +471,7 @@ std::unique_ptr<Expression> GrokParser::ParseIfStatement()
 
     auto tok = lex_->peek();
     if (tok != LPAR) 
-        throw std::runtime_error("expected a '('");
+        throw SyntaxError("expected a '('");
     lex_->advance();
 
     // parse the condition of if statement
@@ -477,7 +479,7 @@ std::unique_ptr<Expression> GrokParser::ParseIfStatement()
 
     tok = lex_->peek();
     if (tok != RPAR)
-        throw std::runtime_error("expected a ')'");
+        throw SyntaxError("expected a ')'");
     lex_->advance();
 
     // parse the body of 'if'
@@ -502,7 +504,7 @@ std::unique_ptr<Expression> GrokParser::ParseForStatement()
     auto tok = lex_->peek();
 
     if (tok != LPAR)
-        throw std::runtime_error("expected a '('");
+        throw SyntaxError("expected a '('");
     lex_->advance();
 
     // parse 'for ( >>this<< ;...' part
@@ -510,7 +512,7 @@ std::unique_ptr<Expression> GrokParser::ParseForStatement()
 
     tok = lex_->peek();
     if (tok != SCOLON)
-        throw std::runtime_error("expected a ';'");
+        throw SyntaxError("expected a ';'");
     lex_->advance();
 
     std::unique_ptr<Expression> condition;
@@ -523,7 +525,7 @@ std::unique_ptr<Expression> GrokParser::ParseForStatement()
 
     tok = lex_->peek();
     if (tok != SCOLON)
-        throw std::runtime_error("expected a ';'");
+        throw SyntaxError("expected a ';'");
     lex_->advance();
 
     std::unique_ptr<Expression> update;
@@ -536,7 +538,7 @@ std::unique_ptr<Expression> GrokParser::ParseForStatement()
 
     tok = lex_->peek();
     if (tok != RPAR)
-        throw std::runtime_error("expected a ')'");
+        throw SyntaxError("expected a ')'");
     lex_->advance();
 
     // parse 'for (x = 10; x < 100; x = x + 1) >>rest<<...' part
@@ -552,14 +554,14 @@ std::unique_ptr<Expression> GrokParser::ParseWhileStatement()
     auto tok = lex_->peek();
 
     if (tok != LPAR) {
-        throw std::runtime_error("expected a '('");
+        throw SyntaxError("expected a '('");
     }
     lex_->advance();
     
     auto condition = ParseCommaExpression();
     tok = lex_->peek();
     if (tok != RPAR)
-        throw std::runtime_error("expected a ')'");
+        throw SyntaxError("expected a ')'");
 
     lex_->advance();
     auto body = ParseStatement();
@@ -575,25 +577,25 @@ std::unique_ptr<Expression> GrokParser::ParseDoWhileStatement()
 
     auto tok = lex_->peek();
     if (tok != WHILE)
-        throw std::runtime_error("expected 'while'");
+        throw SyntaxError("expected 'while'");
     lex_->advance();
 
     tok = lex_->peek();
     if (tok != LPAR) {
-        throw std::runtime_error("expected a '('");
+        throw SyntaxError("expected a '('");
     }
     lex_->advance();
 
     auto condition = ParseCommaExpression();
     tok = lex_->peek();
     if (tok != RPAR) {
-        throw std::runtime_error("expected a ')'");
+        throw SyntaxError("expected a ')'");
     }
     lex_->advance();
 
     tok = lex_->peek();
     if (tok != SCOLON)
-        throw std::runtime_error("expected a ';'");
+        throw SyntaxError("expected a ';'");
     lex_->advance();
 
     return std::make_unique<DoWhileStatement>(std::move(condition),
@@ -606,7 +608,7 @@ std::vector<std::string> GrokParser::ParseParameterList()
     auto result = std::vector<std::string>();
 
     if (tok != LPAR)
-        throw std::runtime_error("expected a '('");
+        throw SyntaxError("expected a '('");
     lex_->advance();
 
     // check for ')'
@@ -620,7 +622,7 @@ std::vector<std::string> GrokParser::ParseParameterList()
         tok = lex_->peek();
 
         if (tok != IDENT) 
-            throw std::runtime_error("expected an identifier");
+            throw SyntaxError("expected an identifier");
 
         result.push_back(lex_->GetIdentifierName());
         lex_->advance();
@@ -630,7 +632,7 @@ std::vector<std::string> GrokParser::ParseParameterList()
             break;
 
         if (tok != COMMA)
-            throw std::runtime_error("expected a ',' or ')'");
+            throw SyntaxError("expected a ',' or ')'");
         lex_->advance();
     }
 
@@ -691,7 +693,7 @@ std::unique_ptr<Expression> GrokParser::ParseReturnStatement()
     auto tok = lex_->peek();
 
     if (tok != SCOLON)
-        throw std::runtime_error("expected a ';'");
+        throw SyntaxError("expected a ';'");
     lex_->advance();
     return std::make_unique<ReturnStatement>(std::move(expr));
 }
@@ -700,7 +702,7 @@ std::unique_ptr<Declaration> GrokParser::ParseDeclaration()
 {
     auto tok = lex_->peek();
     if (tok != IDENT) {
-        throw std::runtime_error("expected an identifier");
+        throw SyntaxError("expected an identifier");
     }
     std::string name = lex_->GetIdentifierName();
     lex_->advance();
@@ -709,7 +711,7 @@ std::unique_ptr<Declaration> GrokParser::ParseDeclaration()
     if (tok == SCOLON || tok == COMMA) {
         return std::make_unique<Declaration>(name);
     } else if (tok != ASSIGN) {
-        throw std::runtime_error("expected a '='");
+        throw SyntaxError("expected a '='");
     }
     lex_->advance();
     return std::make_unique<Declaration>(name, ParseAssignExpression());
@@ -727,7 +729,7 @@ std::unique_ptr<Expression> GrokParser::ParseVariableStatement()
         if (tok == SCOLON)
             break;
         else if (tok != COMMA)
-            throw std::runtime_error("expected a ',' or ';'");
+            throw SyntaxError("expected a ',' or ';'");
         lex_->advance(); // eat ','
     }
 
@@ -746,7 +748,7 @@ std::unique_ptr<Expression> GrokParser::ParseStatement()
         tok = lex_->peek();
 
         if (tok != SCOLON)
-            throw std::runtime_error("expected a ';'");
+            throw SyntaxError("expected a ';'");
         lex_->advance();
         return result;
     }
@@ -770,6 +772,40 @@ std::unique_ptr<Expression> GrokParser::ParseStatement()
     }
 }
 
+std::string CreateLLVMLikePointer(size_t pos, size_t len)
+{
+    std::string result;
+    if (pos >= len) {
+        result += std::string(len, '~');
+        result += '^';
+    } else {
+        result += std::string(pos - 1, '~');
+        result += '^';
+        result += std::string(len - pos, '~');
+    }
+    return result;
+}
+
+std::string GetErrorMessagePointer(std::string &str, size_t seek, Position pos)
+{
+    const size_t threshold_length = 70;
+    std::string shown("  ");
+
+    if (str.length() > threshold_length) {
+        size_t e = (str.length() - seek < threshold_length / 2)
+                ? str.length() - seek : threshold_length / 2;
+        shown += std::string(str.begin() + seek - threshold_length / 2,
+                        str.begin() + seek + e);
+        shown += "\n  " + CreateLLVMLikePointer(seek - threshold_length / 2,
+                                            threshold_length / 2 + e) + '\n';
+    } else {
+        shown += str + "\n  " + CreateLLVMLikePointer(pos.col_,
+            str.length()) + '\n';
+    }
+
+    return shown;
+}
+
 bool GrokParser::ParseExpression()
 {
     std::vector<std::unique_ptr<Expression>> exprs;
@@ -779,10 +815,12 @@ bool GrokParser::ParseExpression()
             expr_ast_->PushExpression(ParseStatement());
         }
     } catch (std::exception &e) {
-        std::cerr << "<" << lex_->GetCurrentPosition().row_
-            << ":" << lex_->GetCurrentPosition().col_ << "> ";
         std::cerr << e.what() << ", got '"
-            << TOKENS[lex_->peek()].value_ << "'." << std::endl;
+            << TOKENS[lex_->peek()].value_ << "' ";
+        std::cerr << "(at " << lex_->GetCurrentPosition().row_
+            << ":" << lex_->GetCurrentPosition().col_ << ").\n";
+        std::cerr << GetErrorMessagePointer(lex_->GetStringCache(),
+                    lex_->GetSeek(), lex_->GetCurrentPosition());
         return false;
     }
 
