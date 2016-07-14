@@ -82,6 +82,11 @@ void VM::SetCounters(Counter start, Counter end)
     End = end;
 }
 
+void VM::RequestInterrupt(Counter start, Counter end)
+{
+    RQ.Push({ start, end });
+}
+
 /// When a function call takes place we have to save the current position
 /// of our instruction register, current instruction we are executing,
 /// flags and a size of stack before the function call because stack grows
@@ -637,7 +642,7 @@ void VM::CallNative(std::shared_ptr<Object> function_object,
     SetFlags();
 }
 
-void VM::CallOP()
+bool VM::CallPrologue()
 {
     auto Args = CreateArgumentList(GetCurrent()->GetNumber());
     auto F = Stack.Pop();
@@ -651,7 +656,7 @@ void VM::CallOP()
 
     if (TheFunction->IsNative()) {
         CallNative(F.O, Args);
-        return;
+        return false;
     }
 
     if (Flags & constructor_call) {
@@ -682,9 +687,16 @@ void VM::CallOP()
     while (PSz > Sz) {
         V->StoreValue(Params[Sz++], CreateUndefinedObject());
     }
+
     // now we are in position to transfer the control
     // to the function
     Current = TheFunction->GetAddress();
+    return true;
+}
+
+void VM::CallOP()
+{
+    CallPrologue();
 }
 
 void VM::RetOP()
@@ -871,13 +883,34 @@ void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
     }
 }
 
+void VM::HandleInterrupt()
+{
+    // handle all interrupts in one go
+    while (Interrupt()) {
+        auto apair = RQ.PopFront();
+
+        SaveState();
+        SetCounters(apair.first, apair.second);
+        ClearInt();
+        Run();
+        SetInt();
+        RestoreState();
+    }
+}
+
 void VM::Run()
 {
+    SetInt();
     // main loop
     while (Current != End) {
+        SetBusy();
+        if (Interrupt()) {
+            HandleInterrupt();
+        }
         ExecuteInstruction(*Current);
         ++Current;
     }
+    Flags &= ~is_running;
 }
 
 } // vm

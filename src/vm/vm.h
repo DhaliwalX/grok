@@ -2,6 +2,7 @@
 #define VM_H_
 
 #include "vm/instruction-list.h"
+#include "vm/vm_interrupts.h"
 #include "vm/counter.h"
 #include "vm/var-store.h"
 #include "common/generic-stack.h"
@@ -30,7 +31,7 @@ extern std::unique_ptr<VM> CreateVM(VMContext *context);
 ///                     VM ::= The Virtual Machine
 ///====---------------------------------------------------------------====
 class VM {
-#define DEFAULT_VM_FLAG 0
+#define DEFAULT_VM_FLAG (0 | 0x16)
     friend std::unique_ptr<VM> CreateVM(VMContext *context);
 
     VM()
@@ -42,10 +43,13 @@ class VM {
 
 public:
     enum {
-        carry_flag = 0x1,
-        zero_flag = 0x2,
-        undefined_flag = 0x4,
-        constructor_call = 0x8
+        carry_flag = 1,
+        zero_flag = 2,
+        undefined_flag = 4,
+        constructor_call = 8,
+        interrupt_flag = 16,
+        interrupt_rq = 32,
+        is_running = 64
     };
 
     /// SetContext ::= sets the context
@@ -91,6 +95,20 @@ public:
 
     // Reset the counters, stacks etc.
     void Reset();
+
+    void SetInt() { Flags |= interrupt_flag; }
+    void ClearInt() { Flags &= ~interrupt_flag; }
+
+    void SetIRQ() { Flags |= interrupt_rq; }
+    void ClearIRQ() { Flags &= ~interrupt_rq; }
+
+    void RequestInterrupt(Counter start, Counter end);
+
+    bool Interrupt() { return !RQ.Empty() && (Flags & interrupt_flag); }
+    void HandleInterrupt();
+
+    bool IsRunning() { return Flags & is_running; }
+    void SetBusy() { Flags |= is_running; }
 private:
     void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
         std::shared_ptr<grok::obj::Object> obj);
@@ -151,6 +169,7 @@ private:
     void PdecOP();
     void CallNative(std::shared_ptr<grok::obj::Object> function,
             PassedArguments &Args);
+    bool CallPrologue();
 
     bool debug_execution_;
     VMContext *Context;
@@ -167,6 +186,9 @@ private:
     VMStack Stack;  // program stack
     CallStack CStack;
     FlagStack FStack;
+
+    // RQ ::= runqueue
+    IRQueue RQ;
 };
 
 } // vm
