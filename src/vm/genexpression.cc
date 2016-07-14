@@ -79,7 +79,7 @@ void EmitBinaryOperator(BinaryExpression::Operator op,
     auto instr = InstructionBuilder::Create<Instructions::noop>();
     switch (op) {
     default:
-        throw std::runtime_error("unknown operator");
+        throw TypeError("unknown operator");
     case PLUS:
         instr->kind_ = Instructions::adds;
         break;
@@ -142,7 +142,7 @@ void EmitBinaryOperator(BinaryExpression::Operator op,
 void PrefixExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     if (expr_->ProduceRValue() && (tok_ == INC || tok_ == DEC))
-        throw std::runtime_error("fatal: can't apply prefix operator on "
+        throw ReferenceError("can't apply prefix operator on "
             "r-value");
 
     expr_->emit(builder);
@@ -164,7 +164,7 @@ void PrefixExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 void PostfixExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     if (expr_->ProduceRValue())
-        throw std::runtime_error("fatal: can't apply postfix operator on "
+        throw ReferenceError("can't apply postfix operator on "
             "r-value");
 
     expr_->emit(builder);
@@ -191,7 +191,7 @@ void AssignExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     rhs_->emit(builder);
 
     if (lhs_->ProduceRValue())
-        throw std::runtime_error("fatal: can't assign to an rvalue");
+        throw ReferenceError("can't assign to an rvalue");
 
     // first we check whether the lhs_ is an Identifier
     auto maybe = dynamic_cast<Identifier*>(lhs_.get());
@@ -469,10 +469,6 @@ void DotMemberExpression::emit(std::shared_ptr<InstructionBuilder> builder)
 {
     auto Property = mem_->GetName();
 
-    if (Property.length() == 0)
-        throw std::runtime_error("property should be a valid string"
-            "with length > 0");
-
     // now the base object must lie in the stack, so we will
     // replace the object with its property Property
     auto repl = InstructionBuilder::Create<Instructions::replprop>();
@@ -519,7 +515,7 @@ void ReturnStatement::emit(std::shared_ptr<InstructionBuilder> builder)
     if (builder->InsideFunction())
         expr_->emit(builder);
     else 
-        throw std::runtime_error("return statement was not inside function");
+        throw TypeError("return statement was not inside function");
 
     auto ret = InstructionBuilder::Create<Instructions::ret>();
     builder->AddInstruction(std::move(ret));
