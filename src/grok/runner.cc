@@ -73,13 +73,16 @@ int ExecuteAST(Context *ctx, std::ostream &os, std::shared_ptr<Expression> AST)
 
         if (ctx->IsInteractive() || ctx->ShouldPrintLastInStack()) {
             os << Color::Attr(Color::dim)
-                    << O->AsString() << " [ Code generating done in "; 
+                    << O->AsString() << Color::Reset() << std::endl;
+        } else {
+            return O->IsTrue();
+        }
+        if (ctx->DoProfile()) {
+            os << Color::Attr(Color::dim) << "\n[ Code generating done in "; 
             log_progress(cge - cgs);
             os << " ] [ Execution took around ";
             log_progress(vme - vms);
             os << " ]" << Color::Reset() << std::endl;
-        } else {
-            return O->IsTrue();
         }
         TheVM->Reset();
     } catch (std::exception &e) {
@@ -101,7 +104,7 @@ int ExecuteFile(Context *ctx, const std::string &filename, std::ostream &os)
             v.insert(v.end(), buf, buf + len);
         fclose(fp);
     } else {
-        std::cout << "fatal: " << filename << ": "
+        std::cout << "IOError: " << filename << ": "
             << strerror(errno) << std::endl;
         return -1;
     }
@@ -121,7 +124,7 @@ int ExecuteFile(Context *ctx, const std::string &filename, std::ostream &os)
     }
 
     auto AST = parser.ParsedAST();
-    if (ctx->IsInteractive()) {
+    if (ctx->DoProfile()) {
         os << Color::Attr(Color::dim) << " [ Parsing done in "; 
         log_progress(pge - pgs);
         os << " ]" << Color::Reset() << std::endl;
@@ -172,7 +175,7 @@ void InteractiveRun(Context *ctx)
             os << parser << std::endl;
         }
         auto AST = parser.ParsedAST();
-        if (ctx->IsInteractive()) {
+        if (ctx->DoProfile()) {
             os << Color::Attr(Color::dim) << " [ Parsing done in "; 
             log_progress(pge - pgs);
             os << " ]" << Color::Reset() << std::endl;

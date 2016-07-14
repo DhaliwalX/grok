@@ -34,6 +34,7 @@ void InitializeContext()
     O->AddOption("top,t", "print the value present in stack after execution");
     O->AddOption("file,f", "interprete files",
         BPO::value<std::vector<std::string>>()->composing());
+    O->AddOption("profile", "show profiling information while executing");
     O->AddPositionalOption("file", -1);
     GetContext()->SetIOServiceObject();
 }
@@ -57,6 +58,7 @@ void Context::ParseCommandLineOptions(int argc, char **argv)
 
     ast_ = options.HasOption("debug-ast");
     file_ = options.HasOption("file");
+    profile_ = options.HasOption("profile");
 
     if (file_) {
         files_ = options.GetOptionAs<std::vector<std::string>>("file");

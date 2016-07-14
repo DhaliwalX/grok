@@ -40,6 +40,7 @@ public:
     void SetInputViaFile() { file_ = true; }
 
     bool ShouldPrintLastInStack() const { return last_in_stack_; }
+    bool DoProfile() const { return profile_; }
     
     decltype(auto) GetFiles() { return files_; }
     void SetInputFiles(std::vector<std::string> files)
@@ -82,6 +83,7 @@ private:
     bool ast_; // print AST
     bool dry_run_;
     bool last_in_stack_;
+    bool profile_;
     std::ostream &os; // output stream used for printing and debugging
     Opts options;
 
