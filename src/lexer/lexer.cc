@@ -163,10 +163,8 @@ Lexer::ParseNumber(char ch,
   return Token(buffer, DIGIT, -1, pos);
 }
 
-Token Lexer::ParseIdentifierOrKeyWord(
-    char ch,
-    Position &
-        pos) { // parses the identifier or a keyword from the current position
+Token Lexer::ParseIdentifierOrKeyWord(char ch, Position &pos)
+{ // parses the identifier or a keyword from the current position
   std::string buffer;
   // possibly it is an identifier
   while (isalnum(ch) || ch == '_' || ch == '$') {

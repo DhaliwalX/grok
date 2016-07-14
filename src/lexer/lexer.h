@@ -77,13 +77,23 @@ public:
   Position GetCurrentPosition() const { return tok_.position_; }
 
   bool Eos() { return eos_; }
+
+  std::string &GetStringCache()
+  {
+    return code_;
+  }
+
+  size_t GetSeek()
+  {
+    return seek_;
+  }
 private:
   std::string code_; // whole code will stored here
-  int seek_;         // current position of the seek
-  int end_;
+  size_t seek_;         // current position of the seek
+  size_t end_;
   Token tok_;       // buffer required for PutBack()
   bool eos_;     // end of file flag
-  std::size_t size_; // size_ of the string code_
+  size_t size_; // size_ of the string code_
   Position position_;
   int lastColNumber_; // current position in terms of line no and column no.
   int save_end_;
