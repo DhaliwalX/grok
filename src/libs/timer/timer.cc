@@ -58,11 +58,8 @@ TimeoutHelper::SetTimeout(std::shared_ptr<Argument> args)
             throw std::runtime_error("fatal: timer ran into problem");
             return;
         }
-
-        auto vm = grok::vm::CreateVM(GetGlobalVMContext());
-        if (vm == nullptr)
-            std::cout << "vm was nullptr";
-        CallJSFunction(fn, args_to_pass, vm.get());        
+        grok::vm::VM* vm = grok::vm::GetGlobalVMContext()->GetVM();
+        CreateInterruptRequest(fn, args_to_pass, vm);
     });
 
     running_timers.insert({ counter++, timer});
