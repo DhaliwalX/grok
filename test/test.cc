@@ -173,6 +173,7 @@ bool Test::StartTest(int32_t flags)
 
         std::string res = obj->AsString();
 
+        grok::GetContext()->RunIO();
         return true;
     } catch (std::exception &e) {
         if (flags & f_print_reason)
@@ -184,9 +185,25 @@ bool Test::StartTest(int32_t flags)
 }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     grok::InitializeContext();
+    int test_id = -1;
+
+    if (argc >= 2) { 
+        if (std::string(argv[1]) == "-h" || 
+            std::string(argv[1]) == "--help") {
+            std::cerr << "Usage: " << argv[0] << " <test_number>" << std::endl;
+            return 1;
+        } else {
+            try {
+                test_id = std::stoi(argv[1]);
+            } catch (std::exception &e) {
+                std::cerr << "bad number" << std::endl;
+                return 1;
+            }
+        }
+    }
     grok::GetContext()->SetDebugExecution();
     using namespace boost::filesystem;
     using namespace grok::test;
@@ -209,7 +226,7 @@ int main()
         // we are good
         std::vector<std::string> files;
         size_t count = 0;
-	directory_iterator e;
+    	directory_iterator e;
         for (directory_iterator it(p); it != e; ++it) {
             std::cout << "\rCounting test files: " << count++;
             std::cout << std::flush;
@@ -222,9 +239,37 @@ int main()
         size_t i = 0;
 
         // run the tests
-        for (auto file : files) {
+
+        if (test_id < 0) {
+            for (auto file : files) {
+                auto s = std::chrono::high_resolution_clock::now();
+            
+                std::cout << "Testing '" << file + '\'' << std::endl;
+                Test test{ grok::GetContext() };
+
+                if (test.Prepare(file).StartTest(f_syntax_errors | f_ir_errors
+                        | f_vm_errors | f_print_reason)) {
+                    std::cout << "Test[" << ++i << "] <"
+                        << file << ">: passed.";
+                    stats.AddPassed();
+                } else {
+                    std::cout << "Test[" << ++i << "] <"
+                        << file << ">: failed.";
+                    stats.AddFailed();
+                }
+
+                auto e = std::chrono::high_resolution_clock::now();
+                std::cout << "[ time: ";
+                log_progress(e - s);
+                std::cout << " ]" << std::endl;
+            }
+        } else {
             auto s = std::chrono::high_resolution_clock::now();
-        
+            if (test_id > files.size()) {
+                std::cerr << "test not written yet!" << std::endl;
+                return 1;
+            }
+            auto file = files[test_id];
             std::cout << "Testing '" << file + '\'' << std::endl;
             Test test{ grok::GetContext() };
 
