@@ -15,11 +15,9 @@ public:
     FunctionPrototype(std::string name, std::vector<std::string> args)
         : name_{ name }, args_{ std::move(args) }
     { }
-
-    std::ostream &operator<<(std::ostream &os) const override;
+    DEFINE_NODE_TYPE(FunctionPrototype);
     const std::string &GetName() const;
     const std::vector<std::string> &GetArgs() const;
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
 private:
     std::string name_;
     std::vector<std::string> args_;
@@ -33,8 +31,10 @@ public:
         : proto_{ std::move(proto) }, body_{ std::move(body) }
     { }
 
-    std::ostream &operator<<(std::ostream &os) const override;
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    DEFINE_NODE_TYPE(FunctionStatement);
+
+    std::unique_ptr<FunctionPrototype> &proto() { return proto_; }
+    std::unique_ptr<Expression> &body() { return body_; }
 private:
     std::unique_ptr<FunctionPrototype> proto_;
     std::unique_ptr<Expression> body_;

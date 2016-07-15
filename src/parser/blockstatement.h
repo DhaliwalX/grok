@@ -10,16 +10,16 @@ namespace parser {
 ///  BlockStatment ::= class representing block statments
 class BlockStatement : public Expression {
 public:
-    BlockStatement(std::vector<std::unique_ptr<Expression>> stmts)
+    BlockStatement(ExpressionList stmts)
         : stmts_{ std::move(stmts) }
     { }
 
-    std::ostream &operator<<(std::ostream &os) const override;
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    DEFINE_NODE_TYPE(BlockStatement);
 
+    ExpressionList &statements() { return stmts_; }
     void PushExpression(std::unique_ptr<Expression> expr);
 private:
-    std::vector<std::unique_ptr<Expression>> stmts_;
+    ExpressionList stmts_;
 };
 
 } // parser

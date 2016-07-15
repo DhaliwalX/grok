@@ -6,7 +6,7 @@
 namespace grok {
 namespace parser {
 
-class ForStatement :public Expression {
+class ForStatement : public Expression {
     using ExprPtr = std::unique_ptr<Expression>;
 public:
     ForStatement(ExprPtr init, ExprPtr condition, ExprPtr update, ExprPtr body)
@@ -14,8 +14,13 @@ public:
           update_{ std::move(update) }, body_{ std::move(body) }
     { }
 
-    std::ostream &operator<<(std::ostream &os) const override;
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    DEFINE_NODE_TYPE(ForStatement);
+
+    ExprPtr &init() { return init_; }
+    ExprPtr &condition() { return condition_; }
+    ExprPtr &update() { return update_; }
+    ExprPtr &body() { return body_; }
+
 private:
     std::unique_ptr<Expression> init_;
     std::unique_ptr<Expression> condition_;
@@ -23,7 +28,7 @@ private:
     std::unique_ptr<Expression> body_;
 };
 
-class WhileStatement :public Expression {
+class WhileStatement : public Expression {
     using ExprPtr = std::unique_ptr<Expression>;
 public:
     WhileStatement(ExprPtr condition, ExprPtr body)
@@ -31,23 +36,27 @@ public:
           body_{ std::move(body) }
     { }
 
-    std::ostream &operator<<(std::ostream &os) const override;
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    DEFINE_NODE_TYPE(WhileStatement);
+
+    ExprPtr &condition() { return condition_; }
+    ExprPtr &body() { return body_; }
+
 private:
     std::unique_ptr<Expression> condition_;
     std::unique_ptr<Expression> body_;
 };
 
-class DoWhileStatement :public Expression {
+class DoWhileStatement : public Expression {
     using ExprPtr = std::unique_ptr<Expression>;
 public:
     DoWhileStatement(ExprPtr condition, ExprPtr body)
         : condition_{ std::move(condition) },
           body_{ std::move(body) }
     { }
+    DEFINE_NODE_TYPE(DoWhileStatement);
 
-    std::ostream &operator<<(std::ostream &os) const override;
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    ExprPtr &condition() { return condition_; }
+    ExprPtr &body() { return body_; }
 private:
     std::unique_ptr<Expression> condition_;
     std::unique_ptr<Expression> body_;

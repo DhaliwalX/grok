@@ -13,8 +13,10 @@ public:
         : condition_{ std::move(cond) }, body_{ std::move(body) }
     { }
 
-    std::ostream &operator<<(std::ostream &os) const override;
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    DEFINE_NODE_TYPE(IfStatement);
+
+    std::unique_ptr<Expression> &condition() { return condition_; }
+    std::unique_ptr<Expression> &body() { return body_; }
 private:
     std::unique_ptr<Expression> condition_;
     std::unique_ptr<Expression> body_;
@@ -29,8 +31,11 @@ public:
       else_{ std::move(el) }
     { }
 
-    std::ostream &operator<<(std::ostream &os) const override;
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+    DEFINE_NODE_TYPE(IfElseStatement);
+
+    std::unique_ptr<Expression> &condition() { return condition_; }
+    std::unique_ptr<Expression> &body() { return body_; }
+    std::unique_ptr<Expression> &els() { return else_; }
 private:
     std::unique_ptr<Expression> condition_;
     std::unique_ptr<Expression> body_;

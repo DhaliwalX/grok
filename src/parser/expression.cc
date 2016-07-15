@@ -1,10 +1,26 @@
 #include "parser/expression.h"
+#include "parser/astvisitor.h"
+
 namespace grok { namespace parser {
+
+#define DEFINE_ACCEPT(type) \
+void type::Accept(ASTVisitor *v)    \
+{   \
+    v->Visit(this); \
+}
+
+AST_NODE_LIST(DEFINE_ACCEPT)
+#undef AST_NODE_LIST
 
 std::ostream &NullLiteral::operator<<(std::ostream &os) const
 {
     os << "(null)";
     return os;
+}
+
+std::ostream &ThisHolder::operator<<(std::ostream &os) const
+{
+    return os << "(this)";
 }
 
 std::ostream &IntegralLiteral::operator<<(std::ostream &os) const
@@ -86,6 +102,16 @@ std::ostream &TernaryExpression::operator<<(std::ostream &os) const
     *third_ << os << ")";
 
     return os;
+}
+
+std::ostream &CommaExpression::operator<<(std::ostream &os) const
+{
+    os << "(";
+    for (auto &expr : exprs_) {
+        *expr << os << ", ";
+    }
+
+    return os << ")";
 }
 
 std::ostream &FunctionCallExpression::operator<<(std::ostream &os) const
