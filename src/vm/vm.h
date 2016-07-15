@@ -31,7 +31,7 @@ extern std::unique_ptr<VM> CreateVM(VMContext *context);
 ///                     VM ::= The Virtual Machine
 ///====---------------------------------------------------------------====
 class VM {
-#define DEFAULT_VM_FLAG (0 | 0x16)
+#define DEFAULT_VM_FLAG (0 | 16)
     friend std::unique_ptr<VM> CreateVM(VMContext *context);
 
     VM()
@@ -49,7 +49,8 @@ public:
         constructor_call = 8,
         interrupt_flag = 16,
         interrupt_rq = 32,
-        is_running = 64
+        is_running = 64,
+        interrupt_ack = 128
     };
 
     /// SetContext ::= sets the context
@@ -76,7 +77,7 @@ public:
     }
 
     /// ExecuteInstruction ::= Execute the given instruction
-    void ExecuteInstruction(std::shared_ptr<Instruction> instr);
+    void ExecuteInstruction(std::shared_ptr<Instruction> &instr);
 
     /// GetThis ::= return the value of `this`
     std::shared_ptr<grok::obj::Object> GetThis();
@@ -109,6 +110,10 @@ public:
 
     bool IsRunning() { return Flags & is_running; }
     void SetBusy() { Flags |= is_running; }
+
+    bool IsInterruptAcknowledging() { return Flags & interrupt_ack; }
+    void SetInterruptAcknowledge() { Flags |= interrupt_ack; }
+    void ClearAck() { Flags &= ~interrupt_ack; }
 private:
     void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
         std::shared_ptr<grok::obj::Object> obj);

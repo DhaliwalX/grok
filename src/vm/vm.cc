@@ -7,6 +7,7 @@
 #include "object/prototype.h"
 
 #include <algorithm>
+#include <bitset>
 
 namespace grok {
 namespace vm {
@@ -105,6 +106,7 @@ void VM::RequestInterrupt(Counter start, Counter end)
 void VM::SaveState()
 {
     CStack.Push(Current);
+    CStack.Push(End);
     FStack.Push(Flags);
     HelperStack.Push(Stack.size());
     this_helper.Push(TStack.size());
@@ -114,6 +116,7 @@ void VM::SaveState()
 /// call
 void VM::RestoreState()
 {
+    End = CStack.Pop();
     Current = CStack.Pop();
     Flags = FStack.Pop();
     Stack.resize(HelperStack.Pop());
@@ -634,6 +637,7 @@ void VM::CallNative(std::shared_ptr<Object> function_object,
     auto ret = function->CallNative(Args, This);
     Flags = FStack.Pop();
     CStack.Pop();
+    CStack.Pop();
     HelperStack.Pop();
     Stack.Push(ret);
     if (IsConstructorCall()) {
@@ -691,6 +695,7 @@ bool VM::CallPrologue()
     // now we are in position to transfer the control
     // to the function
     Current = TheFunction->GetAddress();
+    End = TheFunction->GetEnd();
     return true;
 }
 
@@ -735,7 +740,7 @@ void VM::PrintCurrentState()
     std::cout << (Flags & zero_flag ? "Z " : " ") << std::endl;
 }
 
-void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
+void VM::ExecuteInstruction(std::shared_ptr<Instruction> &instr)
 {
     I = instr;
 
@@ -885,22 +890,32 @@ void VM::ExecuteInstruction(std::shared_ptr<Instruction> instr)
 
 void VM::HandleInterrupt()
 {
+    if (IsInterruptAcknowledging()) {
+        return;
+    }
+    SetInterruptAcknowledge();
+    // std::cout << "Handling interrupt: [ Count: " << RQ.Size() << "]"
+    //     << " [ Flags: " << std::bitset<32>(Flags)
+    //     << "] " << interrupt_flag << std::endl;
+
+    size_t count = 0;
     // handle all interrupts in one go
     while (Interrupt()) {
         auto apair = RQ.PopFront();
-
+        count++;
         SaveState();
         SetCounters(apair.first, apair.second);
         ClearInt();
+        // std::cout << (Flags & interrupt_flag) << std::endl;
         Run();
         SetInt();
         RestoreState();
     }
+    ClearAck();
 }
 
 void VM::Run()
 {
-    SetInt();
     // main loop
     while (Current != End) {
         SetBusy();
