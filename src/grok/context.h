@@ -19,7 +19,7 @@ public:
         interactive_{ true }, debug_instruction_{ true },
         debug_execution_{ true }, file_{ false }, ast_{true}, os{ os },
         io_ { },
-        work_ { std::make_unique<boost::asio::io_service::work>(io_) }
+        work_ { }
     { }
 
     ~Context() = default;
@@ -102,6 +102,8 @@ public:
     static Context *GetContext();
 
     static void Init();
+
+    static void Teardown();
 private:
     static std::unique_ptr<Context> ctx;
 };

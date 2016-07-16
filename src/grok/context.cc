@@ -20,6 +20,11 @@ void ContextStatic::Init()
     ctx->SetVMContext(new grok::vm::VMContext());
 }
 
+void ContextStatic::Teardown()
+{
+    ctx->RunIO();
+}
+
 void InitializeContext()
 {
     ContextStatic::Init();
@@ -77,7 +82,6 @@ void ParseCommandLineOptions(int argc, char **argv)
 void Context::RunIO()
 {
     io_.run();
-    std::cout << "Stopped all IO services" << std::endl;
 }
 
 void Context::RunPoller()
@@ -92,11 +96,6 @@ void Context::RunPoller()
 
 void Context::SetIOServiceObject()
 {
-    io_thread_ = std::make_unique<std::thread>(std::bind(&Context::RunIO, this));
-    poller_thread_ = std::make_unique<std::thread>(
-        std::bind(&Context::RunPoller, this));
-    io_thread_->detach();
-    poller_thread_->detach();
 }
 
 }
