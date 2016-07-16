@@ -50,7 +50,7 @@ void VM::SetContext(VMContext *context)
 {
     Context = context;
     auto V = GetVStore(Context);
-    TStack.Push(V->This());
+    js_this_ = std::make_shared<Handle>(V->This());
 }
 
 Value VM::GetResult()
@@ -142,12 +142,7 @@ void VM::FetchOP()
     auto name = GetCurrent()->GetString();
 
     if (name == "this") {
-        if (TStack.Empty()) {
-            auto V = GetVStore(Context);
-            SetAC(V->This());
-        } else {
-            SetAC(TStack.Top());
-        }
+        SetAC(GetThis());
         return;
     }
     Value TheValue = V->GetValue(name);
@@ -172,13 +167,10 @@ void VM::StoreOP()
 /// See 
 // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Operators/this
 /// Nearly every variable declared outside function is bound to global object
+// TODO: Find a better way to do this...
 std::shared_ptr<grok::obj::Object> VM::GetThis()
 {
-    if (TStack.Empty()) {
-        auto V = GetVStore(Context);
-        return V->This();
-    }
-    return TStack.Top();
+    return js_this_;
 }
 
 void VM::PushNumber(double number)
@@ -198,7 +190,7 @@ void VM::PushString(const std::string &str)
 void VM::PushNull()
 {
     auto N = std::make_shared<JSNull>();
-    auto V_N_ = std::make_shared<Object>(N);
+    auto V_N_ = std::make_shared<Handle>(N);
     Stack.Push(V_N_);
     SetFlags();
 }
@@ -229,7 +221,7 @@ void VM::PushOP()
         PushNull();
         break;
     case d_obj: {
-        std::shared_ptr<Object> obj = GetCurrent()->GetData();
+        std::shared_ptr<Handle> obj = GetCurrent()->GetData();
         Stack.Push(Value(obj));
     }
     }
@@ -276,20 +268,20 @@ void VM::ReplpropOP()
     auto Obj = GetObjectPointer<JSObject>(MayBeObject);
     auto Name = GetCurrent()->GetString();
 
-    TStack.Push(MayBeObject.O);
     auto Prop = Obj->GetProperty(Name);
     Stack.Push(Prop);
+    member_ = MayBeObject.O;
     SetFlags();
 }
 
-void VM::IndexArray(std::shared_ptr<JSArray> arr, std::shared_ptr<Object> obj)
+void VM::IndexArray(std::shared_ptr<JSArray> arr, std::shared_ptr<Handle> obj)
 {
     auto prop = obj->as<JSObject>()->ToString();
     auto val = arr->At(prop);
     Stack.Push(val);
 }
 
-void VM::IndexObject(std::shared_ptr<JSObject> obj, std::shared_ptr<Object> idx)
+void VM::IndexObject(std::shared_ptr<JSObject> obj, std::shared_ptr<Handle> idx)
 {
     auto prop = idx->as<JSObject>()->ToString();
     auto val = obj->GetProperty(prop);
@@ -308,7 +300,7 @@ void VM::IndexOP()
         auto Object = GetObjectPointer<JSObject>(Unknown);
         IndexObject(Object, index);
     }
-    TStack.Push(Unknown);
+    member_ = Unknown;
     SetFlags();
 }
 
@@ -359,7 +351,7 @@ void VM::AddsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS + RHS);
+    auto Result = std::make_shared<Handle>(LHS + RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -368,7 +360,7 @@ void VM::SubsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS - RHS);
+    auto Result = std::make_shared<Handle>(LHS - RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -377,7 +369,7 @@ void VM::MulsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS * RHS);
+    auto Result = std::make_shared<Handle>(LHS * RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -386,7 +378,7 @@ void VM::DivsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS / RHS);
+    auto Result = std::make_shared<Handle>(LHS / RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -395,7 +387,7 @@ void VM::RemsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS % RHS);
+    auto Result = std::make_shared<Handle>(LHS % RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -404,7 +396,7 @@ void VM::GtsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS > RHS);
+    auto Result = std::make_shared<Handle>(LHS > RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -413,7 +405,7 @@ void VM::LtsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS < RHS);
+    auto Result = std::make_shared<Handle>(LHS < RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -421,7 +413,7 @@ void VM::GtesOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS >= RHS);
+    auto Result = std::make_shared<Handle>(LHS >= RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -430,7 +422,7 @@ void VM::LtesOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS <= RHS);
+    auto Result = std::make_shared<Handle>(LHS <= RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -439,7 +431,7 @@ void VM::EqsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS == RHS);
+    auto Result = std::make_shared<Handle>(LHS == RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -448,7 +440,7 @@ void VM::NeqsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS != RHS);
+    auto Result = std::make_shared<Handle>(LHS != RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -457,7 +449,7 @@ void VM::ShlsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS << RHS);
+    auto Result = std::make_shared<Handle>(LHS << RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -466,7 +458,7 @@ void VM::ShrsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS >> RHS);
+    auto Result = std::make_shared<Handle>(LHS >> RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -475,7 +467,7 @@ void VM::BorsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS | RHS);
+    auto Result = std::make_shared<Handle>(LHS | RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -484,7 +476,7 @@ void VM::BandsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS & RHS);
+    auto Result = std::make_shared<Handle>(LHS & RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -493,7 +485,7 @@ void VM::OrsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS || RHS);
+    auto Result = std::make_shared<Handle>(LHS || RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -502,7 +494,7 @@ void VM::AndsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS && RHS);
+    auto Result = std::make_shared<Handle>(LHS && RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -511,7 +503,7 @@ void VM::XorsOP()
 {
     auto RHS = *(Stack.Pop().O);
     auto LHS = *(Stack.Pop().O);
-    auto Result = std::make_shared<Object>(LHS ^ RHS);
+    auto Result = std::make_shared<Handle>(LHS ^ RHS);
     Stack.Push(Result);
     SetFlags();
 }
@@ -622,21 +614,26 @@ void VM::MarkstOP()
     Flags |= constructor_call;
 }
 
-void VM::CallNative(std::shared_ptr<Object> function_object,
+void VM::CallNative(std::shared_ptr<Handle> function_object,
     PassedArguments &Args)
 {
     auto function = function_object->as<Function>();
 
-    auto This = GetThis()->as<JSObject>();
+    auto This = GetThis();
     auto ret = function->CallNative(Args, This);
     Flags = FStack.Pop();
     CStack.Pop();
     CStack.Pop();
     HelperStack.Pop();
-    Stack.Push(ret);
+
     if (IsConstructorCall()) {
-        TStack.Push(ret.O);
+        js_this_ = TStack.Pop();
+        EndedConstructorCall();
+    } else if (IsMemberCall()) {
+        js_this_ = TStack.Pop();
+        EndMemberCall();
     }
+    Stack.Push(ret);
     SetFlags();
 }
 
@@ -652,11 +649,6 @@ bool VM::CallPrologue()
     auto TheFunction = F.O->as<Function>();
     TheFunction->PrepareFunction();
 
-    if (TheFunction->IsNative()) {
-        CallNative(F.O, Args);
-        return false;
-    }
-
     if (Flags & constructor_call) {
         auto newthis_wrapped = CreateJSObject();
 
@@ -664,9 +656,20 @@ bool VM::CallPrologue()
         // native functions have to copy the properies by their own
         auto newthis = newthis_wrapped->as<JSObject>();
         AddPropertiesFromPrototype(TheFunction.get(), newthis.get());
-        TStack.Push(newthis_wrapped);
+        TStack.Push(js_this_);
+        js_this_ = newthis_wrapped;
+    } else if (IsMemberCall()) {
+        TStack.Push(js_this_);
+        js_this_ = member_;
+        EndMemberCall(); // original flags are not effected
     }
 
+    if (TheFunction->IsNative()) {
+        CallNative(F.O, Args);
+        return false;
+    }
+
+    EndedConstructorCall();
     // all the variables for this function will lie in a new scope
     auto V = GetVStore(Context);
     V->CreateScope();
@@ -693,6 +696,21 @@ bool VM::CallPrologue()
     return true;
 }
 
+void VM::MarkCallOP()
+{
+    Flags |= member_call;
+}
+
+bool VM::IsMemberCall()
+{
+    return Flags & member_call;
+}
+
+void VM::EndMemberCall()
+{
+    Flags &= ~member_call;
+}
+
 void VM::CallOP()
 {
     CallPrologue();
@@ -704,21 +722,28 @@ void VM::RetOP()
     auto ReturnedValue = Stack.Pop();
     
     auto V = GetVStore(Context);
-    std::shared_ptr<Object> This;
+    std::shared_ptr<Handle> This;
     // we check that whether we called a constructor
     // if yes then we will save the object created on to stack
-    if (IsConstructorCall()) {
+    int32_t old_flags = FStack.Top();
+    if (old_flags & constructor_call) {
         This = (GetThis());
+        js_this_ = TStack.Pop();
+    } else if (old_flags & member_call) {
+        js_this_ = TStack.Pop();
     }
     RestoreState();
 
-    if (This)
-        TStack.Push(This);
-
-    if (IsConstructorCall())
+    if (IsConstructorCall()) {
+        Stack.Push(This);
         EndedConstructorCall();
-    // Save the return value
-    Stack.Push(ReturnedValue);
+    } else {
+        // Save the return value
+        Stack.Push(ReturnedValue);
+    }
+    if (IsMemberCall()) {
+        EndMemberCall();
+    }
     V->RemoveScope();
     SetFlags();
 }
@@ -878,6 +903,9 @@ void VM::ExecuteInstruction(std::shared_ptr<Instruction> &instr)
         break;
     case Instructions::jmpnz:
         JmpnzOP();
+        break;
+    case Instructions::mem_call:
+        MarkCallOP();
         break;
     }
 }

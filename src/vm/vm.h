@@ -31,7 +31,7 @@ extern std::unique_ptr<VM> CreateVM(VMContext *context);
 ///                     VM ::= The Virtual Machine
 ///====---------------------------------------------------------------====
 class VM {
-#define DEFAULT_VM_FLAG (0 | 16)
+#define DEFAULT_VM_FLAG (0 | 32)
     friend std::unique_ptr<VM> CreateVM(VMContext *context);
 
     VM()
@@ -47,10 +47,11 @@ public:
         zero_flag = 2,
         undefined_flag = 4,
         constructor_call = 8,
-        interrupt_flag = 16,
-        interrupt_rq = 32,
-        is_running = 64,
-        interrupt_ack = 128
+        member_call = 16,
+        interrupt_flag = 32,
+        interrupt_rq = 64,
+        is_running = 128,
+        interrupt_ack = 256
     };
 
     /// SetContext ::= sets the context
@@ -172,13 +173,18 @@ private:
     void BnotOP();
     void PincOP();
     void PdecOP();
-    void CallNative(std::shared_ptr<grok::obj::Object> function,
+    void CallNative(std::shared_ptr<grok::obj::Handle> function,
             PassedArguments &Args);
     bool CallPrologue();
+    void MarkCallOP();
+    bool IsMemberCall();
+    void EndMemberCall();
 
     bool debug_execution_;
     VMContext *Context;
     Value AC;  // accumulator
+    std::shared_ptr<grok::obj::Handle> js_this_;
+    std::shared_ptr<grok::obj::Handle> member_;
     Counter Current;  // current instruction being executed
     Counter Start;
     Counter End;  // end of the block
