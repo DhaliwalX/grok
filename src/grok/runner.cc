@@ -147,6 +147,7 @@ void InteractiveRun(Context *ctx)
     ReadLine RL{"> "};
     RL.BindKey('\t', tab_completer);
     auto &os = ctx->GetOutputStream();
+    boost::asio::io_service *io = ctx->GetIOService();
 
     // main interpreter loop
     while (true) {
@@ -158,8 +159,10 @@ void InteractiveRun(Context *ctx)
             ctx->SetDebugExecution();
             continue;
         }
-        if (RL.Eof())
+        if (RL.Eof()) {
+            std::cout << "Exiting..." << std::endl;
             return;
+        }
         auto lex = std::make_unique<Lexer>(str);
         GrokParser parser{ std::move(lex) };
 
@@ -181,6 +184,7 @@ void InteractiveRun(Context *ctx)
             os << " ]" << Color::Reset() << std::endl;
         }
         ExecuteAST(ctx, os, AST);
+        io->poll();
     }
 }
 
@@ -191,6 +195,8 @@ int Start()
         ExecuteFiles(ctx, ctx->GetOutputStream());
     else 
         InteractiveRun(ctx);
+
+    ctx->GetIOService()->run();
     return 0;
 }
 
