@@ -431,7 +431,8 @@ void ArgumentList::emit(std::shared_ptr<InstructionBuilder> builder)
     for (auto &arg : args_) {
         arg->emit(builder);
     }
-
+    auto inst = InstructionBuilder::Create<Instructions::mem_call>();
+    builder->AddInstruction(std::move(inst));
     auto size = args_.size();
     auto call_instr = InstructionBuilder::Create<Instructions::call>();
     call_instr->data_type_ = d_num;
@@ -527,8 +528,8 @@ void NewExpression::emit(std::shared_ptr<InstructionBuilder> builder)
     builder->AddInstruction(std::move(inst));
     member_->emit(builder);
 
-    auto instr = InstructionBuilder::Create<Instructions::pushthis>();
-    builder->AddInstruction(std::move(instr));
+    // auto instr = InstructionBuilder::Create<Instructions::pushthis>();
+    // builder->AddInstruction(std::move(instr));
 }
 
 void Declaration::emit(std::shared_ptr<InstructionBuilder> builder)
