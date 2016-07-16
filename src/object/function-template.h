@@ -15,8 +15,8 @@ public:
         this->Native = true;
     }
 
-    grok::vm::Value CallNative(std::vector<grok::vm::Value> Args,
-        std::shared_ptr<JSObject> This) override
+    grok::vm::Value CallNative(std::vector<grok::vm::Value> &Args,
+        std::shared_ptr<Handle> This) override
     {
         auto Obj = CreateArgumentObject();
         auto ArgObj = Obj->as<Argument>();

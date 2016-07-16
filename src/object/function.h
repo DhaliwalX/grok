@@ -68,8 +68,8 @@ public:
         Params = parms;
     }
 
-    virtual grok::vm::Value CallNative(std::vector<grok::vm::Value> Args,
-        std::shared_ptr<JSObject> This);
+    virtual grok::vm::Value CallNative(std::vector<grok::vm::Value> &Args,
+        std::shared_ptr<Handle> This);
 
 protected:
     std::shared_ptr<grok::parser::Expression> AST;

@@ -66,6 +66,7 @@ public:
   JSDouble() : number_(0) {}
 
   double &GetNumber() { return number_; }
+  void SetNumber(double num) { number_ = num; }
 
   ~JSDouble() {}
 

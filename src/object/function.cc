@@ -94,8 +94,8 @@ const std::vector<std::string> &Function::GetParams() const
     return Params;
 }
 
-Value Function::CallNative(std::vector<grok::vm::Value> Args,
-    std::shared_ptr<JSObject> This)
+Value Function::CallNative(std::vector<grok::vm::Value> &Args,
+    std::shared_ptr<Handle> This)
 {
     auto Obj = CreateArgumentObject();
     auto ArgObj = Obj->as<Argument>();
@@ -115,8 +115,7 @@ Value Function::CallNative(std::vector<grok::vm::Value> Args,
         ArgObj->AddProperty(vec[idx++], CreateUndefinedObject());
     }
 
-    auto ThisWrapped = std::make_shared<Object>(This);
-    ArgObj->AddProperty(std::string("this"), ThisWrapped);
+    ArgObj->AddProperty(std::string("this"), This);
     // call the native function
     auto ret = NFT(ArgObj);
 
