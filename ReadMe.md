@@ -59,12 +59,12 @@ var squares = arr.map(function(element) {
 
 ## Building
 ### Requirements
-+ Boost C++ Library
-+ GNU Readline Library
-+ pthread (optional)
-+ cmake
-+ C++ compiler with C++14 support
-+ Ubuntu 16.04 (not tested for other operating systems)
++ Boost C++ Library `sudo apt-get install libboost-all-dev`
++ GNU Readline Library `sudo apt-get install libreadline6-dev`
++ pthread
++ cmake `sudo apt-get install cmake`
++ C++ compiler with C++14 support `sudo apt-get install g++-5`
++ Ubuntu (not tested for other operating systems)
 
 ### Compiling
 One step: `cd grok && mkdir build && cd build && cmake .. && make -j4`
