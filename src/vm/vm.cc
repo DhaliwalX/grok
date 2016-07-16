@@ -519,12 +519,11 @@ void VM::XorsOP()
 void VM::IncOP()
 {
     auto RHS = Stack.Pop().O;
-    auto str = RHS->as<JSObject>()->ToString();
-    auto num = CreateJSNumber(str);
-    if (!IsUndefined(num)) {
-        ++num->as<JSDouble>()->GetNumber();
+    if (!IsJSNumber(RHS)) {
+        throw ReferenceError("can't apply increment operator");
     }
-    RHS->Reset(*num);
+    auto num = RHS->as<JSDouble>();
+    ++num->GetNumber();
     Stack.Push(RHS);
     SetFlags();
 }
@@ -532,12 +531,11 @@ void VM::IncOP()
 void VM::DecOP()
 {
     auto RHS = Stack.Pop().O;
-    auto str = RHS->as<JSObject>()->ToString();
-    auto num = CreateJSNumber(str);
-    if (!IsUndefined(num)) {
-        --num->as<JSDouble>()->GetNumber();
+    if (!IsJSNumber(RHS)) {
+        throw ReferenceError("can't apply increment operator");
     }
-    RHS->Reset(*num);
+    auto num = RHS->as<JSDouble>();
+    --num->GetNumber();
     Stack.Push(RHS);
     SetFlags();
 }
@@ -557,25 +555,23 @@ void VM::SnotOP()
 void VM::BnotOP()
 {
     auto RHS = Stack.Pop().O;
-    auto str = RHS->as<JSObject>()->ToString();
-    auto num = CreateJSNumber(str);
-    if (!IsUndefined(num)) {
-        num->as<JSDouble>()->GetNumber() = ~(int32_t)num->as<JSDouble>()->GetNumber();
+    if (!IsJSNumber(RHS)) {
+        throw ReferenceError("can't apply '~' operator");
     }
-    Stack.Push(num);
+    auto num = RHS->as<JSDouble>();
+    auto res = CreateJSNumber(~(int32_t)num->GetNumber());
+    Stack.Push(res);
     SetFlags();
 }
 
 void VM::PincOP()
 {
     auto RHS = Stack.Pop().O;
-    auto str = RHS->as<JSObject>()->ToString();
-    auto num = CreateJSNumber(str);
-    auto res = CreateJSNumber(str);
-    if (!IsUndefined(num)) {
-        ++num->as<JSDouble>()->GetNumber();
+    if (!IsJSNumber(RHS)) {
+        throw ReferenceError("can't apply '++' operator");
     }
-    RHS->Reset(*num);
+    auto num = RHS->as<JSDouble>();
+    auto res = CreateJSNumber(num->GetNumber()++);
     Stack.Push(res);
     SetFlags();
 }
@@ -583,13 +579,11 @@ void VM::PincOP()
 void VM::PdecOP()
 {
     auto RHS = Stack.Pop().O;
-    auto str = RHS->as<JSObject>()->ToString();
-    auto num = CreateJSNumber(str);
-    auto res = CreateJSNumber(str);
-    if (!IsUndefined(num)) {
-        --num->as<JSDouble>()->GetNumber();
+    if (!IsJSNumber(RHS)) {
+        throw ReferenceError("can't apply '--' operator");
     }
-    RHS->Reset(*num);
+    auto num = RHS->as<JSDouble>();
+    auto res = CreateJSNumber(num->GetNumber()--);
     Stack.Push(res);
     SetFlags();
 }
