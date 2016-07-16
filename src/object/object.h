@@ -51,18 +51,18 @@ public:
         return *this;
     }
 
-    void Reset(const Object &obj)
+    inline void Reset(const Object &obj)
     {
         data_ = obj.data_;
     }
 
-    void Reset(Object &&obj)
+    inline void Reset(Object &&obj)
     {
         data_ = obj.data_;
     }
 
     template <typename C>
-    bool CanCast()
+    inline bool CanCast()
     {
         using pointer = typename std::add_pointer<C>::type;
         auto maybenull = dynamic_cast<pointer>(data_.get());
@@ -70,11 +70,8 @@ public:
     }
 
     template <typename C>
-    auto as() -> decltype(std::shared_ptr<C>())
+    inline auto as() -> decltype(std::shared_ptr<C>())
     {
-        if (empty()) {
-            throw std::runtime_error("invalid pointer access");
-        }
         return std::static_pointer_cast<C>(data_);
     }
 
