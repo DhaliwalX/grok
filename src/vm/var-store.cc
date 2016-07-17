@@ -13,7 +13,7 @@ VStore::VStore()
 Value VStore::GetValue(const std::string &N)
 {
     if (N == "this") {
-        auto W = std::make_shared<grok::obj::Object>(This());
+        auto W = (This());
         return Value(W);
     }
     if (MV->HasProperty(N))
