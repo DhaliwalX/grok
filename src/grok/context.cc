@@ -1,4 +1,6 @@
 #include "grok/context.h"
+
+#include "object/jsstring.h"
 #include <memory>
 #include <functional>
 #include <boost/asio.hpp>
@@ -18,6 +20,7 @@ void ContextStatic::Init()
 {
     ctx = std::make_unique<Context>(std::cout);
     ctx->SetVMContext(new grok::vm::VMContext());
+    grok::obj::JSString::Init();
 }
 
 void ContextStatic::Teardown()
