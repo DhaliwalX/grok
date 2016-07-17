@@ -12,6 +12,7 @@
 #include "vm/printer.h"
 #include "vm/vm.h"
 #include "common/colors.h"
+#include "parser/astvisitor.h"
 
 #include <iostream>
 #include <chrono>
@@ -61,7 +62,7 @@ int ExecuteAST(Context *ctx, std::ostream &os, std::shared_ptr<Expression> AST)
         }
         if (ctx->DryRun())
             return 0;
-        TheVM = grok::vm::GetGlobalVMContext()->GetVM();
+        auto TheVM = grok::vm::CreateVM(grok::vm::GetGlobalVMContext());
         TheVM->SetCounters(IR->begin(), IR->end());
 
         auto vms = std::chrono::high_resolution_clock::now();
@@ -84,7 +85,6 @@ int ExecuteAST(Context *ctx, std::ostream &os, std::shared_ptr<Expression> AST)
             log_progress(vme - vms);
             os << " ]" << Color::Reset() << std::endl;
         }
-        TheVM->Reset();
     } catch (std::exception &e) {
         if (TheVM)
             TheVM->Reset();
@@ -165,7 +165,7 @@ void InteractiveRun(Context *ctx)
         }
         auto lex = std::make_unique<Lexer>(str);
         GrokParser parser{ std::move(lex) };
-
+        // DummyVisitor visitor;
 
         auto pgs = std::chrono::high_resolution_clock::now();
         auto result = parser.ParseExpression();
@@ -178,6 +178,7 @@ void InteractiveRun(Context *ctx)
             os << parser << std::endl;
         }
         auto AST = parser.ParsedAST();
+        // AST->Accept(&visitor);
         if (ctx->DoProfile()) {
             os << Color::Attr(Color::dim) << " [ Parsing done in "; 
             log_progress(pge - pgs);
