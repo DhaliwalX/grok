@@ -3,6 +3,7 @@
 #include "libs/console/console.h" // console.log, console.error 
 #include "libs/array/array_constructor.h"
 #include "libs/example/example.h"
+#include "libs/regex/regex.h"
 #include "libs/timer/timer.h"
 #include "libs/math/random.h"
 
@@ -35,6 +36,9 @@ int LoadLibraries(VMContext *ctx)
 
     auto rand = CreateFunction(&MathRandom);
     V->StoreValue("random", rand);
+
+    auto reg = CreateRegExpCtor();
+    V->StoreValue("RegExp", reg);
     return 0;
 }
 
