@@ -18,6 +18,7 @@ std::unique_ptr<VM> CreateVM(VMContext *context)
 {
     auto ret = std::unique_ptr<VM>{ new VM() };
     ret->SetContext(context);
+    context->SetVM(ret.get());
     return (ret);
 }
 
@@ -50,7 +51,7 @@ void VM::SetContext(VMContext *context)
 {
     Context = context;
     auto V = GetVStore(Context);
-    js_this_ = std::make_shared<Handle>(V->This());
+    js_this_ = (V->This());
 }
 
 Value VM::GetResult()
