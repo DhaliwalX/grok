@@ -10,7 +10,7 @@ PY = 32;
 
 lines = new Array(33);
 for (y = 0; y < PY; y++) {
-	line = [];
+	line = '';
 	for (x = 0; x < PX; x++) {
 		Xr = 0;
 		Xi = 0;
@@ -24,11 +24,11 @@ for (y = 0; y < PY; y++) {
 			iterations++;
 		}
 		if (iterations & 1)
-			line.push("*");
+			line = line + '*';
 		else
-			line.push(" ");
+			line = line + " ";
 	}
-	lines[y] = line.join("");
+	lines[y] = line;
 }
 
 assert_equal(lines[0], "********************************");
