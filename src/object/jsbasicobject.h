@@ -153,10 +153,17 @@ static inline bool CanEvaluateToTrue(std::shared_ptr<Handle> obj)
           || (type != ObjectType::_null);
 }
 
-static std::shared_ptr<Handle> CreateUndefinedObject()
+static inline std::shared_ptr<Handle> CreateUndefinedObject()
 {
   auto Undef = std::make_shared<UndefinedObject>();
   auto UndefWrapper = std::make_shared<Handle>(Undef);
+  return UndefWrapper;
+}
+
+static inline std::shared_ptr<Handle> CreateJSNull()
+{
+  auto Null = std::make_shared<JSNull>();
+  auto UndefWrapper = std::make_shared<Handle>(Null);
   return UndefWrapper;
 }
 

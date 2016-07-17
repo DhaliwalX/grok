@@ -9,16 +9,20 @@ namespace obj {
 std::string JSObject::AsString() const
 {
     std::string buff = "";
-    buff += "{ ";
+    buff += "{\n";
     for (const auto &it : object_) {
         auto prop = it.second->as<JSObject>();
         if (!prop->IsEnumerable())
             continue;
         buff += it.first + ": ";
-        buff += it.second->as<JSObject>()->AsString() += ", ";
+        if (it.second->as<JSObject>().get() == this) {
+            buff += "[ Circular ],\n";
+            continue;
+        }
+        buff += it.second->as<JSObject>()->AsString() += ",\n";
     }
     buff.pop_back(); // " "
-    buff += " }";
+    buff += " }\n";
     return buff;
 }
 

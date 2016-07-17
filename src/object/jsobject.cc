@@ -1,7 +1,6 @@
 #include "object/object.h"
 #include "object/jsobject.h"
 #include "object/function.h"
-#include "libs/string/properties.h"
 #include "object/jsnumber.h"
 
 namespace grok { namespace obj {
@@ -908,15 +907,6 @@ OTHER_OPERATOR(<<)
 OTHER_OPERATOR(&)
 OTHER_OPERATOR(|)
 OTHER_OPERATOR(^)
-
-std::shared_ptr<Object> CreateJSString(std::string str)
-{
-    auto S = std::make_shared<JSString>(str);
-    DefineInternalObjectProperties(S.get());
-    auto W = std::make_shared<Object>(S);
-    grok::libs::DefineStringProperties(S.get());
-    return W;
-}
 
 } // obj
 } // grok
