@@ -58,6 +58,13 @@ public:
     }
 };
 
+class RangeError : public JSError {
+public:
+    RangeError(std::string msg = "")
+        : JSError("RangeError", std::move(msg))
+    { }
+};
+
 }
 
 #endif
