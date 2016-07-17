@@ -19,7 +19,7 @@ auto GetStringIndex(JSString::size_type sz, std::shared_ptr<Object> obj,
             return def;
     }
 
-    auto num = obj->as<JSNumber>()->GetNumber();
+    auto num = obj->as<JSDouble>()->GetNumber();
     if (num < 0)
         num += sz;
 
