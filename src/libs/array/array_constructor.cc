@@ -21,7 +21,7 @@ std::shared_ptr<Object> ArrayConstructor(std::shared_ptr<Argument> Args)
     auto This = Args->GetProperty("this");
     if (Args->Size() == 0) {
         return CreateArray(0);
-    } else if (Args->Size() >= 1) {
+    } else if (Args->Size() == 1) {
         auto sz = Args->At(0);
 
         if (IsJSNumber(sz)) {
@@ -35,6 +35,13 @@ std::shared_ptr<Object> ArrayConstructor(std::shared_ptr<Argument> Args)
             }
             return Arr;
         }
+    } else {
+        auto Arr = CreateArray(0);
+        auto A = Arr->as<JSArray>();
+        for (auto Arg : *Args) {
+            A->Push(Arg);
+        }
+        return Arr;
     }
 
     return CreateUndefinedObject();
