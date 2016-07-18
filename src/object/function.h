@@ -71,6 +71,8 @@ public:
     virtual grok::vm::Value CallNative(std::vector<grok::vm::Value> &Args,
         std::shared_ptr<Handle> This);
 
+    std::shared_ptr<Handle> GetProperty(const std::string &str) override;
+
 protected:
     std::shared_ptr<grok::parser::Expression> AST;
     std::shared_ptr<grok::parser::FunctionPrototype> Proto;
@@ -79,6 +81,13 @@ protected:
     bool CodeGened;     // for delayed code generation
     std::shared_ptr<grok::vm::InstructionList> IR;
     std::vector<std::string> Params;
+
+public:
+    static std::shared_ptr<Handle> st_func_handle;    // acts as constructor
+
+    static void Init();
+    static std::pair<std::shared_ptr<Handle>, bool>
+    GetStaticProperty(const std::string &str);
 };
 
 // /// CreateFunction() ::= creates a function from args
@@ -106,7 +115,7 @@ IsFunction(std::shared_ptr<Object> obj)
 }
 
 extern std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
-    std::shared_ptr<Argument> Args, grok::vm::VM* vm);
+    std::shared_ptr<Argument> Args, grok::vm::VM* vm, bool with_this = false);
 
 extern void CreateInterruptRequest(std::shared_ptr<Function> func,
         std::shared_ptr<Argument> Args, grok::vm::VM* vm);

@@ -123,45 +123,6 @@ Value Function::CallNative(std::vector<grok::vm::Value> &Args,
     return wrapped;
 }
 
-std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
-        std::shared_ptr<Argument> Args, VM* vm)
-{
-    func->PrepareFunction();
-
-    // save the `this` function to the stack
-    vm->PushArg(std::make_shared<Object>(func));
-
-    for (auto Arg : *Args) {
-        vm->PushArg(Arg);
-    }
-
-    auto instr = std::make_shared<Instruction>();
-    instr->kind_ = Instructions::call;
-    instr->data_type_ = d_num;
-    instr->number_ = Args->Size();
-
-    // transfer the control
-    vm->ExecuteInstruction(instr);
-
-    if (!func->IsNative()) {        
-
-        // now we are handling the VM by our own
-        auto Beg = func->GetAddress();
-        auto End = func->GetEnd();
-
-        while (Beg != End) {
-            vm->ExecuteInstruction(*Beg);
-
-            if ((*Beg)->GetKind() == Instructions::ret)
-                break;
-            Beg++;
-        }
-    }
-    // get the return value
-    auto result = vm->GetResult();
-    return result.O;
-}
-
 void CreatePushInstruction(InstructionBuilder *b,
     std::shared_ptr<Handle> object)
 {
@@ -172,11 +133,51 @@ void CreatePushInstruction(InstructionBuilder *b,
     b->AddInstruction(std::move(instr));
 }
 
-std::vector<std::shared_ptr<InstructionList>> st;
+std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
+        std::shared_ptr<Argument> Args, VM* vm, bool with_this)
+{
+    auto ib = InstructionBuilder::CreateBuilder();
+    ib->CreateBlock();
+
+    CreatePushInstruction(ib.get(), std::make_shared<Handle>(func));
+
+    for (auto Arg : *Args) {
+        CreatePushInstruction(ib.get(), Arg);
+    }
+
+    auto instr = std::make_shared<Instruction>();
+    instr->kind_ = Instructions::call;
+    instr->data_type_ = d_num;
+    instr->number_ = Args->Size();
+    ib->AddInstruction(std::move(instr));
+    
+    ib->Finalize();
+    std::shared_ptr<InstructionList> ir = ib->ReleaseInstructionList();
+
+    // transfer the control
+    vm->SaveState();
+
+    // set this to proper value
+    if (with_this) {
+        auto this_handle = Args->GetProperty("this");
+        vm->SetThis(this_handle);
+    } else {
+        vm->SetThisGlobal();
+    }
+
+    vm->SetCounters(ir->begin(), ir->end());
+    vm->Run();
+    // get the return value
+    auto result = vm->GetResult();
+    vm->RestoreState();
+
+    return result.O;
+}
 
 void CreateInterruptRequest(std::shared_ptr<Function> func,
         std::shared_ptr<Argument> Args, VM* vm)
 {
+    static std::vector<std::shared_ptr<InstructionList>> st;
     auto ib = InstructionBuilder::CreateBuilder();
     ib->CreateBlock();
 
@@ -202,6 +203,98 @@ void CreateInterruptRequest(std::shared_ptr<Function> func,
     if (!vm->IsRunning()) {
         vm->HandleInterrupt();
     }
+}
+
+std::shared_ptr<Handle> JSFunctionApply(std::shared_ptr<Argument> args)
+{
+    auto this_function_handle = args->GetProperty("this");
+
+    if (!IsFunction(this_function_handle)) {
+        return CreateUndefinedObject();
+    }
+    auto this_function = this_function_handle->as<Function>();
+    auto this_object_handle = args->At(0);
+    auto arg_handle = args->At(1);
+
+    auto arg_object = arg_handle->as<JSObject>();
+    auto arg_length_handle = arg_object->GetProperty("length");
+
+    std::shared_ptr<Handle> args_to_pass_handle = CreateArgumentObject();
+    auto args_to_pass = args_to_pass_handle->as<Argument>();
+    args_to_pass->AddProperty("this", this_object_handle);
+    if (!IsUndefined(arg_length_handle)) {
+        size_t args_length = arg_length_handle->as<JSDouble>()->GetNumber();
+
+        for (size_t i = 0; i < args_length; i++) {
+            auto prop = arg_object->GetProperty(std::to_string(i));
+            args_to_pass->Push(prop);
+        }
+    }
+
+    return CallJSFunction(this_function, args_to_pass,
+                GetGlobalVMContext()->GetVM(), true);
+}
+
+std::shared_ptr<Handle> JSFunctionCallMethod(std::shared_ptr<Argument> args)
+{
+    auto this_function_handle = args->GetProperty("this");
+
+    if (!IsFunction(this_function_handle)) {
+        return CreateUndefinedObject();
+    }
+    auto this_function = this_function_handle->as<Function>();
+    auto this_object_handle = args->At(0);
+
+    std::shared_ptr<Handle> args_to_pass_handle = CreateArgumentObject();
+    auto args_to_pass = args_to_pass_handle->as<Argument>();
+    args_to_pass->AddProperty("this", this_object_handle);
+
+    for (size_t i = 1; i < args->Size(); i++) {
+        args_to_pass->Push(args->At(i));
+    }
+
+    return CallJSFunction(this_function, args_to_pass,
+                GetGlobalVMContext()->GetVM(), true);
+}
+
+std::shared_ptr<Handle> Function::st_func_handle    ;
+
+void Function::Init()
+{
+    st_func_handle = CreateFunction(nullptr);
+    auto st_func = st_func_handle->as<Function>();
+
+    auto function_handle = CreateFunction(JSFunctionApply);
+    st_func->AddProperty("apply", function_handle);
+
+    function_handle = CreateFunction(JSFunctionCallMethod);
+    st_func->AddProperty("call", function_handle);
+}
+
+std::pair<std::shared_ptr<Handle>, bool>
+ Function::GetStaticProperty(const std::string &str)
+{
+    if (str == "apply")
+        return { CreateFunction(JSFunctionApply), true };
+
+    if (str == "call")
+        return { CreateFunction(JSFunctionCallMethod), true };
+    auto st_func = st_func_handle->as<Function>();
+
+    if (!st_func->HasProperty(str))
+        return { nullptr, false };
+    auto prop = st_func->JSObject::GetProperty(str);
+    return { prop, true };
+}
+
+std::shared_ptr<Handle> Function::GetProperty(const std::string &str)
+{
+    auto p = GetStaticProperty(str);
+    if (p.second) {
+        return p.first;
+    }
+
+    return JSObject::GetProperty(str);
 }
 
 }
