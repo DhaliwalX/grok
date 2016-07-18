@@ -19,9 +19,17 @@ var obj = {
     a : 10,
     b : 20
 };
+x = 12;
+y = 13;
+
+function r()
+{
+    return this.x + this.y;
+}
 
 function addthis()
 {
+    assert_equal(r(), 25);
     return this.a + this.b;
 }
 
