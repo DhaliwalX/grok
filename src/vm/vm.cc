@@ -644,6 +644,8 @@ void VM::CallNative(std::shared_ptr<Handle> function_object,
     } else if (IsMemberCall()) {
         js_this_ = TStack.Pop();
         EndMemberCall();
+    } else {
+        js_this_ = TStack.Pop();
     }
     Stack.Push(ret);
     SetFlags();
@@ -674,6 +676,9 @@ bool VM::CallPrologue()
         TStack.Push(js_this_);
         js_this_ = member_;
         EndMemberCall(); // original flags are not effected
+    } else {
+        TStack.Push(js_this_);
+        SetThisGlobal();
     }
 
     if (TheFunction->IsNative()) {
@@ -742,6 +747,8 @@ void VM::RetOP()
         This = (GetThis());
         js_this_ = TStack.Pop();
     } else if (old_flags & member_call) {
+        js_this_ = TStack.Pop();
+    } else {
         js_this_ = TStack.Pop();
     }
     RestoreState();

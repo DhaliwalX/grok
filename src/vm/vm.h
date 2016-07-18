@@ -121,6 +121,11 @@ public:
 
     void SetThis(std::shared_ptr<grok::obj::Handle>);
     void SetThisGlobal();
+
+    void SetMember(std::shared_ptr<grok::obj::Handle> obj)
+    {
+        member_ = obj;
+    }
 private:
     void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
         std::shared_ptr<grok::obj::Object> obj);
