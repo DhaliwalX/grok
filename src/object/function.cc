@@ -145,7 +145,12 @@ std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
         CreatePushInstruction(ib.get(), Arg);
     }
 
-    auto instr = std::make_shared<Instruction>();
+    auto instr = InstructionBuilder::Create<Instructions::mem_call>();
+    if (with_this) {
+        ib->AddInstruction(std::move(instr));
+    }
+
+    instr = std::make_shared<Instruction>();
     instr->kind_ = Instructions::call;
     instr->data_type_ = d_num;
     instr->number_ = Args->Size();
@@ -160,7 +165,7 @@ std::shared_ptr<Object> CallJSFunction(std::shared_ptr<Function> func,
     // set this to proper value
     if (with_this) {
         auto this_handle = Args->GetProperty("this");
-        vm->SetThis(this_handle);
+        vm->SetMember(this_handle);
     } else {
         vm->SetThisGlobal();
     }
