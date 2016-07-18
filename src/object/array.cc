@@ -49,6 +49,37 @@ JSObject::Value JSArray::GetProperty(const JSObject::Name &name)
     return At(name);
 }
 
+JSArray::HandlePointer JSArray::At(const std::string &prop)
+{
+    auto p = GetStaticProperty(prop);
+
+    if (p.second) {
+        return p.first;
+    }
+
+    size_type idx = 0;
+    // we still try to convert the string into number
+    try {
+        idx = std::stod(prop);
+    } catch (...) {
+        return JSObject::GetProperty(prop);
+    }
+    return this->At(idx);
+}
+
+std::shared_ptr<Handle> JSArray::array_handle;
+
+std::pair<std::shared_ptr<Handle>, bool>
+ JSArray::GetStaticProperty(const std::string &str)
+{
+    auto arr = array_handle->as<Function>();
+
+    if (!arr->HasProperty(str))
+        return { nullptr, false };
+    auto prop = arr->JSObject::GetProperty(str);
+    return { prop, true };
+}
+
 std::shared_ptr<Object> CreateArray(size_t size)
 {
     auto ptr = std::make_shared<JSArray>();
@@ -57,7 +88,13 @@ std::shared_ptr<Object> CreateArray(size_t size)
         ptr->Assign(i, CreateUndefinedObject());
     }
     DefineInternalObjectProperties(ptr.get());
+    return std::make_shared<Handle>(ptr);
+}
 
+void JSArray::Init()
+{
+    array_handle = CreateArray(0);
+    auto ptr = array_handle->as<JSArray>();
     // a.sort()
     auto S = std::make_shared<Function>(grok::libs::ArraySort);
     S->SetNonWritable();
@@ -121,9 +158,6 @@ std::shared_ptr<Object> CreateArray(size_t size)
     S->SetParams({ "start", "end" });
     S->SetNonEnumerable();
     ptr->AddProperty(std::string("slice"), std::make_shared<Object>(S));
-
-    auto Wrap = std::make_shared<Object>(ptr);
-    return Wrap;
 }
 
 }

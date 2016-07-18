@@ -40,17 +40,7 @@ public:
     return elements_[i];
   }
 
-  HandlePointer At(const std::string &prop)
-  {
-      size_type idx = 0;
-      // we still try to convert the string into number
-      try {
-          idx = std::stod(prop);
-      } catch (...) {
-          return JSObject::GetProperty(prop);
-      }
-      return this->At(idx);
-  }
+  HandlePointer At(const std::string &prop);
 
   size_type Size() const
   { // returns the size of the vector
@@ -128,6 +118,12 @@ public:
   auto &Container() { return elements_; }
 private:
   std::vector<HandlePointer> elements_;
+
+public:
+  static std::shared_ptr<Handle> array_handle;
+  static void Init();
+  static std::pair<std::shared_ptr<Handle>, bool>
+   GetStaticProperty(const std::string &str);
 };
 
 static inline bool IsJSArray(std::shared_ptr<Object> obj)
