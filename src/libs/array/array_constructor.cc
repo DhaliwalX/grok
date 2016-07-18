@@ -53,7 +53,7 @@ std::shared_ptr<Object> CreateArrayConstructorObject()
 
     auto ctor = wrapped_function->as<Function>();
 
-    ctor->AddProperty("prototype", CreateArray(0));
+    ctor->AddProperty("prototype", JSArray::array_handle);
     return wrapped_function;
 }
 
