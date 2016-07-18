@@ -63,6 +63,17 @@ Value VM::GetResult()
     return V;
 }
 
+void VM::SetThis(std::shared_ptr<grok::obj::Handle> obj)
+{
+    js_this_ = obj;
+}
+
+void VM::SetThisGlobal()
+{
+    auto V = GetVStore(Context);
+    js_this_ = (V->This());
+}
+
 bool VM::IsConstructorCall()
 {
     return Flags & constructor_call;

@@ -36,7 +36,7 @@ class VM {
 
     VM()
         : Context{ nullptr }, AC{ }, Current{ }, End{ },
-        Flags{ DEFAULT_VM_FLAG }, Stack{ }
+        Flags{ DEFAULT_VM_FLAG }, stack_level_{ 0 }, Stack{ }
     {
         debug_execution_ = grok::GetContext()->DebugExecution();
     }
@@ -44,14 +44,15 @@ class VM {
 public:
     enum {
         carry_flag = 1,
-        zero_flag = 2,
-        undefined_flag = 4,
-        constructor_call = 8,
-        member_call = 16,
-        interrupt_flag = 32,
-        interrupt_rq = 64,
-        is_running = 128,
-        interrupt_ack = 256
+        zero_flag = 1 << 1,
+        undefined_flag = 1 << 2,
+        constructor_call = 1 << 3,
+        member_call = 1 << 4,
+        interrupt_flag = 1 << 5,
+        interrupt_rq = 1 << 6,
+        is_running = 1 << 7,
+        interrupt_ack = 1 << 8,
+        call_from_native = 1 << 9
     };
 
     /// SetContext ::= sets the context
@@ -115,6 +116,11 @@ public:
     bool IsInterruptAcknowledging() { return Flags & interrupt_ack; }
     void SetInterruptAcknowledge() { Flags |= interrupt_ack; }
     void ClearAck() { Flags &= ~interrupt_ack; }
+    void PrepareCallFromNative() { Flags |= call_from_native; }
+    void EndCallFromNative() { Flags &= ~call_from_native; }
+
+    void SetThis(std::shared_ptr<grok::obj::Handle>);
+    void SetThisGlobal();
 private:
     void IndexArray(std::shared_ptr<grok::obj::JSArray> arr,
         std::shared_ptr<grok::obj::Object> obj);
@@ -194,6 +200,7 @@ private:
     std::shared_ptr<Instruction> I; // current instruction
 
     int32_t Flags;  // flags for storing the VM state
+    int32_t stack_level_;
     VMStack Stack;  // program stack
     CallStack CStack;
     FlagStack FStack;
