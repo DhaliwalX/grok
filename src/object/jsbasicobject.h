@@ -51,7 +51,7 @@ public:
 
   // add a new property to the object
   virtual void AddProperty(const Name &name, const Value &prop) {
-    object_.insert({name, prop});
+    object_[name] = prop;
   }
 
   // remove a property currently existing in the object
