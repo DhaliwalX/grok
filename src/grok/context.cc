@@ -2,6 +2,7 @@
 
 #include "object/jsstring.h"
 #include "object/function.h"
+#include "object/array.h"
 #include <memory>
 #include <functional>
 #include <boost/asio.hpp>
@@ -23,6 +24,7 @@ void ContextStatic::Init()
     ctx->SetVMContext(new grok::vm::VMContext());
     grok::obj::JSString::Init();
     grok::obj::Function::Init();
+    grok::obj::JSArray::Init();
 }
 
 void ContextStatic::Teardown()
