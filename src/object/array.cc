@@ -46,7 +46,7 @@ JSObject::Value JSArray::GetProperty(const JSObject::Name &name)
     if (name == "length") {
         return CreateJSNumber(Size());
     }
-    return JSObject::GetProperty(name);
+    return At(name);
 }
 
 std::shared_ptr<Object> CreateArray(size_t size)
