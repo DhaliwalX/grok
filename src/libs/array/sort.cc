@@ -58,7 +58,7 @@ void SortWithPredicate(std::shared_ptr<Object> obj,
 
                 int n = 0;
                 if (IsJSNumber(R)) {
-                    n = (int)R->as<JSNumber>()->GetNumber();
+                    n = (int)R->as<JSDouble>()->GetNumber();
                     return n < 0 ? true : false;
                 }
                 return false;
