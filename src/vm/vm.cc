@@ -328,6 +328,9 @@ void VM::NewsOP()
     auto name = GetCurrent()->GetString();
     auto var = CreateUndefinedObject();
     auto V = GetVStore(Context);
+
+    if (!(int)GetCurrent()->GetNumber() && V->HasValue(name))
+        return;
     V->StoreValue(name, var);
 }
 
