@@ -169,7 +169,7 @@ void VM::StoreOP()
     auto LHS = Stack.Pop();
     auto RHS = Stack.Pop();
     if (LHS.O->as<JSObject>()->IsWritable())
-        LHS.O->Reset(*(RHS.O));
+        LHS.O->Reset(*CreateCopy(RHS.O));
     Stack.Push(LHS);
     SetFlags();
 }
@@ -547,11 +547,8 @@ void VM::DecOP()
 void VM::SnotOP()
 {
     auto RHS = Stack.Pop().O;
-    auto str = RHS->as<JSObject>()->ToString();
-    auto num = CreateJSNumber(str);
-    if (!IsUndefined(num)) {
-        num->as<JSDouble>()->GetNumber() = !(int32_t)num->as<JSDouble>()->GetNumber();
-    }
+    auto obj = RHS->as<JSObject>();
+    auto num = CreateJSNumber(!obj->IsTrue());
     Stack.Push(num);
     SetFlags();
 }
