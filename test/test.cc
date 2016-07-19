@@ -44,6 +44,7 @@ std::shared_ptr<grok::obj::Handle>
 {
     auto rhs = args->GetProperty("rhs")->as<grok::obj::JSObject>();
     auto lhs = args->GetProperty("lhs")->as<grok::obj::JSObject>();
+    auto msg = args->GetProperty("msg")->as<grok::obj::JSObject>()->ToString();
 
     if ((rhs->GetType() == grok::obj::ObjectType::_double
         || rhs->GetType() == grok::obj::ObjectType::_number)
@@ -56,17 +57,17 @@ std::shared_ptr<grok::obj::Handle>
     if (rhs->GetType() != lhs->GetType()) {
         throw std::runtime_error(std::string("AssertEqual failed: ")
             + rhs->ToString() + " is not equal to " + lhs->ToString()
-            + " types were not same");
+            + " types were not same [ msg: " + msg + "]");
     }
     if (rhs->ToString() != lhs->ToString())
         throw std::runtime_error(std::string("AssertEqual failed: ")
             + rhs->ToString() + " is not equal to " + lhs->ToString()
-            + " toString's were not same");
+            + " toString's were not same [ msg: " + msg + "]");
 
     if (rhs->AsString() != lhs->AsString())
         throw std::runtime_error(std::string("AssertEqual failed: ")
             + rhs->ToString() + " is not equal to " + lhs->ToString()
-            + " asString's were not same");
+            + " asString's were not same [ msg: " + msg + "]");
 
     return grok::obj::CreateUndefinedObject();
 }
@@ -102,7 +103,7 @@ Test &Test::Prepare(std::string file)
     grok::vm::InitializeVMContext();
     auto v = grok::vm::GetGlobalVMContext()->GetVStore();
     auto func = grok::obj::CreateFunction(AssertEqual);
-    func->as<grok::obj::Function>()->SetParams({ "lhs", "rhs" });
+    func->as<grok::obj::Function>()->SetParams({ "lhs", "rhs", "msg" });
     v->StoreValue("assert_equal", func);
 
     func = grok::obj::CreateFunction(AssertNotEqual);
