@@ -540,6 +540,7 @@ void Declaration::emit(std::shared_ptr<InstructionBuilder> builder)
     auto ns = InstructionBuilder::Create<Instructions::news>();
     ns->data_type_ = d_name;
     ns->str_ = name_;
+    ns->number_ = 1;
     builder->AddInstruction(std::move(ns));
 
     auto instr = InstructionBuilder::Create<Instructions::fetch>();
