@@ -26,6 +26,7 @@ public:
     {
         auto inst = std::make_shared<Instruction>();
         inst->kind_ = instr;
+        inst->number_ = 0;
         return inst;
     }
 
