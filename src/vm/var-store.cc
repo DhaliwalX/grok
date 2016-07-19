@@ -1,5 +1,5 @@
 #include "vm/var-store.h"
-
+#include "common/exceptions.h"
 namespace grok {
 namespace vm {
 
@@ -45,8 +45,19 @@ Value VStore::TryForOtherScopes(const std::string &Name)
             return Value((*i)->GetProperty(Name));
     }
 
-    throw std::runtime_error(std::string() + "no variable named '"
+    throw ReferenceError(std::string() + "no variable named '"
         + Name + "'");
+}
+
+bool VStore::HasValue(const std::string &name)
+{
+    if (MV->HasProperty(name))
+        return true;
+    for (auto i = VS.rbegin(); i != VS.rend(); i++) {
+        if ((*i)->HasProperty(name))
+            return true;
+    }
+    return false;
 }
 
 } // vm

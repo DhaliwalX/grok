@@ -62,7 +62,9 @@ public:
     auto This()
     {
         return std::make_shared<grok::obj::Object>(VS[0]);
-    } 
+    }
+
+    bool HasValue(const std::string &name);
 private:
     MappedValuesHandle MV;
     VStoreInternalStack VS;
