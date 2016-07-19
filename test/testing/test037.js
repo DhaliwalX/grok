@@ -11,6 +11,6 @@ function call() {
     console.log(counter);
 }
 
-for (i = 0; i < 100000; i++) {
-    setTimeout(call, time);    
-}
+// for (i = 0; i < 100000; i++) {
+//     setTimeout(call, time);    
+// }
