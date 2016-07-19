@@ -12,6 +12,11 @@ void AddPropertiesFromPrototype(JSObject *ctor, JSObject *obj)
         return; // nothing to be done
     }
 
+    if (ctor->GetType() == ObjectType::_array
+        || ctor->GetType() == ObjectType::_bool
+        || ctor->GetType() == ObjectType::_number)
+        return;
+
     std::shared_ptr<JSObject> proto = proto_wrapped->as<JSObject>();
 
     for (auto &property : *proto) {
