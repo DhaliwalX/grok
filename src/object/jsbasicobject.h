@@ -28,7 +28,7 @@ using PropertyContainer = std::map<Key, Value>;
 static inline std::shared_ptr<Handle> CreateUndefinedObject();
 
 // A javascript object is a set of name : value pair
-class JSObject : public std::enable_shared_from_this<JSObject> {
+class JSObject {
 public:
   using Name = std::string;
   using Value = std::shared_ptr<Handle>;
