@@ -43,8 +43,6 @@ void InitializeVMContext()
 {
     GetGlobalVMContext()->SetVStore(new VStore{});
     grok::libs::LoadLibraries(GetGlobalVMContext());
-    auto vm = CreateVM(GetGlobalVMContext());
-    GetGlobalVMContext()->SetVM(vm.release());
 }
 
 void TearDownVMContext()
