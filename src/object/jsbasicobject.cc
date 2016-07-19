@@ -62,6 +62,9 @@ void DefineInternalObjectProperties(JSObject *obj)
     F->SetParams({ "prop" });
     obj->AddProperty(std::string("hasOwnProperty"),
         std::make_shared<Object>(F));
+
+    auto o = std::make_shared<JSObject>();
+    obj->AddProperty("prototype", std::make_shared<Handle>(o));
 }
 
 std::shared_ptr<Object> CreateJSObject()
@@ -82,6 +85,8 @@ std::shared_ptr<Object> ObjectConstructor(std::shared_ptr<Argument> Args)
 std::shared_ptr<Object> CreateCopy(std::shared_ptr<Object> obj)
 {
     if (IsJSNumber(obj)) {
+        if (obj->as<JSObject>()->GetType() == ObjectType::_number)
+            return CreateJSNumber(obj->as<JSNumber>()->GetNumber());
         return CreateJSNumber(obj->as<JSDouble>()->GetNumber());
     } else if (IsJSString(obj)) {
         return CreateJSString(obj->as<JSString>()->ToString());
