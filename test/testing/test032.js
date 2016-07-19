@@ -33,6 +33,6 @@ function check(f,a,b,c) {
   assert_equal(a * 19 + b * 23 + c * 29, f(a,b,c));
 }
 
-check(f1, 50000,     5,     6);
-check(f2,     4, 50000,     6);
-check(f3,    11,    12, 50000);
+check(f1, 500,     5,     6);
+check(f2,     4, 500,     6);
+check(f3,    11,    12, 500);
