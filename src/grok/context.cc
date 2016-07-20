@@ -22,6 +22,7 @@ void ContextStatic::Init()
 {
     ctx = std::make_unique<Context>(std::cout);
     ctx->SetVMContext(new grok::vm::VMContext());
+    grok::obj::JSObject::Init();
     grok::obj::JSString::Init();
     grok::obj::Function::Init();
     grok::obj::JSArray::Init();

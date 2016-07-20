@@ -62,15 +62,7 @@ public:
     return object_.find(name) != object_.end();
   }
 
-  virtual Value GetProperty(const Name &name) {
-    auto value = object_.find(name);
-    if ((value) != object_.end()) {
-      return value->second;
-    }
-    auto def = CreateUndefinedObject();
-    AddProperty(name, def);
-    return def;
-  }
+  virtual Value GetProperty(const Name &name);
 
   bool IsEnumerable() const { return enumerable_; }
 
@@ -98,6 +90,12 @@ private:
   PropertyContainer<Name, Value> object_;
   bool enumerable_;
   bool writable_;
+
+public:
+  static std::shared_ptr<Handle> st_obj;
+  static void Init();
+  static std::pair<std::shared_ptr<Handle>, bool>
+    GetStaticProperty(const std::string &name);
 };
 
 class JSNull : public JSObject {
