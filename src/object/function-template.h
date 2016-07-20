@@ -54,7 +54,6 @@ static std::shared_ptr<Object>
 CreateFunction(Callable func)
 {
     auto F = std::make_shared<FunctionTemplate<Callable>>(func);
-    DefineInternalObjectProperties(F.get());
     return std::make_shared<Object>(F);
 }
 

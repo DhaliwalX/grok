@@ -21,7 +21,6 @@ std::shared_ptr<Object> CreateJSNumber(std::string str)
 {
     try {
       auto S = std::make_shared<JSDouble>(str);
-      // DefineInternalObjectProperties(S.get());
       auto W = std::make_shared<Object>(S);
       return W;
     } catch (...) {
@@ -32,7 +31,6 @@ std::shared_ptr<Object> CreateJSNumber(std::string str)
 std::shared_ptr<Object> CreateJSNumber(double num)
 {
     auto S = std::make_shared<JSDouble>(num);
-    // DefineInternalObjectProperties(S.get());
     auto W = std::make_shared<Object>(S);
     return W;
 }

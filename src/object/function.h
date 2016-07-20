@@ -96,7 +96,7 @@ CreateFunction(std::shared_ptr<grok::parser::Expression> AST,
     std::shared_ptr<grok::parser::FunctionPrototype> Proto)
 {
     auto F = std::make_shared<Function>(AST, Proto);
-    DefineInternalObjectProperties(F.get());
+    F->AddProperty("prototype", CreateJSObject());
     return std::make_shared<Object>(F);
 }
 
@@ -104,7 +104,7 @@ static inline std::shared_ptr<Object>
 CreateFunction(NativeFunctionType NFT)
 {
     auto F = std::make_shared<Function>(NFT);
-    DefineInternalObjectProperties(F.get());
+    F->AddProperty("prototype", CreateJSObject());
     return std::make_shared<Object>(F);
 }
 
