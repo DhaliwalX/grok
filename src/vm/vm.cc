@@ -669,7 +669,8 @@ bool VM::CallPrologue()
         // we now copy the properties of the constuctor.prototype
         // native functions have to copy the properies by their own
         auto newthis = newthis_wrapped->as<JSObject>();
-        AddPropertiesFromPrototype(TheFunction.get(), newthis.get());
+        // AddPropertiesFromPrototype(TheFunction.get(), newthis.get());
+        newthis->AddProperty("constructor", F.O);
         TStack.Push(js_this_);
         js_this_ = newthis_wrapped;
     } else if (IsMemberCall()) {
