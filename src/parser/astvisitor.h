@@ -29,27 +29,27 @@ public:
         return std::cout << std::string(tab_, ' ');
     }
 
-    void Visit(NullLiteral *n)
+    void Visit(NullLiteral *n) override
     {
         stream() << "NullLiteral\n";
     }
 
-    void Visit(ThisHolder *t)
+    void Visit(ThisHolder *t) override
     {
         stream() << "ThisHolder\n";
     }
 
-    void Visit(IntegralLiteral *i)
+    void Visit(IntegralLiteral *i) override
     {
         stream() << "IntegralLiteral\n";
     }
 
-    void Visit(StringLiteral *s)
+    void Visit(StringLiteral *s) override
     {
         stream() << "StringLiteral\n";
     }
 
-    void Visit(ArrayLiteral *a)
+    void Visit(ArrayLiteral *a) override
     {
         ProxyArray &p = a->exprs();
         stream() << "ArrayLiteral\n";
@@ -60,7 +60,7 @@ public:
         tab_--;
     }
 
-    void Visit(ObjectLiteral *o)
+    void Visit(ObjectLiteral *o) override
     {
         ProxyObject &p = o->proxy();
         tab_++;
@@ -70,17 +70,17 @@ public:
         tab_--;
     }
 
-    void Visit(Identifier *id)
+    void Visit(Identifier *id) override
     {
         stream() << "Identifier [" << id->GetName() << "]\n";
     }
 
-    void Visit(BooleanLiteral *b)
+    void Visit(BooleanLiteral *b) override
     {
         stream() << "BooleanLiteral\n";
     }
 
-    void Visit(ArgumentList *a)
+    void Visit(ArgumentList *a) override
     {
         ProxyArray &p = a->args();
         stream() << "ArgumentList\n";
@@ -91,7 +91,7 @@ public:
         tab_--;
     }
 
-    void Visit(FunctionCallExpression *f)
+    void Visit(FunctionCallExpression *f) override
     {
         ProxyArray &p = f->args();
         stream() << "FunctionCallExpression\n";
@@ -104,7 +104,7 @@ public:
         tab_--;
     }
 
-    void Visit(CallExpression *c)
+    void Visit(CallExpression *c) override
     {
         ProxyArray &p = c->members();
         stream() << "CallExpression\n";
@@ -116,7 +116,7 @@ public:
         tab_--;
     }
 
-    void Visit(DotMemberExpression *d)
+    void Visit(DotMemberExpression *d) override
     {
         stream() << "DotMemberExpression\n";
         tab_++;
@@ -124,7 +124,7 @@ public:
         tab_--;
     }
 
-    void Visit(IndexMemberExpression *i)
+    void Visit(IndexMemberExpression *i) override
     {
         stream() << "IndexMemberExpression\n";
         tab_++;
@@ -132,7 +132,7 @@ public:
         tab_--;
     }
 
-    void Visit(MemberExpression *m)
+    void Visit(MemberExpression *m) override
     {
         stream() << "MemberExpression\n";
         tab_++;
@@ -142,7 +142,7 @@ public:
         tab_--;
     }
 
-    void Visit(NewExpression *n)
+    void Visit(NewExpression *n) override
     {
         stream() << "NewExpression\n";
         tab_++;
@@ -150,7 +150,7 @@ public:
         tab_--;
     }
 
-    void Visit(PrefixExpression *p)
+    void Visit(PrefixExpression *p) override
     {
         stream() << "PrefixExpression [" << token_type[p->op()] << "]\n";
         tab_++;
@@ -158,7 +158,7 @@ public:
         tab_--;
     }
 
-    void Visit(PostfixExpression *p)
+    void Visit(PostfixExpression *p) override
     {
         stream() << "PostfixExpression [" << token_type[p->op()] << "]\n";
         tab_++;
@@ -166,7 +166,7 @@ public:
         tab_--;
     }
 
-    void Visit(BinaryExpression *b)
+    void Visit(BinaryExpression *b) override
     {
         stream() << "BinaryExpression [" << token_type[b->op()] << "]\n";
         tab_++;
@@ -175,7 +175,7 @@ public:
         tab_--;
     }
 
-    void Visit(AssignExpression *a)
+    void Visit(AssignExpression *a) override
     {
         stream() << "AssignExpression [=]\n";
         tab_++;
@@ -184,7 +184,7 @@ public:
         tab_--;
     }
 
-    void Visit(TernaryExpression *t)
+    void Visit(TernaryExpression *t) override
     {
         stream() << "TernaryExpression\n";
         tab_++;
