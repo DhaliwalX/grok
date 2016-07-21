@@ -1,0 +1,23 @@
+set(GROK_SOURCE_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/api.h
+	${CMAKE_CURRENT_SOURCE_DIR}/codegen.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/codegen.h
+	${CMAKE_CURRENT_SOURCE_DIR}/context.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/context.h
+	${CMAKE_CURRENT_SOURCE_DIR}/counter.h
+	${CMAKE_CURRENT_SOURCE_DIR}/instruction-builder.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/instruction-builder.h
+	${CMAKE_CURRENT_SOURCE_DIR}/instruction.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/instruction.h
+	${CMAKE_CURRENT_SOURCE_DIR}/instruction-list.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/instruction-list.h
+	${CMAKE_CURRENT_SOURCE_DIR}/printer.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/printer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/var-store.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/var-store.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vm.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/vm.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vm_interrupts.h
+	${GROK_SOURCE_FILES}
+	PARENT_SCOPE
+)

@@ -1,5 +1,6 @@
-set(SOURCE_FILES
-    ${SOURCE_FILES}
-    console.cc
-    console.h
+set(GROK_LIBS_SOURCE_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/console.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/console.h
+	${GROK_LIBS_SOURCE_FILES}
+	PARENT_SCOPE
 )
