@@ -10,11 +10,17 @@
 #include <map>
 
 namespace grok { namespace parser {
+#ifdef NO_EMIT_FUNCTION
+#   define EMIT_FUNCTION
+#else
+#   define EMIT_FUNCTION \
+    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
+#endif
 
 #define DEFINE_NODE_TYPE(type) \
     void Accept(ASTVisitor *visitor) override;   \
-    std::ostream &operator<<(std::ostream &os) const override;  \
-    void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override
+    EMIT_FUNCTION \
+    std::ostream &operator<<(std::ostream &os) const override
 
 #define AST_NODE_LIST(M)    \
     M(NullLiteral)          \
@@ -57,7 +63,9 @@ public:
     virtual ~Expression() { }
     virtual void Accept(ASTVisitor *visitor) = 0;
     virtual std::ostream &operator<<(std::ostream &os) const = 0;
+#ifndef NO_EMIT_FUNCTION
     virtual void emit(std::shared_ptr<grok::vm::InstructionBuilder>) = 0;
+#endif
     virtual bool ProduceRValue() { return true; }
 };
 
