@@ -72,7 +72,7 @@ std::shared_ptr<Handle> Regex::Exec(std::shared_ptr<Argument> args)
     auto result_wrapped = CreateArray(0);
     auto result = result_wrapped->as<JSArray>();
     auto subject_string = subject->as<JSObject>()->ToString();
-    if (Execute(result, subject_string));
+    if (Execute(result, subject_string))
         return result_wrapped;
     return CreateJSNull();
 }
