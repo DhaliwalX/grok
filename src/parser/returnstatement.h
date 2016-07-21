@@ -17,9 +17,9 @@ public:
         os << "(return ";
         return *expr_ << os << ")";
     }
-
+#ifndef NO_EMIT_FUNCTION
     void emit(std::shared_ptr<grok::vm::InstructionBuilder>) override;
-
+#endif
     void Accept(ASTVisitor *visitor) override;
 private:
     std::unique_ptr<Expression> expr_;
