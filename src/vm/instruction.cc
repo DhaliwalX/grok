@@ -9,8 +9,8 @@ namespace grok {
 namespace vm {
 
 const char *instr_to_string[] = {
-#define INSTRUCTION_OP(instr) #instr
-    INSTRUCTION_LIST(INSTRUCTION_OP)
+#define INSTRUCTION_OP(instr, Class) #instr,
+    INSTRUCTION_LIST_FOR_EACH(INSTRUCTION_OP)
 #undef INSTRUCTION_OP
 };
 

@@ -8,54 +8,54 @@
 namespace grok {
 namespace vm {
 
-#define INSTRUCTION_LIST(op)    \
-    op(noop),   \
-    op(fetch),   \
-    op(store),   \
-    op(markst),   \
-    op(push),   \
-    op(pop),    \
-    op(pushim),   \
-    op(pushthis),   \
-    op(poprop),   \
-    op(replprop),   \
-    op(index),   \
-    op(res),   \
-    op(news),   \
-    op(cpya),   \
-    op(maps),   \
-    op(inc),   \
-    op(dec),   \
-    op(snot),   \
-    op(bnot),   \
-    op(pinc),   \
-    op(pdec),   \
-    op(lts),   \
-    op(ltes),   \
-    op(gts),   \
-    op(gtes),   \
-    op(eqs),   \
-    op(neqs),   \
-    op(adds),   \
-    op(subs),   \
-    op(muls),   \
-    op(divs),   \
-    op(shls),   \
-    op(shrs),   \
-    op(rems),   \
-    op(bors),   \
-    op(bands),   \
-    op(ors),   \
-    op(ands),   \
-    op(xors),   \
-    op(loopz),   \
-    op(jmp),   \
-    op(call),   \
-    op(ret),    \
-    op(jmpz),   \
-    op(jmpnz),   \
-    op(mem_call),   \
-    op(leave)
+#define INSTRUCTION_LIST_FOR_EACH(op)    \
+    op(noop, Noop)   \
+    op(fetch, Fetch)   \
+    op(store, Store)   \
+    op(markst, Markst)   \
+    op(push, Push)   \
+    op(pop, Pop)    \
+    op(pushim, Pushim)   \
+    op(pushthis, PushThis)   \
+    op(poprop, PopProp)   \
+    op(replprop, ReplProp)   \
+    op(index, Index)   \
+    op(res, Res)   \
+    op(news, News)   \
+    op(cpya, CopyA)   \
+    op(maps, Maps)   \
+    op(inc, Inc)  \
+    op(dec, Dec)   \
+    op(snot, SNot)   \
+    op(bnot, BNot)   \
+    op(pinc, Pinc)   \
+    op(pdec, Pdec)   \
+    op(lts, Lts)  \
+    op(ltes, Ltes)   \
+    op(gts, Gts)   \
+    op(gtes, Gtes)   \
+    op(eqs, Eqs)   \
+    op(neqs, NEqs)   \
+    op(adds, Adds)   \
+    op(subs, Subs)   \
+    op(muls, Muls)   \
+    op(divs, Divs)   \
+    op(shls, Shls)   \
+    op(shrs, Shrs)   \
+    op(rems, Rems)   \
+    op(bors, Bors)   \
+    op(bands, Bands)   \
+    op(ors, Ors)   \
+    op(ands, Ands)   \
+    op(xors, Xors)   \
+    op(loopz, Loopz)   \
+    op(jmp, Jmp)   \
+    op(call, Call)   \
+    op(ret, Ret)    \
+    op(jmpz, Jmpz)   \
+    op(jmpnz, Jmpnz)   \
+    op(mem_call, MemCall)   \
+    op(leave, Leave)
 
 #define DATA_TYPE_LIST(op)  \
     op(d_null), \
@@ -66,8 +66,8 @@ namespace vm {
     op(d_obj)
 
 enum Instructions {
-#define INSTRUCTION_OP(instr) instr
-INSTRUCTION_LIST(INSTRUCTION_OP)
+#define INSTRUCTION_OP(instr, Class) instr,
+INSTRUCTION_LIST_FOR_EACH(INSTRUCTION_OP)
 #undef INSTRUCTION_OP
 };
 
