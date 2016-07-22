@@ -21,7 +21,6 @@ enum class ObjectType {
   _function
 };
 
-using Handle = Object;
 
 template <class Key, class Value>
 using PropertyContainer = std::map<Key, Value>;

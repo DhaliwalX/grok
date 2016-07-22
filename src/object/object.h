@@ -83,6 +83,8 @@ private:
     std::shared_ptr<void> data_;
 };
 
+using Handle = Object;
+
 } // obj
 } // grok
 #endif
