@@ -194,15 +194,15 @@ public:
         tab_--;
     }
 
-    void Visit(CommaExpression *) { }
-    void Visit(Declaration *) { }
-    void Visit(DeclarationList *) { }
-    void Visit(IfStatement *) { }
-    void Visit(IfElseStatement *) { }
-    void Visit(ForStatement *) { }
-    void Visit(WhileStatement *) { }
-    void Visit(DoWhileStatement *) { }
-    void Visit(BlockStatement *b) {
+    void Visit(CommaExpression *) override { }
+    void Visit(Declaration *) override { }
+    void Visit(DeclarationList *) override { }
+    void Visit(IfStatement *) override { }
+    void Visit(IfElseStatement *) override { }
+    void Visit(ForStatement *) override { }
+    void Visit(WhileStatement *) override { }
+    void Visit(DoWhileStatement *) override { }
+    void Visit(BlockStatement *b) override {
         stream() << "BlockStatement\n";
         tab_++;
         for (auto &stmt : b->statements())
@@ -210,9 +210,9 @@ public:
             stmt->Accept(this);
         }
     }
-    void Visit(FunctionStatement *) { }
-    void Visit(FunctionPrototype *) { }
-    void Visit(ReturnStatement *) { }
+    void Visit(FunctionStatement *) override { }
+    void Visit(FunctionPrototype *) override { }
+    void Visit(ReturnStatement *) override { }
 private:
     int tab_;
 };
