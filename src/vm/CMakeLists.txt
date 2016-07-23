@@ -9,8 +9,11 @@ set(GROK_SOURCE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/instruction-builder.h
 	${CMAKE_CURRENT_SOURCE_DIR}/instruction.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/instruction.h
+	${CMAKE_CURRENT_SOURCE_DIR}/instructions.cc
+	${CMAKE_CURRENT_SOURCE_DIR}/instructions.h
 	${CMAKE_CURRENT_SOURCE_DIR}/instruction-list.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/instruction-list.h
+	${CMAKE_CURRENT_SOURCE_DIR}/instruction-visitor.h
 	${CMAKE_CURRENT_SOURCE_DIR}/printer.cc
 	${CMAKE_CURRENT_SOURCE_DIR}/printer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/var-store.cc
