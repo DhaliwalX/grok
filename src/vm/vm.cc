@@ -615,7 +615,7 @@ PassedArguments VM::CreateArgumentList(size_t sz)
 
     Args.resize(sz);
     while (sz--) {
-        Args[sz] = Stack.Pop();
+        Args[sz] = CreateCopy(Stack.Pop().O);
     }
 
     return (Args);
