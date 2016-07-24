@@ -250,12 +250,14 @@ int main(int argc, char *argv[])
 
                 if (test.Prepare(file).StartTest(f_syntax_errors | f_ir_errors
                         | f_vm_errors | f_print_reason)) {
-                    std::cout << "Test[" << ++i << "] <"
-                        << file << ">: passed.";
+                    std::cout << Color::Color(Color::fgreen, Color::dim)
+                            << "Test[" << ++i << "] <" << file
+                            << ">: passed." << Color::Reset();
                     stats.AddPassed();
                 } else {
-                    std::cout << "Test[" << ++i << "] <"
-                        << file << ">: failed.";
+                    std::cout << Color::Color(Color::fgreen, Color::bold)
+                        << "Test[" << ++i << "] <"
+                        << file << ">: failed." << Color::Reset();
                     stats.AddFailed();
                 }
 
