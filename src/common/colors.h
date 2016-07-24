@@ -53,8 +53,7 @@ static inline std::string Color(int fcolor, int attr = 0)
 {
     if (!isatty(STDOUT_FILENO))
         return "";
-    return std::string("\x1b[") + color_codes[fcolor] + ";"
-        + ";" + attr_code[attr] + "m";
+    return std::string("\x1b[0;") + color_codes[fcolor] + "m";
 }
 
 static inline std::string Attr(int attr)
