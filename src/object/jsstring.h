@@ -22,10 +22,7 @@ public:
   ObjectType GetType() const override { return ObjectType::_string; }
   std::string ToString() const override { return js_string_; }
   
-  std::string AsString() const override
-  {
-    return std::string("'") + js_string_ + "'";
-  }
+  std::string AsString() const override;
   
   JSObject::Value GetProperty(const std::string &prop) override;
 

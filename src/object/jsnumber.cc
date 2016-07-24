@@ -1,4 +1,5 @@
 #include "object/jsnumber.h"
+#include "common/colors.h"
 
 #include <sstream>
 
@@ -14,7 +15,7 @@ std::string JSDouble::ToString() const
 
 std::string JSDouble::AsString() const
 {
-    return ToString();
+    return Color::Color(Color::fyellow) + ToString() + Color::Reset();
 }
 
 std::shared_ptr<Object> CreateJSNumber(std::string str)
