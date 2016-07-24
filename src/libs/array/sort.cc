@@ -12,6 +12,9 @@ using namespace grok::obj;
 
 bool MyPred(std::shared_ptr<Object> A, std::shared_ptr<Object> B)
 {
+    if (IsJSNumber(A) && IsJSNumber(B)) {
+        return A->as<JSDouble>()->GetNumber() < B->as<JSDouble>()->GetNumber();
+    }
     auto strA = A->as<JSObject>()->ToString();
     auto strB = B->as<JSObject>()->ToString();
 
