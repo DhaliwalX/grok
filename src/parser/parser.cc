@@ -775,35 +775,39 @@ std::unique_ptr<Expression> GrokParser::ParseStatement()
 std::string CreateLLVMLikePointer(size_t pos, size_t len)
 {
     std::string result;
-    if (pos >= len) {
+    if (pos >= len - 1) {
         result += std::string(len, '~');
         result += '^';
     } else {
-        result += std::string(pos - 1, '~');
+        result += std::string(pos - 1 < 0 ? 0 : pos - 1, '~');
         result += '^';
         result += std::string(len - pos, '~');
     }
     return result;
 }
 
+std::string GetCurrentLine(std::string &str, size_t &seek)
+{
+    std::string result;
+    ssize_t i = seek - 1;
+    size_t e = seek;
+
+    while (i > 0 && str[i] != '\n')
+        i--;
+
+    while (e < str.length() && str[e] != '\n')
+        e++;
+    seek = seek - i;
+    return std::string(str.begin() + i, str.begin() + e);
+}
+
 std::string GetErrorMessagePointer(std::string &str, size_t seek, Position pos)
 {
-    const size_t threshold_length = 70;
-    std::string shown("  ");
+    std::string shown("");
+    std::string line = GetCurrentLine(str, seek);
 
-    if (str.length() > threshold_length) {
-        size_t e = (str.length() - seek < threshold_length / 2)
-                ? str.length() - seek : threshold_length / 2;
-        shown += std::string(str.begin() + seek - threshold_length / 2,
-                        str.begin() + seek + e);
-        shown += "\n  " + CreateLLVMLikePointer(seek - threshold_length / 2,
-                                            threshold_length / 2 + e) + '\n';
-    } else {
-        shown += str + "\n  " + CreateLLVMLikePointer(pos.col_,
-            str.length()) + '\n';
-    }
-
-    return shown;
+    shown += line + "\n" + CreateLLVMLikePointer(seek, line.length());
+    return shown + '\n';
 }
 
 bool GrokParser::ParseExpression()
