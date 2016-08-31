@@ -1,5 +1,6 @@
 #include "libs/string/properties.h"
 #include "object/function.h"
+#include "libs/string/split.h"
 #include "libs/string/slice.h"
 
 #include <boost/algorithm/string.hpp>
@@ -307,6 +308,14 @@ void DefineStringProperties(grok::obj::JSString *str)
     PF->SetNonWritable();
     PF->SetNonEnumerable();
     str->AddProperty("toLowerCase", P);
+
+
+    P = grok::obj::CreateFunction(StringSplit);
+    PF = P->as<grok::obj::Function>();
+    PF->SetNonWritable();
+    PF->SetNonEnumerable();
+    PF->SetParams({ "pattern" });
+    str->AddProperty("split", P);
 }
 
 }
